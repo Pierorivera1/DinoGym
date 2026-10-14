@@ -1,0 +1,33 @@
+# Android and Gradle build output
+.gradle/
+.kotlin/
+**/build/
+/captures/
+/.externalNativeBuild/
+/.cxx/
+
+# Machine-specific Android SDK configuration
+/local.properties
+
+# Local planning notes and agent workspace configuration
+/mfastuff.md
+/.agents/
+/skills-lock.json
+
+# Android Studio and IntelliJ user state
+.idea/
+*.iml
+
+# Local signing material and secrets
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+secrets.properties
+.env
+.env.*
+!.env.example
+
+# Operating system files
+.DS_Store
+Thumbs.db
