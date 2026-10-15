@@ -13,7 +13,10 @@ import androidx.navigation3.ui.NavDisplay
 import com.dinogym.ui.main.*
 
 @Composable
-fun MainNavigation(viewModel: WorkoutViewModel = viewModel()) {
+fun MainNavigation(viewModel: WorkoutViewModel = viewModel(),
+    darkTheme: Boolean = androidx.compose.foundation.isSystemInDarkTheme(),
+    onDarkThemeChange: (Boolean) -> Unit = {},
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val backStack = rememberNavBackStack(Main)
     if (state.loading) {
@@ -43,7 +46,8 @@ fun MainNavigation(viewModel: WorkoutViewModel = viewModel()) {
                     onArchiveExercise = viewModel::archiveExercise,
                     onRestoreExercise = viewModel::restoreExercise,
                     onPlans = { backStack.add(Plans) },
-                    onEditWorkout = { backStack.add(EditPlan(it)) })
+                    onEditWorkout = { backStack.add(EditPlan(it)) },
+                    darkTheme = darkTheme, onDarkThemeChange = onDarkThemeChange)
             }
             entry<Workout> { key ->
                 WorkoutScreen(key.routine, state, onBack = { backStack.removeLastOrNull() },

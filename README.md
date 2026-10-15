@@ -4,9 +4,9 @@ DinoGym is a native Android workout tracker for recording bodyweight training an
 
 ## Screenshots
 
-| Training | Workout logging | Progress | Dark theme | Tablet layout |
+| Training | Workout logging | Progress | Settings | Tablet layout |
 | --- | --- | --- | --- | --- |
-| ![Training screen](docs/screenshots/train.png) | ![Workout screen](docs/screenshots/workout.png) | ![Progress screen](docs/screenshots/progress.png) | ![Dark theme](docs/screenshots/dark.png) | ![Tablet layout](docs/screenshots/tablet.png) |
+| ![Training screen](docs/screenshots/train.png) | ![Workout screen](docs/screenshots/workout.png) | ![Progress screen](docs/screenshots/progress.png) | ![Theme settings in light mode](docs/screenshots/settings.png) | ![Tablet layout](docs/screenshots/tablet.png) |
 
 ## Download
 
@@ -14,32 +14,28 @@ DinoGym is a native Android workout tracker for recording bodyweight training an
 
 ## Features
 
+- **Browse your plan:** swipe between the compact day overview and exercise details, or tap their tabs. Tap a selected day again to open its details, select a workout before starting it, or edit it from its day menu. Green accents and warm white surfaces define light mode.
 - **Plan training:** create named workouts and rotating training splits, reorder their exercises/workouts, and choose the split to follow. The home screen shows the next workout and advances after it is completed.
 - **Log workouts:** open the compact exercise overview, edit individual sets with reps (or a custom metric), optional kilograms, and notes, then mark sets logged. Only logged sets are saved. Optionally update workout targets when finishing.
 - **Share exercises:** maintain one exercise library and add the same exercise to multiple workouts with independent targets. Create exercises with a display template containing exactly one `{n}` placeholder and a metric unit. For example, `3s + {n} pulls + 3s` keeps the holds fixed while tracking pull repetitions.
 - **Manage exercises:** edit exercises, archive them after confirmation, and restore them from the Archived list. Archived exercises stay out of new workouts; saved history keeps its original exercise details.
 - **Manage workouts:** expand sessions in workout history, correct their values, sets, and notes, or delete a session after confirmation. Editing preserves the session's ID and date.
-- **Review progress:** compare a workout with the previous session, expand saved workout history, and view recent per-exercise performance in a chart.
+- **Review progress:** compare a workout with the previous session, expand saved workout history, and open exercises within each workout and compare weekly best-set values in a connected-dot line chart across the full saved history. Weeks start on Monday; missing weeks are not treated as zero.
 - **Stay focused:** highlight the next set, show the exercise's previous results and notes, reveal optional weight fields when needed, and move straight to the next exercise. Adjust an active or paused rest by 15 seconds, and filter workout history with the training calendar.
 - **Resume and rest:** active session drafts survive app restarts. Logging a set starts its configurable rest timer; pause, resume, restart, or skip it. A quiet ongoing notification supports background rest, with a sound-only completion alert and no vibration.
 - **Use it offline:** workouts and custom exercises are stored on the device and remain available after restarting the app.
-- **Adapt to the device:** use the system light or dark appearance, with wider layouts showing a navigation rail. Android wallpaper colors can be enabled in the app theme.
+- **Choose your theme:** open Settings at the top right of Exercises and toggle Dark mode. Your choice is saved between launches; the app follows the system appearance until you choose a mode. Wider layouts show a navigation rail.
 
-## Requirements
+## Phone requirements
 
-- Android Studio with Android Gradle Plugin support for the versions in `gradle/libs.versions.toml`
-- Android SDK Platform 36
-- JDK 17 (Android Studio's bundled Gradle JDK is suitable)
-- Android device or emulator running Android 8.0 (API 26) or newer
+- Android phone running Android 8.0 (API 26) or newer.
+- Internet access is only needed to download the APK. Workouts and custom exercises are stored on the phone and work offline.
 
-The application targets API 36 and has a minimum supported API level of 26. Gradle resolves dependencies from Google's Maven repository, Maven Central, and the Gradle Plugin Portal, so an internet connection is needed for the initial sync/build.
+The app targets Android 16 (API 36) and supports Android 8.0 (API 26) and newer. You do not need a computer or Android Studio to install or use the released APK. Download it from [GitHub Releases](https://github.com/Pierorivera1/DinoGym/releases/latest/download/app-debug.apk), open the downloaded APK on your phone, and allow installation from that source if Android asks. This release is a debug APK; Android may show a confirmation before installing it.
 
-## Open and run in Android Studio
+## Optional: open and run the project in Android Studio
 
-1. Clone or download the repository and open the **repository root** (`DinoGym`) in Android Studio. If Android Studio currently has the folder open as a plain project, choose **File → Open** and select this root folder to import the Gradle project.
-2. Allow Gradle sync to complete. If prompted, install Android SDK Platform 36 and select JDK 17 as the Gradle JDK.
-3. Select the `app` run configuration and an API 26+ device or emulator.
-4. Press **Run**. Android Studio installs the debug build on the selected device.
+Android Studio is only needed if you want to build or modify the app from source, or run it from the IDE. Open the repository root (`DinoGym`) as a Gradle project, let Gradle sync, then select the `app` configuration and an Android 8.0+ phone or emulator and press **Run**. For this development workflow, install Android SDK Platform 36 when prompted and use JDK 17 (Android Studio's bundled Gradle JDK is suitable). An internet connection is needed for the initial Gradle sync/build because Gradle downloads the project dependencies and plugins.
 
 Compose previews are in `app/src/main/java/com/dinogym/ui/main/Previews.kt`. Open that file and use the editor's Split or Design view to inspect the sample light, dark, workout, progress, exercise, and wider-screen layouts. Preview data is separate from installed app data.
 

@@ -1,6 +1,7 @@
 package com.dinogym.ui.main
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
@@ -37,6 +38,8 @@ fun HomeScreen(
     onPlans: () -> Unit = {},
     onWorkoutProgress: (String, String) -> Unit = { exercise, _ -> onProgress(exercise) },
     onEditWorkout: (String) -> Unit = { onPlans() },
+    darkTheme: Boolean = androidx.compose.foundation.isSystemInDarkTheme(),
+    onDarkThemeChange: (Boolean) -> Unit = {},
 ) {
     var tab by rememberSaveable { mutableIntStateOf(initialTab) }
     val labels = listOf("Train", "Progress", "Exercises")
@@ -67,7 +70,7 @@ fun HomeScreen(
                         0 -> TrainScreen(state, onRoutine, onHistory, onPlans, onProgress, onEditWorkout)
                         1 -> ProgressScreen(state.data, onWorkoutProgress)
                         2 -> LibraryScreen(state, onProgress, onAddExercise, onUpdateExercise,
-                            onArchiveExercise, onRestoreExercise)
+                            onArchiveExercise, onRestoreExercise, darkTheme, onDarkThemeChange)
                     }
                 }
             }
@@ -151,7 +154,10 @@ private fun LibraryScreen(
     onUpdate: (Exercise, () -> Unit) -> Unit,
     onArchive: (String, () -> Unit) -> Unit,
     onRestore: (String, () -> Unit) -> Unit,
+    darkTheme: Boolean,
+    onDarkThemeChange: (Boolean) -> Unit,
 ) {
+    var settingsOpen by rememberSaveable { mutableStateOf(false) }
     var query by rememberSaveable { mutableStateOf("") }
     var showArchived by rememberSaveable { mutableStateOf(false) }
     var adding by rememberSaveable { mutableStateOf(false) }
@@ -164,7 +170,10 @@ private fun LibraryScreen(
     }
     Column(Modifier.widthIn(max = 760.dp).fillMaxSize()) {
         Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            Heading("LIBRARY", "Exercises")
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.weight(1f)) { Heading("LIBRARY", "Exercises") }
+                TextButton(onClick = { settingsOpen = true }) { Text("Settings") }
+            }
             FilledTonalButton(onClick = { adding = true }, enabled = !state.saving) {
                 Icon(AppIcons.Add, null); Spacer(Modifier.width(8.dp)); Text("New exercise")
             }
@@ -202,6 +211,19 @@ private fun LibraryScreen(
             }
         }
     }
+    if (settingsOpen) AlertDialog(
+        onDismissRequest = { settingsOpen = false },
+        title = { Text("Settings") },
+        text = {
+            Row(Modifier.fillMaxWidth().toggleable(value = darkTheme,
+                role = androidx.compose.ui.semantics.Role.Switch, onValueChange = onDarkThemeChange)
+                .heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("Dark mode", Modifier.weight(1f))
+                Switch(checked = darkTheme, onCheckedChange = null)
+            }
+        },
+        confirmButton = { TextButton(onClick = { settingsOpen = false }) { Text("Done") } },
+    )
     if (adding) ExerciseDialog(null, state.saving, onDismiss = { adding = false }, onSave = onAdd)
     if (editing != null) ExerciseDialog(editing, state.saving,
         onDismiss = { editingId = null }, onSave = onUpdate)
