@@ -10,7 +10,7 @@ DinoGym is a native Android workout tracker for recording bodyweight training an
 
 ## Download
 
-[Download the latest APK](https://github.com/Pierorivera1/DinoGym/releases/latest/download/DinoGym-debug.apk) from GitHub Releases. This is a debug build for direct installation; Android may ask you to allow installs from your browser.
+[Download the latest APK](https://github.com/Pierorivera1/DinoGym/releases/latest/download/app-debug.apk) from GitHub Releases. This is a debug build for direct installation; Android may ask you to allow installs from your browser.
 
 ## Features
 
