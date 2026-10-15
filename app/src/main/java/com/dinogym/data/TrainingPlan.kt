@@ -10,6 +10,7 @@ data class PlannedExercise(
     val exerciseId: String,
     val targets: List<SetRecord> = List(3) { SetRecord(8) },
     val restSeconds: Int = 165,
+    val maxReps: Boolean = false,
 ) {
     init { require(exerciseId.isNotBlank() && targets.size in 1..99 && restSeconds in 0..3600) }
 }
@@ -42,6 +43,7 @@ data class DraftExercise(
     val exercise: Exercise,
     val sets: List<DraftSet>,
     val restSeconds: Int = 165,
+    val maxReps: Boolean = false,
     val notes: String = "",
 ) {
     init { require(sets.size in 1..99 && restSeconds in 0..3600 && notes.length <= 500) }
@@ -67,7 +69,7 @@ data class WorkoutDraft(
         fun start(workout: WorkoutTemplate, data: WorkoutData) = WorkoutDraft(
             workoutId = workout.id, name = workout.name, exercises = workout.exercises.mapNotNull { planned ->
                 data.exercises.find { it.id == planned.exerciseId && !it.archived }?.let { exercise ->
-                    DraftExercise(exercise, planned.targets.map { DraftSet(it.value.toString(), it.weightKg?.toString().orEmpty()) }, planned.restSeconds)
+                    DraftExercise(exercise, planned.targets.map { DraftSet(if (planned.maxReps) "" else it.value.toString(), it.weightKg?.toString().orEmpty()) }, planned.restSeconds, maxReps = planned.maxReps)
                 }
             })
         fun edit(session: Session) = WorkoutDraft(session.id, session.workoutId, session.routine, session.performedAt,

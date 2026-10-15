@@ -16,7 +16,7 @@ import com.dinogym.data.Exercise
 @Composable
 internal fun SetRows(
     sets: List<DraftSet>, exercise: Exercise, enabled: Boolean,
-    onChange: (List<DraftSet>) -> Unit, onLog: ((Int) -> Unit)? = null,
+    onChange: (List<DraftSet>) -> Unit, onLog: ((Int) -> Unit)? = null, maxReps: Boolean = false,
 ) {
     var weightVisible by rememberSaveable(exercise.id) { mutableStateOf(false) }
     val hasWeight = sets.any { it.weight.isNotBlank() }
@@ -28,29 +28,31 @@ internal fun SetRows(
             set.completed -> MaterialTheme.colorScheme.surfaceContainerLow
             else -> MaterialTheme.colorScheme.surface
         }) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("${index + 1}", Modifier.width(20.dp))
-                OutlinedTextField(set.value, { value ->
-                    onChange(sets.mapIndexed { i, old -> if (i == index) old.copy(value = value.take(5), completed = false) else old })
-                }, Modifier.weight(1f), label = { Text(exercise.unit) }, enabled = enabled, singleLine = true,
-                    supportingText = if (exercise.template != "{n} ${exercise.unit}") {
-                        { Text(exercise.template.replace("{n}", set.value)) }
-                    } else null,
-                    isError = set.value.toIntOrNull() !in 0..9999,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-                if (showWeight) OutlinedTextField(set.weight, { value ->
-                    onChange(sets.mapIndexed { i, old -> if (i == index) old.copy(weight = value.take(9), completed = false) else old })
-                }, Modifier.weight(1f), label = { Text("kg (optional)") }, enabled = enabled, singleLine = true,
-                    isError = set.weight.isNotBlank() && (set.weight.toDoubleOrNull()?.let { it.isFinite() && it in 0.0..9999.0 } != true),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
-                if (onLog != null) Checkbox(set.completed,
-                    onCheckedChange = { onLog(index) }, enabled = enabled && set.record() != null,
-                    modifier = Modifier.semanticsLabel("Log set ${index + 1}"))
-                TextButton(onClick = { onChange(sets.filterIndexed { i, _ -> i != index }) },
-                    enabled = enabled && sets.size > 1, contentPadding = PaddingValues(0.dp),
-                    modifier = Modifier.width(48.dp).semanticsLabel("Remove set ${index + 1}")) { Text("−") }
-            }
+        Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text("${index + 1}", Modifier.width(20.dp))
+            OutlinedTextField(set.value, { value ->
+                onChange(sets.mapIndexed { i, old -> if (i == index) old.copy(value = value.take(5), completed = false) else old })
+            }, Modifier.weight(1f), label = { Text(exercise.unit) }, enabled = enabled, singleLine = true,
+                supportingText = if (maxReps) {
+                    { Text(if (onLog != null) "Max reps · enter completed reps" else "Max reps per set") }
+                } else if (exercise.template != "{n} ${exercise.unit}") {
+                    { Text(exercise.template.replace("{n}", set.value)) }
+                } else null,
+                isError = set.value.toIntOrNull() !in 0..9999 && !(maxReps && onLog == null && set.value.isBlank()),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+            if (showWeight) OutlinedTextField(set.weight, { value ->
+                onChange(sets.mapIndexed { i, old -> if (i == index) old.copy(weight = value.take(9), completed = false) else old })
+            }, Modifier.weight(1f), label = { Text("kg (optional)") }, enabled = enabled, singleLine = true,
+                isError = set.weight.isNotBlank() && (set.weight.toDoubleOrNull()?.let { it.isFinite() && it in 0.0..9999.0 } != true),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            if (onLog != null) Checkbox(set.completed,
+                onCheckedChange = { onLog(index) }, enabled = enabled && set.record() != null,
+                modifier = Modifier.semanticsLabel("Log set ${index + 1}"))
+            TextButton(onClick = { onChange(sets.filterIndexed { i, _ -> i != index }) },
+                enabled = enabled && sets.size > 1, contentPadding = PaddingValues(0.dp),
+                modifier = Modifier.width(48.dp).semanticsLabel("Remove set ${index + 1}")) { Text("−") }
+        }
         }
     }
     Row {

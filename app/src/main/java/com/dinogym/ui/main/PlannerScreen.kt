@@ -69,7 +69,7 @@ private fun WorkoutTemplateEditor(state: WorkoutState, existing: WorkoutTemplate
     var name by rememberSaveable { mutableStateOf(existing?.name.orEmpty()) }
     var encoded by rememberSaveable { mutableStateOf(WorkoutCodec.json.encodeToString(existing?.exercises.orEmpty().mapNotNull { planned ->
         state.data.exercises.find { it.id == planned.exerciseId }?.let { exercise ->
-            DraftExercise(exercise, planned.targets.map { DraftSet(it.value.toString(), it.weightKg?.toString().orEmpty()) }, planned.restSeconds)
+            DraftExercise(exercise, planned.targets.map { DraftSet(if (planned.maxReps) "" else it.value.toString(), it.weightKg?.toString().orEmpty()) }, planned.restSeconds, maxReps = planned.maxReps)
         }
     })) }
     val entries = WorkoutCodec.json.decodeFromString<List<DraftExercise>>(encoded)
@@ -80,11 +80,11 @@ private fun WorkoutTemplateEditor(state: WorkoutState, existing: WorkoutTemplate
     var leave by rememberSaveable { mutableStateOf(false) }
     val back = { if (!state.saving) leave = true }
     BackHandler { back() }
-    val valid = name.isNotBlank() && entries.all { e -> e.sets.all { it.record() != null } }
+    val valid = name.isNotBlank() && entries.all { e -> e.sets.all { it.record() != null || (e.maxReps && it.value.isBlank() && it.weight.isBlank()) } }
     DetailPage(if (existing == null) "New workout" else "Edit workout", back, bottomBar = {
         Button(enabled = valid && !state.saving, onClick = {
             onSave(WorkoutTemplate(id, name.trim(), entries.map { e ->
-                PlannedExercise(e.exercise.id, e.sets.map { requireNotNull(it.record()) }, e.restSeconds)
+                PlannedExercise(e.exercise.id, e.sets.map { if (e.maxReps && it.value.isBlank() && it.weight.isBlank()) SetRecord(0) else requireNotNull(it.record()) }, e.restSeconds, e.maxReps)
             }), onBack)
         }, modifier = Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(16.dp)) { Text("Save workout") }
     }) { padding ->
@@ -95,20 +95,20 @@ private fun WorkoutTemplateEditor(state: WorkoutState, existing: WorkoutTemplate
                 OutlinedCard(onClick = { expanded = if (expanded == entry.exercise.id) null else entry.exercise.id }) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(entry.exercise.name, style = MaterialTheme.typography.titleMedium)
-                        val targets = entry.sets.map { entry.exercise.template.replace("{n}", it.value) }.distinct()
+                        val targets = entry.sets.map { if (entry.maxReps) "max reps" else entry.exercise.template.replace("{n}", it.value) }.distinct()
                         Text("${entry.sets.size} × ${targets.singleOrNull() ?: "varied ${entry.exercise.unit}"} · ${formatRestDuration(entry.restSeconds)} rest" + if (entry.exercise.archived) " · Archived" else "")
                         if (expanded == entry.exercise.id) {
-                            Row {
-                                TextButton(enabled = index > 0 && !state.saving, onClick = {
-                                    change(entries.toMutableList().apply { add(index - 1, removeAt(index)) })
-                                }) { Text("Move up") }
-                                TextButton(enabled = index < entries.lastIndex && !state.saving, onClick = {
-                                    change(entries.toMutableList().apply { add(index + 1, removeAt(index)) })
-                                }) { Text("Move down") }
-                                TextButton(enabled = !state.saving, onClick = { change(entries.filterIndexed { i, _ -> i != index }) }) { Text("Remove") }
-                            }
+                        Row {
+                            TextButton(enabled = index > 0 && !state.saving, onClick = {
+                                change(entries.toMutableList().apply { add(index - 1, removeAt(index)) })
+                            }) { Text("Move up") }
+                            TextButton(enabled = index < entries.lastIndex && !state.saving, onClick = {
+                                change(entries.toMutableList().apply { add(index + 1, removeAt(index)) })
+                            }) { Text("Move down") }
+                            TextButton(enabled = !state.saving, onClick = { change(entries.filterIndexed { i, _ -> i != index }) }) { Text("Remove") }
+                        }
                             SetRows(entry.sets, entry.exercise, !state.saving,
-                                onChange = { sets -> change(entries.mapIndexed { i, e -> if (i == index) e.copy(sets = sets) else e }) })
+                                onChange = { sets -> change(entries.mapIndexed { i, e -> if (i == index) e.copy(sets = sets) else e }) }, maxReps = entry.maxReps)
                             TextButton(onClick = { restId = entry.exercise.id }) { Text("Rest · ${formatRestDuration(entry.restSeconds)}") }
                         }
                     }

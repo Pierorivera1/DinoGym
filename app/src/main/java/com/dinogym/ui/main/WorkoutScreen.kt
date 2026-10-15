@@ -114,17 +114,17 @@ fun WorkoutScreen(
         Surface {
             Column(Modifier.navigationBarsPadding().imePadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (timer.active) Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Rest ${((remaining + 999) / 1000) / 60}:${(((remaining + 999) / 1000) % 60).toString().padStart(2, '0')}", Modifier.weight(1f))
-                        TextButton(onClick = { RestTimerService.command(context, if (timer.deadline > 0) "pause" else "resume") }) {
-                            Text(if (timer.deadline > 0) "Pause" else "Resume")
-                        }
-                        TextButton(onClick = { RestTimerService.stop(context) }) { Text("Skip rest") }
+                  Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Rest ${((remaining + 999) / 1000) / 60}:${(((remaining + 999) / 1000) % 60).toString().padStart(2, '0')}", Modifier.weight(1f))
+                    TextButton(onClick = { RestTimerService.command(context, if (timer.deadline > 0) "pause" else "resume") }) {
+                        Text(if (timer.deadline > 0) "Pause" else "Resume")
                     }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = { RestTimerService.command(context, "subtract15") }) { Text("−15s") }
-                        OutlinedButton(onClick = { RestTimerService.command(context, "add15") }) { Text("+15s") }
-                    }
+                    TextButton(onClick = { RestTimerService.stop(context) }) { Text("Skip rest") }
+                  }
+                  Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = { RestTimerService.command(context, "subtract15") }) { Text("−15s") }
+                    OutlinedButton(onClick = { RestTimerService.command(context, "add15") }) { Text("+15s") }
+                  }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                     OutlinedButton(onClick = { timerDialog = true }, enabled = !state.saving,
@@ -162,7 +162,7 @@ fun WorkoutScreen(
                             Text("${index + 1}", Modifier.padding(end = 16.dp), style = MaterialTheme.typography.labelLarge)
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Text(entry.exercise.name, style = MaterialTheme.typography.titleMedium)
-                                val values = entry.sets.map { it.value }.distinct()
+                                val values = entry.sets.map { if (entry.maxReps && it.value.isBlank()) "max" else it.value }.distinct()
                                 Text("${entry.sets.size} × ${if (values.size == 1) entry.exercise.template.replace("{n}", values.first()) else "varied ${entry.exercise.unit}"} · ${formatRestDuration(entry.restSeconds)} rest",
                                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
@@ -188,7 +188,7 @@ fun WorkoutScreen(
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         SetRows(selected.sets, selected.exercise, !state.saving,
-                            onChange = { updateExercise(selected.copy(sets = it)) }, onLog = { log(selected, it) })
+                            onChange = { updateExercise(selected.copy(sets = it)) }, onLog = { log(selected, it) }, maxReps = selected.maxReps)
                         if (selected.sets.any { it.record() == null }) Text("Enter 0–9999 ${selected.exercise.unit}; weight must be a non-negative number in kg.", color = MaterialTheme.colorScheme.error)
                         OutlinedTextField(selected.notes, { updateExercise(selected.copy(notes = it.take(500))) },
                             label = { Text("Notes (optional)") }, modifier = Modifier.fillMaxWidth(), enabled = !state.saving)

@@ -67,6 +67,7 @@ data class WorkoutData(
     val splits: List<TrainingSplit> = listOf(TrainingSplit("starter-split", "My training split", starterWorkouts.map { it.id })),
     val activeSplitId: String? = "starter-split",
     val nextWorkoutIndex: Int = 0,
+    @kotlinx.serialization.EncodeDefault val exercisePresetVersion: Int = 1,
     @kotlinx.serialization.EncodeDefault val schemaVersion: Int = 2,
 ) {
     init {
@@ -138,7 +139,7 @@ data class WorkoutData(
         .mapNotNull { session -> session.entries.find { it.exercise.id == exerciseId }?.let { session to it } }
 }
 
-val starterExercises = listOf(
+private val originalExercises = listOf(
     Exercise("pull-ups", "Pull-ups"),
     Exercise("front-pulls", "Front holds + pulls", "3s + {n} pulls + 3s", "pulls"),
     Exercise("rows", "Australian rows"),
@@ -150,9 +151,52 @@ val starterExercises = listOf(
     Exercise("calf", "Calf raises"),
 )
 
-val starterWorkouts = listOf(
-    WorkoutTemplate("Pull", "Pull", listOf("pull-ups", "front-pulls", "rows").map { PlannedExercise(it) }),
-    WorkoutTemplate("Push", "Push", listOf("dips", "push-ups", "pike").map { PlannedExercise(it) }),
-    WorkoutTemplate("Legs", "Legs", listOf("squats", "lunges", "calf").map { PlannedExercise(it) }),
-    WorkoutTemplate("Upper", "Upper", listOf("pull-ups", "dips").map { PlannedExercise(it) }),
+internal val currentExercises = listOf(
+    Exercise("forearm-curl", "Forearm curl"),
+    Exercise("reverse-curl", "Reverse curl"),
+    Exercise("bicep-curl", "Bicep curl"),
+    Exercise("feet-elevated-push-ups", "Feet-elevated push-ups"),
+    Exercise("single-arm-lateral-raises", "Single-arm lateral raises"),
+    Exercise("lateral-raises", "Lateral raises"),
+    Exercise("hollow-push-ups", "Hollow push-ups"),
+    Exercise("neutral-grip-pull-ups", "Neutral-grip pull-ups"),
 )
+
+val starterExercises = originalExercises + currentExercises
+
+val starterWorkouts = listOf(
+    WorkoutTemplate("Pull", "Pull", listOf(
+        PlannedExercise("pull-ups"), PlannedExercise("front-pulls"),
+        PlannedExercise("rows", List(3) { SetRecord(12) }),
+        PlannedExercise("forearm-curl", List(3) { SetRecord(13) }),
+        PlannedExercise("reverse-curl", List(2) { SetRecord(25) }),
+        PlannedExercise("bicep-curl", List(2) { SetRecord(12) }),
+    )),
+    WorkoutTemplate("Push", "Push", listOf(
+        PlannedExercise("dips"), PlannedExercise("push-ups"), PlannedExercise("pike"),
+        PlannedExercise("feet-elevated-push-ups", List(3) { SetRecord(7) }),
+        PlannedExercise("single-arm-lateral-raises", List(2) { SetRecord(10) }),
+        PlannedExercise("lateral-raises", List(2) { SetRecord(14) }),
+        PlannedExercise("hollow-push-ups", List(2) { SetRecord(0) }, maxReps = true),
+    )),
+    WorkoutTemplate("Legs", "Legs", listOf("squats", "lunges", "calf").map { PlannedExercise(it) }),
+    WorkoutTemplate("Upper", "Upper", listOf(
+        PlannedExercise("pull-ups"), PlannedExercise("dips"),
+        PlannedExercise("neutral-grip-pull-ups", List(3) { SetRecord(7) }),
+    )),
+)
+
+internal fun WorkoutData.addCurrentExercises(): WorkoutData {
+    val addedIds = currentExercises.map { it.id }.toSet()
+    return copy(
+        exercises = exercises + currentExercises.filter { exercises.none { old -> old.id == it.id } },
+        workouts = workouts.map { workout ->
+            val preset = starterWorkouts.find { it.id == workout.id } ?: return@map workout
+            workout.copy(exercises = workout.exercises.map { planned ->
+                if (workout.id == "Pull" && planned.exerciseId == "rows" && planned.targets == List(3) { SetRecord(8) })
+                    planned.copy(targets = List(3) { SetRecord(12) })
+                else planned
+            } + preset.exercises.filter { it.exerciseId in addedIds && workout.exercises.none { old -> old.exerciseId == it.exerciseId } })
+        },
+    )
+}

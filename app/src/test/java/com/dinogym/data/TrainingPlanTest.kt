@@ -41,8 +41,8 @@ class TrainingPlanTest {
     @Test fun legacyMigrationDeduplicatesStartersAndPreservesEveryRecordedSet() {
         val legacy = """{"exercises":[{"id":"pull-ups","name":"Pull-ups","routine":"Pull"},{"id":"upper-pull","name":"Pull-ups","routine":"Upper"}],"sessions":[{"id":"stable","performedAt":100,"routine":"Upper","entries":[{"exercise":{"id":"upper-pull","name":"Original name","routine":"Upper"},"value":9,"sets":3}]}]}"""
         val data = WorkoutCodec.decode(legacy)
-        assertEquals(1, data.exercises.size)
-        assertEquals("pull-ups", data.workouts.first { it.name == "Upper" }.exercises.single().exerciseId)
+        assertEquals(1, data.exercises.count { it.id !in currentExercises.map { e -> e.id } })
+        assertEquals("pull-ups", data.workouts.first { it.name == "Upper" }.exercises.first().exerciseId)
         val session = data.sessions.single()
         assertEquals("stable", session.id)
         assertEquals(100L, session.performedAt)
@@ -51,7 +51,7 @@ class TrainingPlanTest {
         assertEquals("pull-ups", session.entries.single().exercise.id)
         assertEquals(data, WorkoutCodec.decode(WorkoutCodec.json.encodeToString(data)))
         val customized = WorkoutCodec.decode(legacy.replace("\"upper-pull\",\"name\":\"Pull-ups\"", "\"upper-pull\",\"name\":\"Weighted pull-ups\""))
-        assertEquals(2, customized.exercises.size)
+        assertEquals(2, customized.exercises.count { it.id !in currentExercises.map { e -> e.id } })
         assertThrows(IllegalArgumentException::class.java) { WorkoutCodec.decode("""{"schemaVersion":99}""") }
     }
 

@@ -9,7 +9,10 @@ object WorkoutCodec {
         val root = json.parseToJsonElement(text).jsonObject
         val version = root["schemaVersion"]?.jsonPrimitive?.int ?: 1
         require(version in 1..2) { "Unsupported workout file version" }
-        if (version == 2) return json.decodeFromString<WorkoutData>(text)
+        if (version == 2) {
+            val data = json.decodeFromString<WorkoutData>(text)
+            return if (root["exercisePresetVersion"] == null) data.addCurrentExercises() else data
+        }
         val sourceExercises = root["exercises"]?.jsonArray
         val exercises = sourceExercises?.map { json.decodeFromJsonElement<Exercise>(it) } ?: (starterExercises + listOf(
             starterExercises.first { it.id == "pull-ups" }.copy(id = "upper-pull"),
@@ -53,6 +56,6 @@ object WorkoutCodec {
         }
         val lastName = sessions.maxByOrNull { it.performedAt }?.routine
         return WorkoutData(exercises.filterNot { it.id in aliases }, sessions, workouts,
-            nextWorkoutIndex = (routines.indexOf(lastName) + 1) % routines.size)
+            nextWorkoutIndex = (routines.indexOf(lastName) + 1) % routines.size).addCurrentExercises()
     }
 }

@@ -18,6 +18,20 @@ import java.util.Locale
 class WorkoutSessionUiTest {
     @get:Rule val compose = createComposeRule()
 
+    @Test fun hollowPushUpsHaveTwoMaxRepSetsAndRequireActualReps() {
+        compose.setContent {
+            DinoGymTheme {
+                WorkoutScreen("Push", WorkoutState(WorkoutData(), loading = false), {}, {})
+            }
+        }
+        compose.onNodeWithText("Hollow push-ups").performScrollTo().performClick()
+        compose.onAllNodesWithText("reps").assertCountEquals(2)
+        compose.onNodeWithText("Log set").assertIsNotEnabled()
+        compose.onAllNodesWithText("Max reps · enter completed reps").assertCountEquals(2)
+        compose.onAllNodesWithText("reps").onFirst().performTextReplacement("15")
+        compose.onNodeWithText("Log set").assertIsEnabled()
+    }
+
     @Test fun restDurationUsesMinutesAndSecondsAndAppliesToWorkout() {
         val exercise = starterExercises.first()
         val workout = WorkoutTemplate("Pull", "Pull", listOf(PlannedExercise(exercise.id)))
