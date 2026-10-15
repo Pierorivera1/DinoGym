@@ -5,8 +5,38 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class WorkoutDataTest {
+    @Test fun archivingExercisesKeepsLoggedHistoryAndAllowsRestoreAfterReload() {
+        val logged = starterExercises.first()
+        val unused = Exercise("custom", "Custom exercise")
+        val session = Session("Pull", listOf(Entry(logged, 9, 3, "Controlled")))
+        val data = WorkoutData(listOf(logged, unused), listOf(session, session.copy(id = "second")))
+        assertEquals(listOf(logged, unused), data.progressExercises)
+
+        val archived = data.archiveExercise(logged.id).archiveExercise(unused.id)
+        val reloaded = Json.decodeFromString<WorkoutData>(Json.encodeToString(archived))
+        assertEquals(listOf(logged.copy(archived = true), unused.copy(archived = true)), reloaded.exercises)
+        assertEquals(data.sessions, reloaded.sessions)
+        assertEquals(data.history(logged.id), reloaded.history(logged.id))
+        assertEquals(listOf(logged.copy(archived = true), unused.copy(archived = true)), reloaded.progressExercises)
+        assertEquals(reloaded, reloaded.archiveExercise("missing"))
+        assertEquals(data, reloaded.restoreExercise(logged.id).restoreExercise(unused.id))
+    }
+
+    @Test fun oldExerciseJsonDefaultsToActiveAndEditingDoesNotRewriteHistorySnapshot() {
+        val oldJson = """{"id":"custom","name":"Custom","routine":"Pull","template":"{n} reps","unit":"reps"}"""
+        val decoded = WorkoutCodec.json.decodeFromString<Exercise>(oldJson)
+        assertFalse(decoded.archived)
+
+        val original = starterExercises.first()
+        val session = Session("Pull", listOf(Entry(original, 9, 3)))
+        val edited = WorkoutData(listOf(original), listOf(session))
+            .updateExercise(original.copy(name = "Chin-ups"))
+        assertEquals("Chin-ups", edited.exercises.single().name)
+        assertEquals(original, edited.history(original.id).single().second.exercise)
+    }
+
     @Test fun templatesAndEntriesKeepTheirMeaning() {
-        val exercise = Exercise("hold", "Front holds", "Pull", "3s + {n} pulls + 3s", "pulls")
+        val exercise = Exercise("hold", "Front holds", "3s + {n} pulls + 3s", "pulls")
         val entry = Entry(exercise, 4, 2, "Controlled")
         assertEquals("3s + 4 pulls + 3s × 2", entry.display)
         val data = WorkoutData(listOf(exercise), listOf(Session("Pull", listOf(entry))))
@@ -26,9 +56,9 @@ class WorkoutDataTest {
 
     @Test fun invalidInputCannotBecomeSavedData() {
         listOf("reps", "{n} plus {n}").forEach { template ->
-            assertThrows(IllegalArgumentException::class.java) { Exercise("id", "Name", "Pull", template) }
+            assertThrows(IllegalArgumentException::class.java) { Exercise("id", "Name", template) }
         }
-        assertThrows(IllegalArgumentException::class.java) { Exercise("id", " ", "Pull") }
+        assertThrows(IllegalArgumentException::class.java) { Exercise("id", " ") }
         assertThrows(IllegalArgumentException::class.java) { Entry(starterExercises.first(), -1, 2) }
         assertThrows(IllegalArgumentException::class.java) { Entry(starterExercises.first(), 13, 0) }
         assertThrows(IllegalArgumentException::class.java) { Session("Pull", emptyList()) }

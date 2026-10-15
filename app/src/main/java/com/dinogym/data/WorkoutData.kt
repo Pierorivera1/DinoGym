@@ -1,3 +1,5 @@
+@file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+
 package com.dinogym.data
 
 import kotlinx.serialization.Serializable
@@ -9,13 +11,12 @@ val routines = listOf("Pull", "Push", "Legs", "Upper")
 data class Exercise(
     val id: String,
     val name: String,
-    val routine: String,
     val template: String = "{n} reps",
     val unit: String = "reps",
+    val archived: Boolean = false,
 ) {
     init {
-        require(name.isNotBlank() && name.length <= 80)
-        require(routine in routines)
+        require(id.isNotBlank() && name.isNotBlank() && name.length <= 80)
         require(template.length <= 120 && template.split("{n}").size == 2)
         require(unit.isNotBlank() && unit.length <= 20)
     }
@@ -23,40 +24,135 @@ data class Exercise(
 }
 
 @Serializable
-data class Entry(val exercise: Exercise, val value: Int, val sets: Int, val notes: String = "") {
-    init { require(value in 0..9999 && sets in 1..99 && notes.length <= 500) }
-    val display get() = "${exercise.display(value)} × $sets"
+data class SetRecord(val value: Int, val weightKg: Double? = null) {
+    init {
+        require(value in 0..9999)
+        require(weightKg == null || (weightKg.isFinite() && weightKg in 0.0..9999.0))
+    }
+}
+
+@Serializable
+data class Entry(val exercise: Exercise, val records: List<SetRecord>, val notes: String = "") {
+    constructor(exercise: Exercise, value: Int, sets: Int, notes: String = "") :
+        this(exercise, List(sets.also { require(it in 1..99) }) { SetRecord(value) }, notes)
+    init { require(records.size in 1..99 && notes.length <= 500) }
+    val sets get() = records.size
+    val value get() = records.maxOf { it.value }
+    val display get() = if (records.distinct().size == 1 && records.first().weightKg == null)
+        "${exercise.display(value)} × $sets"
+    else records.mapIndexed { index, set ->
+        "${index + 1}. ${exercise.display(set.value)}" + (set.weightKg?.let { " · $it kg" } ?: "")
+    }.joinToString("\n")
 }
 
 @Serializable
 data class Session(
     val routine: String,
     val entries: List<Entry>,
-    val performedAt: Long = System.currentTimeMillis(),
-    val id: String = UUID.randomUUID().toString(),
+    @kotlinx.serialization.EncodeDefault val performedAt: Long = System.currentTimeMillis(),
+    @kotlinx.serialization.EncodeDefault val id: String = UUID.randomUUID().toString(),
+    val workoutId: String? = null,
 ) {
     init {
-        require(routine in routines && entries.isNotEmpty())
+        require(id.isNotBlank() && routine.isNotBlank() && routine.length <= 80 && entries.isNotEmpty())
         require(entries.map { it.exercise.id }.distinct().size == entries.size)
     }
 }
 
 @Serializable
-data class WorkoutData(val exercises: List<Exercise> = starterExercises, val sessions: List<Session> = emptyList()) {
+data class WorkoutData(
+    val exercises: List<Exercise> = starterExercises,
+    val sessions: List<Session> = emptyList(),
+    val workouts: List<WorkoutTemplate> = starterWorkouts,
+    val splits: List<TrainingSplit> = listOf(TrainingSplit("starter-split", "My training split", starterWorkouts.map { it.id })),
+    val activeSplitId: String? = "starter-split",
+    val nextWorkoutIndex: Int = 0,
+    @kotlinx.serialization.EncodeDefault val schemaVersion: Int = 2,
+) {
+    init {
+        require(schemaVersion == 2 && nextWorkoutIndex >= 0)
+        require(sessions.distinctBy { it.id }.size == sessions.size)
+        require(exercises.distinctBy { it.id }.size == exercises.size)
+        require(workouts.distinctBy { it.id }.size == workouts.size)
+        require(splits.distinctBy { it.id }.size == splits.size)
+    }
+    val activeSplit get() = splits.find { it.id == activeSplitId }
+    val nextWorkout get() = activeSplit?.workoutIds?.let { ids ->
+        ids.getOrNull(nextWorkoutIndex % ids.size.coerceAtLeast(1))
+    }?.let { id -> workouts.find { it.id == id } }
+
+    fun saveWorkout(workout: WorkoutTemplate) = copy(workouts =
+        if (workouts.any { it.id == workout.id }) workouts.map { if (it.id == workout.id) workout else it }
+        else workouts + workout)
+
+    fun saveSplit(split: TrainingSplit) = copy(splits =
+        if (splits.any { it.id == split.id }) splits.map { if (it.id == split.id) split else it }
+        else splits + split, nextWorkoutIndex = if (activeSplitId == split.id) 0 else nextWorkoutIndex)
+
+    fun selectSplit(id: String): WorkoutData {
+        require(splits.any { it.id == id })
+        return copy(activeSplitId = id, nextWorkoutIndex = 0)
+    }
+
+    fun finishSession(session: Session, updateTargets: Boolean, rests: Map<String, Int> = emptyMap()): WorkoutData {
+        if (sessions.any { it.id == session.id }) return saveSession(session)
+        var result = saveSession(session)
+        if (session.workoutId == nextWorkout?.id) result = result.copy(
+            nextWorkoutIndex = (nextWorkoutIndex + 1) % activeSplit!!.workoutIds.size)
+        if (updateTargets) workouts.find { it.id == session.workoutId }?.let { workout ->
+            result = result.saveWorkout(workout.copy(exercises = workout.exercises.map { planned ->
+                session.entries.find { it.exercise.id == planned.exerciseId }?.let {
+                    planned.copy(targets = it.records, restSeconds = rests[planned.exerciseId] ?: planned.restSeconds)
+                } ?: planned
+            } + session.entries.filter { e -> workout.exercises.none { it.exerciseId == e.exercise.id } }
+                .map { PlannedExercise(it.exercise.id, it.records, rests[it.exercise.id] ?: 165) }))
+        }
+        return result
+    }
+
+    val progressExercises get() = (exercises + sessions.flatMap { session -> session.entries.map { it.exercise } })
+        .distinctBy { it.id }
+
+    fun updateExercise(exercise: Exercise) = copy(exercises = exercises.map {
+        if (it.id == exercise.id) exercise else it
+    })
+
+    fun archiveExercise(exerciseId: String) = copy(exercises = exercises.map {
+        if (it.id == exerciseId) it.copy(archived = true) else it
+    })
+
+    fun restoreExercise(exerciseId: String) = copy(exercises = exercises.map {
+        if (it.id == exerciseId) it.copy(archived = false) else it
+    })
+
+    fun saveSession(session: Session): WorkoutData {
+        val original = sessions.find { it.id == session.id }
+        return copy(sessions = if (original == null) sessions + session else sessions.map {
+            if (it.id == session.id) session.copy(performedAt = original.performedAt) else it
+        })
+    }
+
+    fun deleteSession(sessionId: String) = copy(sessions = sessions.filterNot { it.id == sessionId })
+
     fun history(exerciseId: String) = sessions.sortedBy { it.performedAt }
         .mapNotNull { session -> session.entries.find { it.exercise.id == exerciseId }?.let { session to it } }
 }
 
 val starterExercises = listOf(
-    Exercise("pull-ups", "Pull-ups", "Pull"),
-    Exercise("front-pulls", "Front holds + pulls", "Pull", "3s + {n} pulls + 3s", "pulls"),
-    Exercise("rows", "Australian rows", "Pull"),
-    Exercise("dips", "Dips", "Push"),
-    Exercise("push-ups", "Push-ups", "Push"),
-    Exercise("pike", "Pike push-ups", "Push"),
-    Exercise("squats", "Squats", "Legs"),
-    Exercise("lunges", "Lunges", "Legs"),
-    Exercise("calf", "Calf raises", "Legs"),
-    Exercise("upper-pull", "Pull-ups", "Upper"),
-    Exercise("upper-dips", "Dips", "Upper"),
+    Exercise("pull-ups", "Pull-ups"),
+    Exercise("front-pulls", "Front holds + pulls", "3s + {n} pulls + 3s", "pulls"),
+    Exercise("rows", "Australian rows"),
+    Exercise("dips", "Dips"),
+    Exercise("push-ups", "Push-ups"),
+    Exercise("pike", "Pike push-ups"),
+    Exercise("squats", "Squats"),
+    Exercise("lunges", "Lunges"),
+    Exercise("calf", "Calf raises"),
+)
+
+val starterWorkouts = listOf(
+    WorkoutTemplate("Pull", "Pull", listOf("pull-ups", "front-pulls", "rows").map { PlannedExercise(it) }),
+    WorkoutTemplate("Push", "Push", listOf("dips", "push-ups", "pike").map { PlannedExercise(it) }),
+    WorkoutTemplate("Legs", "Legs", listOf("squats", "lunges", "calf").map { PlannedExercise(it) }),
+    WorkoutTemplate("Upper", "Upper", listOf("pull-ups", "dips").map { PlannedExercise(it) }),
 )

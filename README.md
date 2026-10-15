@@ -10,10 +10,14 @@ DinoGym is a native Android workout tracker for recording bodyweight training an
 
 ## Features
 
-- **Train:** choose Pull, Push, Legs, or Upper and see the exercises for that routine. Lower-body training uses the Legs routine.
-- **Log workouts:** record a value, set count, and optional note for each included exercise. Values currently apply to every set in the entry; uncheck an exercise to skip it.
-- **Create exercises:** add an exercise to a routine with a display template containing exactly one `{n}` placeholder and a metric unit. For example, `3s + {n} pulls + 3s` keeps the holds fixed while tracking pull repetitions.
+- **Plan training:** create named workouts and rotating training splits, reorder their exercises/workouts, and choose the split to follow. The home screen shows the next workout and advances after it is completed.
+- **Log workouts:** open the compact exercise overview, edit individual sets with reps (or a custom metric), optional kilograms, and notes, then mark sets logged. Only logged sets are saved. Optionally update workout targets when finishing.
+- **Share exercises:** maintain one exercise library and add the same exercise to multiple workouts with independent targets. Create exercises with a display template containing exactly one `{n}` placeholder and a metric unit. For example, `3s + {n} pulls + 3s` keeps the holds fixed while tracking pull repetitions.
+- **Manage exercises:** edit exercises, archive them after confirmation, and restore them from the Archived list. Archived exercises stay out of new workouts; saved history keeps its original exercise details.
+- **Manage workouts:** expand sessions in workout history, correct their values, sets, and notes, or delete a session after confirmation. Editing preserves the session's ID and date.
 - **Review progress:** compare a workout with the previous session, expand saved workout history, and view recent per-exercise performance in a chart.
+- **Stay focused:** highlight the next set, show the exercise's previous results and notes, reveal optional weight fields when needed, and move straight to the next exercise. Adjust an active or paused rest by 15 seconds, and filter workout history with the training calendar.
+- **Resume and rest:** active session drafts survive app restarts. Logging a set starts its configurable rest timer; pause, resume, restart, or skip it. A quiet ongoing notification supports background rest, with a sound-only completion alert and no vibration.
 - **Use it offline:** workouts and custom exercises are stored on the device and remain available after restarting the app.
 - **Adapt to the device:** use the system light or dark appearance, with wider layouts showing a navigation rail. Android wallpaper colors can be enabled in the app theme.
 
@@ -87,15 +91,15 @@ The app uses Kotlin, Jetpack Compose with Material 3, AndroidX lifecycle and Nav
 
 ## Data and privacy
 
-Workout data is stored locally in the app's private files directory as `workouts.json`. Writes use Android's `AtomicFile` support to reduce the chance of a partial write. If stored data cannot be read, the app reports the problem and preserves the file instead of replacing it with empty history. The app does not currently include accounts, cloud synchronization, export/import, or a supported backup-and-restore flow. Uninstalling the app or clearing its storage removes local workouts and custom exercises; export important data before doing so once an export feature is available.
+Workout data is stored locally in the app's private files directory as `workouts.json`; the active draft is stored separately as `active-workout.json`. Version 2 stores shared exercises, workout templates, splits, and individual set records. Legacy files are decoded without being rewritten until a normal save; that first save retains the original in `workouts-v1.backup.json`. Known matching starter duplicates are consolidated, while customized variants and historical display details are preserved. Writes use Android's `AtomicFile` support to reduce the chance of a partial write. If stored data cannot be read, the app reports the problem and preserves the file instead of replacing it with empty history. The app does not currently include accounts, cloud synchronization, export/import, or a supported backup-and-restore flow. Uninstalling the app or clearing its storage removes local workouts and custom exercises; export important data before doing so once an export feature is available.
 
 There is no network requirement during workout logging. Gradle does download build dependencies when syncing or building the project.
 
 ## Current scope and limitations
 
-- Exercise editing and deletion are not available yet.
-- All sets in an entry share one value; per-set values are not supported.
-- Charts show the recorded metric over time and do not calculate total training volume.
+- Weight is optional and uses kilograms. Splits rotate by completion rather than weekdays.
+- Rest sounds respect device audio policy; force-stopping the app stops the timer. Background sound should also be verified on the target physical device. The Android 14+ foreground service declares its workout-timer special use; distribution through Google Play requires the corresponding foreground-service declaration/review.
+- Charts show the best recorded set value per session across all workouts for an exercise; history includes every logged set and optional weight.
 - Persistence currently uses a single local JSON snapshot. Room/SQLite migrations, cloud sync, and multi-device conflict handling are future work.
 - The release build is not configured for minification or production signing. Keep signing keys and credentials outside version control when adding a release workflow.
 

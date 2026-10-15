@@ -14,37 +14,61 @@ import org.junit.Test
 class WorkoutUiTest {
     @get:Rule val compose = createComposeRule()
 
-    @Test fun logWorkoutThenSeeItsProgress() {
-        compose.setContent {
-            var data by remember { mutableStateOf(WorkoutData(exercises = starterExercises.take(1))) }
-            var routine by remember { mutableStateOf<String?>(null) }
+    @Test fun exerciseCanBeEditedArchivedAndRestoredWithoutLosingHistory() {
+        val exercise = starterExercises.first()
+        val restoration = StateRestorationTester(compose)
+        var data by mutableStateOf(WorkoutData(listOf(exercise),
+            listOf(Session("Pull", listOf(Entry(exercise, 9, 3))))))
+        restoration.setContent {
+            var selected by remember { mutableStateOf<String?>(null) }
             DinoGymTheme {
-                val state = WorkoutState(data, loading = false)
-                if (routine == null) HomeScreen(state, { routine = it }, {}, {}, { _, _ -> })
-                else WorkoutScreen(routine!!, state, { routine = null }, {
-                    data = data.copy(sessions = data.sessions + it)
-                    routine = null
-                })
+                if (selected != null) ExerciseProgressScreen(selected!!, data, { selected = null })
+                else HomeScreen(WorkoutState(data, loading = false), {}, { selected = it }, {}, { _, _ -> },
+                    onUpdateExercise = { updated, onSaved -> data = data.updateExercise(updated); onSaved() },
+                    onArchiveExercise = { id, onSaved -> data = data.archiveExercise(id); onSaved() },
+                    onRestoreExercise = { id, onSaved -> data = data.restoreExercise(id); onSaved() }, initialTab = 2)
             }
         }
-        compose.onNodeWithText("Start workout").performClick()
-        compose.onNodeWithText("Finish workout").assertIsNotEnabled()
-        compose.onNodeWithText("reps").performTextInput("13")
-        compose.onNodeWithText("Finish workout").assertIsEnabled().performClick()
+        compose.onNodeWithContentDescription("Edit Pull-ups").performClick()
+        compose.onNodeWithText("Edit exercise").assertExists()
+        compose.onNode(hasText("Pull-ups") and hasSetTextAction()).performTextClearance()
+        compose.onNode(hasText("Name") and hasSetTextAction()).performTextInput("Chin-ups")
+        compose.onNodeWithText("Save changes").performClick()
+        compose.onNodeWithText("Chin-ups").assertExists()
+
+        compose.onNodeWithContentDescription("Archive Chin-ups").performClick()
+        compose.onNodeWithText("Archive Chin-ups?").assertExists()
+        compose.onNodeWithText("Cancel").performClick()
+        compose.runOnIdle { assertEquals("Chin-ups", data.exercises.single().name) }
+        compose.onNodeWithContentDescription("Archive Chin-ups").performClick()
+        restoration.emulateSavedInstanceStateRestore()
+        compose.onNodeWithText("Archive Chin-ups?").assertExists()
+        compose.onNodeWithText("Archive", substring = false).performClick()
+        compose.onNodeWithText("No exercises").assertExists()
+        compose.onNodeWithText("Archived (1)").performClick()
+        compose.onNodeWithText("Chin-ups").assertExists()
+        compose.onNodeWithText("Restore", substring = false).performClick()
+        compose.onNodeWithText("Active").performClick()
+        compose.onNodeWithText("Chin-ups").assertExists()
         compose.onNodeWithText("Progress", useUnmergedTree = true).performClick()
-        compose.onNodeWithText("Pull · Latest: 13 reps × 2").assertExists()
+        compose.onNodeWithText("Latest: 9 reps × 3").assertExists().performClick()
+        compose.onNodeWithText("Chin-ups").assertExists()
+        compose.onNodeWithText("Recent sessions").assertExists()
+        compose.runOnIdle {
+            assertEquals(9, data.history(exercise.id).single().second.value)
+            assertEquals("Chin-ups", data.exercises.single().name)
+        }
     }
 
-    @Test fun draftSurvivesActivityStateRestoration() {
-        val restoration = StateRestorationTester(compose)
-        restoration.setContent {
-            DinoGymTheme { WorkoutScreen("Pull", WorkoutState(WorkoutData(exercises = starterExercises.take(1)), loading = false), {}, {}) }
+    @Test fun archivedExerciseIsNotOfferedForNewWorkout() {
+        compose.setContent {
+            DinoGymTheme {
+                WorkoutScreen("Pull", WorkoutState(
+                    WorkoutData(exercises = listOf(starterExercises.first().copy(archived = true))), loading = false,
+                ), {}, {})
+            }
         }
-        compose.onNodeWithText("reps").performTextInput("9")
-        compose.onNodeWithText("Notes (optional)").performTextInput("Slow tempo")
-        restoration.emulateSavedInstanceStateRestore()
-        compose.onNodeWithText("9").assertExists()
-        compose.onNodeWithText("Slow tempo").assertExists()
-        compose.onNodeWithText("Finish workout").assertIsEnabled()
+        compose.onNodeWithText("No exercises yet").assertExists()
+        compose.onNodeWithText("Finish workout").assertIsNotEnabled()
     }
 }

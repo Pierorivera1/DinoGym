@@ -19,6 +19,12 @@ class WorkoutRepositoryTest {
             val data = WorkoutData(sessions = listOf(Session("Pull", listOf(Entry(starterExercises.first(), 13, 2)))))
             repository.save(data)
             assertEquals(data, WorkoutRepository(directory).load())
+            val archived = data.archiveExercise(starterExercises.first().id)
+            repository.save(archived)
+            val reloaded = WorkoutRepository(directory).load()
+            assertEquals(archived, reloaded)
+            assertTrue(reloaded.exercises.single { it.id == starterExercises.first().id }.archived)
+            assertEquals(data.history(starterExercises.first().id), reloaded.history(starterExercises.first().id))
             val file = File(directory, "workouts.json")
             file.writeText("invalid content")
             try {

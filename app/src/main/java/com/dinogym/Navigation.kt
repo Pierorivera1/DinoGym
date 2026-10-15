@@ -31,18 +31,51 @@ fun MainNavigation(viewModel: WorkoutViewModel = viewModel()) {
         onBack = { if (!state.saving) backStack.removeLastOrNull() },
         entryProvider = entryProvider {
             entry<Main> {
-                HomeScreen(state, onRoutine = { backStack.add(Workout(it)) },
+                HomeScreen(state, onRoutine = {
+                    val draft = state.draft
+                    if (draft?.editing == true) backStack.add(EditWorkout(draft.id))
+                    else backStack.add(Workout(draft?.workoutId ?: it))
+                },
                     onProgress = { backStack.add(ExerciseProgress(it)) },
-                    onHistory = { backStack.add(History) }, onAddExercise = viewModel::addExercise)
+                    onHistory = { backStack.add(History) }, onAddExercise = viewModel::addExercise,
+                    onUpdateExercise = viewModel::updateExercise,
+                    onArchiveExercise = viewModel::archiveExercise,
+                    onRestoreExercise = viewModel::restoreExercise,
+                    onPlans = { backStack.add(Plans) })
             }
             entry<Workout> { key ->
                 WorkoutScreen(key.routine, state, onBack = { backStack.removeLastOrNull() },
-                    onSave = { session -> viewModel.saveSession(session) { backStack.removeLastOrNull() } })
+                    onSave = { session -> viewModel.saveSession(session) { backStack.removeLastOrNull() } },
+                    onDraft = viewModel::updateDraft,
+                    onDiscard = { viewModel.discardDraft { backStack.removeLastOrNull() } },
+                    onFinish = { session, targets -> viewModel.finishWorkout(session, targets) { backStack.removeLastOrNull() } })
             }
             entry<ExerciseProgress> { key ->
-                ExerciseProgressScreen(key.exerciseId, state.data, onBack = { backStack.removeLastOrNull() })
+                ExerciseProgressScreen(key.exerciseId, state.data, onBack = { backStack.removeLastOrNull() },
+                    saving = state.saving, onUpdateExercise = viewModel::updateExercise,
+                    onArchiveExercise = viewModel::archiveExercise,
+                    onRestoreExercise = viewModel::restoreExercise)
             }
-            entry<History> { HistoryScreen(state.data, onBack = { backStack.removeLastOrNull() }) }
+            entry<EditWorkout> { key ->
+                val session = state.data.sessions.find { it.id == key.sessionId }
+                if (session != null) WorkoutScreen(session.routine, state,
+                    onBack = { backStack.removeLastOrNull() },
+                    onSave = { viewModel.saveSession(it) { backStack.removeLastOrNull() } }, session = session,
+                    onDraft = viewModel::updateDraft,
+                    onDiscard = { viewModel.discardDraft { backStack.removeLastOrNull() } },
+                    onFinish = { completed, _ -> viewModel.finishWorkout(completed, false) { backStack.removeLastOrNull() } })
+            }
+            entry<Plans> {
+                PlannerScreen(state, { backStack.removeLastOrNull() }, viewModel::saveWorkout, viewModel::saveSplit, viewModel::selectSplit)
+            }
+            entry<History> {
+                HistoryScreen(state.data, onBack = { backStack.removeLastOrNull() },
+                    onEdit = {
+                        if (state.draft == null || state.draft?.id == it) backStack.add(EditWorkout(it))
+                        else viewModel.showError("Finish or discard your active workout before editing another session.")
+                    }, onDelete = viewModel::deleteSession,
+                    saving = state.saving)
+            }
         },
     )
     if (state.error != null) {

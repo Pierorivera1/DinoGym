@@ -13,6 +13,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp
 import com.dinogym.data.*
+import java.time.Instant
+import java.time.ZoneId
 
 @Composable
 fun ProgressScreen(data: WorkoutData, onProgress: (String) -> Unit) {
@@ -26,11 +28,11 @@ fun ProgressScreen(data: WorkoutData, onProgress: (String) -> Unit) {
                 Stat("${data.sessions.sumOf { session -> session.entries.sumOf { it.sets } }}", "SETS LOGGED", Modifier.weight(1f))
             }
         }
-        item { RoutineFilter(filter) { filter = it } }
+        item { RoutineFilter(filter, data.workouts.map { it.name }) { filter = it } }
         if (data.sessions.isEmpty()) item {
             EmptyMessage("No sessions yet", "Log a workout and your exercise history will appear here.")
         }
-        items(data.exercises.filter { filter == "All" || it.routine == filter }, key = { it.id }) { exercise ->
+        items(data.progressExercises.filter { filter == "All" || data.workouts.any { w -> w.name == filter && w.exercises.any { e -> e.exerciseId == it.id } } }, key = { it.id }) { exercise ->
             val history = data.history(exercise.id)
             ExerciseRow(exercise, history.lastOrNull()?.second?.let { "Latest: ${it.display}" } ?: "No sessions yet",
                 onClick = { onProgress(exercise.id) })
@@ -39,21 +41,42 @@ fun ProgressScreen(data: WorkoutData, onProgress: (String) -> Unit) {
 }
 
 @Composable
-fun ExerciseProgressScreen(exerciseId: String, data: WorkoutData, onBack: () -> Unit) {
-    val exercise = data.exercises.find { it.id == exerciseId }
+fun ExerciseProgressScreen(
+    exerciseId: String,
+    data: WorkoutData,
+    onBack: () -> Unit,
+    saving: Boolean = false,
+    onUpdateExercise: (Exercise, () -> Unit) -> Unit = { _, _ -> },
+    onArchiveExercise: (String, () -> Unit) -> Unit = { _, _ -> },
+    onRestoreExercise: (String, () -> Unit) -> Unit = { _, _ -> },
+) {
+    val exercise = data.progressExercises.find { it.id == exerciseId }
+    val editable = data.exercises.find { it.id == exerciseId }
+    var editing by rememberSaveable(exerciseId) { mutableStateOf(false) }
+    var archiving by rememberSaveable(exerciseId) { mutableStateOf(false) }
     val history = data.history(exerciseId)
-    DetailPage("Exercise progress", onBack) { padding ->
+    DetailPage("Exercise progress", { if (!saving) onBack() }) { padding ->
         LazyColumn(Modifier.widthIn(max = 760.dp).fillMaxSize().padding(padding),
             contentPadding = PaddingValues(24.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
-            item { Heading(exercise?.routine?.uppercase() ?: "EXERCISE", exercise?.name ?: "Exercise unavailable",
+            item { Heading("EXERCISE", exercise?.name ?: "Exercise unavailable",
                 exercise?.template?.replace("{n}", "…") ?: "") }
+            if (editable != null) item {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = { editing = true }, enabled = !saving) { Text("Edit exercise") }
+                    if (editable.archived) {
+                        TextButton(onClick = { onRestoreExercise(editable.id) {} }, enabled = !saving) { Text("Restore exercise") }
+                    } else {
+                        TextButton(onClick = { archiving = true }, enabled = !saving) { Text("Archive exercise") }
+                    }
+                }
+            }
             if (history.isEmpty()) item {
                 EmptyMessage("No entries yet", "Log this exercise during a workout to see its progress.")
             } else {
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                        Stat("${history.last().second.value}", "LATEST ${exercise?.unit?.uppercase()}", Modifier.weight(1f))
-                        Stat("${history.maxOf { it.second.value }}", "BEST ${exercise?.unit?.uppercase()}", Modifier.weight(1f))
+                        Stat("${history.last().second.value}", "LATEST BEST SET", Modifier.weight(1f))
+                        Stat("${history.maxOf { it.second.value }}", "BEST SET", Modifier.weight(1f))
                         Stat("${history.size}", "ENTRIES", Modifier.weight(1f))
                     }
                 }
@@ -70,7 +93,7 @@ fun ExerciseProgressScreen(exerciseId: String, data: WorkoutData, onBack: () -> 
                                 Text(dateLabel(recent.first().first.performedAt), style = MaterialTheme.typography.labelMedium)
                                 if (recent.size > 1) Text(dateLabel(recent.last().first.performedAt), style = MaterialTheme.typography.labelMedium)
                             }
-                            Text("Value per session · sets shown below", style = MaterialTheme.typography.bodySmall,
+                            Text("Best set value per session · all sets shown below", style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
@@ -89,6 +112,10 @@ fun ExerciseProgressScreen(exerciseId: String, data: WorkoutData, onBack: () -> 
             }
         }
     }
+    if (editing && editable != null) ExerciseDialog(editable, saving,
+        onDismiss = { editing = false }, onSave = onUpdateExercise)
+    if (archiving && editable != null) ArchiveExerciseDialog(editable, saving,
+        onDismiss = { archiving = false }, onArchive = onArchiveExercise)
 }
 
 @Composable
@@ -112,13 +139,41 @@ private fun ValueChart(values: List<Int>, unit: String) {
 }
 
 @Composable
-fun HistoryScreen(data: WorkoutData, onBack: () -> Unit) {
+fun HistoryScreen(
+    data: WorkoutData,
+    onBack: () -> Unit,
+    onEdit: ((String) -> Unit)? = null,
+    onDelete: ((String, () -> Unit) -> Unit)? = null,
+    saving: Boolean = false,
+) {
+    var deletingId by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedDay by rememberSaveable { mutableStateOf<String?>(null) }
+    val sessions = data.sessions.filter {
+        selectedDay == null || Instant.ofEpochMilli(it.performedAt).atZone(ZoneId.systemDefault()).toLocalDate().toString() == selectedDay
+    }.sortedByDescending { it.performedAt }
     DetailPage("Workout history", onBack) { padding ->
         LazyColumn(Modifier.widthIn(max = 760.dp).fillMaxSize().padding(padding),
             contentPadding = PaddingValues(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             item { Heading("SESSIONS", "Workout history", "${data.sessions.size} workouts logged on this device.") }
+            if (data.sessions.isNotEmpty()) item { HistoryCalendar(data.sessions, selectedDay) { selectedDay = it } }
             if (data.sessions.isEmpty()) item { EmptyMessage("No sessions yet", "Finish your first workout to start your history.") }
-            items(data.sessions.sortedByDescending { it.performedAt }, key = { it.id }) { SessionCard(it) }
+            else if (sessions.isEmpty()) item { EmptyMessage("No workouts on this day", "Choose a marked day or show all workouts.") }
+            items(sessions, key = { it.id }) { session ->
+                SessionCard(session, onEdit = onEdit?.let { { it(session.id) } },
+                    onDelete = onDelete?.let { { deletingId = session.id } }, saving = saving)
+            }
         }
     }
+    val deleting = data.sessions.find { it.id == deletingId }
+    if (deleting != null && onDelete != null) AlertDialog(
+        onDismissRequest = { if (!saving) deletingId = null },
+        title = { Text("Delete workout?") },
+        text = { Text("Delete the ${deleting.routine} workout from ${dateLabel(deleting.performedAt)}? This cannot be undone.") },
+        confirmButton = {
+            TextButton(enabled = !saving, onClick = { onDelete(deleting.id) { deletingId = null } }) {
+                Text(if (saving) "Deleting…" else "Delete")
+            }
+        },
+        dismissButton = { TextButton(enabled = !saving, onClick = { deletingId = null }) { Text("Cancel") } },
+    )
 }

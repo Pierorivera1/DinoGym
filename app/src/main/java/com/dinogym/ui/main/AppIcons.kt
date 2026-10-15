@@ -11,6 +11,11 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
 object AppIcons {
+    val More = icon("More options") {
+        moveTo(12f, 5f); lineTo(12f, 5.1f)
+        moveTo(12f, 12f); lineTo(12f, 12.1f)
+        moveTo(12f, 19f); lineTo(12f, 19.1f)
+    }
     val Train = icon("Train") {
         moveTo(3f, 9f); lineTo(3f, 15f); moveTo(6f, 6f); lineTo(6f, 18f)
         moveTo(6f, 12f); lineTo(18f, 12f); moveTo(18f, 6f); lineTo(18f, 18f)
@@ -34,6 +39,25 @@ object AppIcons {
     }
     val Add = icon("Add") {
         moveTo(12f, 5f); lineTo(12f, 19f); moveTo(5f, 12f); lineTo(19f, 12f)
+    }
+    val Timer = icon("Rest timer") {
+        moveTo(9f, 2f); lineTo(15f, 2f); moveTo(12f, 2f); lineTo(12f, 5f)
+        moveTo(20f, 13f)
+        curveTo(20f, 17.4f, 16.4f, 21f, 12f, 21f)
+        curveTo(7.6f, 21f, 4f, 17.4f, 4f, 13f)
+        curveTo(4f, 8.6f, 7.6f, 5f, 12f, 5f)
+        curveTo(16.4f, 5f, 20f, 8.6f, 20f, 13f)
+        moveTo(12f, 9f); lineTo(12f, 13f); lineTo(15f, 15f)
+        moveTo(18f, 5f); lineTo(20f, 7f)
+    }
+    val Edit = icon("Edit") {
+        moveTo(4f, 16.5f); lineTo(3f, 21f); lineTo(7.5f, 20f); lineTo(19f, 8.5f)
+        lineTo(14.5f, 4f); close(); moveTo(12.5f, 6f); lineTo(17f, 10.5f)
+    }
+    val Archive = icon("Archive") {
+        moveTo(4f, 4f); lineTo(20f, 4f); lineTo(21f, 8f); lineTo(3f, 8f); close()
+        moveTo(5f, 8f); lineTo(6f, 20f); lineTo(18f, 20f); lineTo(19f, 8f)
+        moveTo(9f, 12f); lineTo(15f, 12f)
     }
     private fun icon(name: String, draw: androidx.compose.ui.graphics.vector.PathBuilder.() -> Unit) =
         ImageVector.Builder(name, 24.dp, 24.dp, 24f, 24f).apply {

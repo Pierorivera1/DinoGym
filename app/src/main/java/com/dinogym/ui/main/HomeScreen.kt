@@ -32,7 +32,11 @@ fun HomeScreen(
     onProgress: (String) -> Unit,
     onHistory: () -> Unit,
     onAddExercise: (Exercise, () -> Unit) -> Unit,
+    onUpdateExercise: (Exercise, () -> Unit) -> Unit = { _, _ -> },
+    onArchiveExercise: (String, () -> Unit) -> Unit = { _, _ -> },
+    onRestoreExercise: (String, () -> Unit) -> Unit = { _, _ -> },
     initialTab: Int = 0,
+    onPlans: () -> Unit = {},
 ) {
     var tab by rememberSaveable { mutableIntStateOf(initialTab) }
     val labels = listOf("Train", "Progress", "Exercises")
@@ -60,9 +64,10 @@ fun HomeScreen(
                 }
                 Box(Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
                     when (tab) {
-                        0 -> TrainScreen(state.data, onRoutine, onHistory)
+                        0 -> TrainScreen(state, onRoutine, onHistory, onPlans)
                         1 -> ProgressScreen(state.data, onProgress)
-                        2 -> LibraryScreen(state, onProgress, onAddExercise)
+                        2 -> LibraryScreen(state, onProgress, onAddExercise, onUpdateExercise,
+                            onArchiveExercise, onRestoreExercise)
                     }
                 }
             }
@@ -71,9 +76,10 @@ fun HomeScreen(
 }
 
 @Composable
-private fun TrainScreen(data: WorkoutData, onRoutine: (String) -> Unit, onHistory: () -> Unit) {
+private fun TrainScreen(state: WorkoutState, onRoutine: (String) -> Unit, onHistory: () -> Unit, onPlans: () -> Unit) {
+    val data = state.data
     val last = data.sessions.maxByOrNull { it.performedAt }
-    val next = routines[(routines.indexOf(last?.routine) + 1) % routines.size]
+    val next = data.nextWorkout ?: data.workouts.firstOrNull()
     val weekStart = java.time.LocalDate.now().with(java.time.DayOfWeek.MONDAY)
         .atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
     LazyColumn(
@@ -98,16 +104,16 @@ private fun TrainScreen(data: WorkoutData, onRoutine: (String) -> Unit, onHistor
                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .75f))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text("$next day", style = MaterialTheme.typography.headlineMedium)
-                            Text("${data.exercises.count { it.routine == next }} exercises",
+                            Text(state.draft?.name ?: next?.name ?: "Create a workout", style = MaterialTheme.typography.headlineMedium)
+                            Text("${state.draft?.exercises?.size ?: next?.exercises?.count { planned -> data.exercises.any { it.id == planned.exerciseId && !it.archived } } ?: 0} exercises",
                                 style = MaterialTheme.typography.bodyMedium)
                         }
                         Icon(AppIcons.Train, null, Modifier.size(40.dp), tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = .65f))
                     }
-                    Button(onClick = { onRoutine(next) }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                    Button(onClick = { if (next != null || state.draft != null) onRoutine(state.draft?.workoutId ?: next?.id.orEmpty()) else onPlans() }, enabled = !state.saving, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface,
                             contentColor = MaterialTheme.colorScheme.onSurface)) {
-                        Text("Start workout", Modifier.weight(1f))
+                        Text(if (state.draft != null) "Resume workout" else if (next == null) "Create workout" else "Start workout", Modifier.weight(1f))
                         Icon(AppIcons.Arrow, null)
                     }
                 }
@@ -117,26 +123,21 @@ private fun TrainScreen(data: WorkoutData, onRoutine: (String) -> Unit, onHistor
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                 Stat("${data.sessions.count { it.performedAt >= weekStart }}", "THIS WEEK", Modifier.weight(1f))
                 Stat("${data.sessions.size}", "TOTAL SESSIONS", Modifier.weight(1f))
-                Stat("${data.exercises.size}", "EXERCISES", Modifier.weight(1f))
+                Stat("${data.exercises.count { !it.archived }}", "EXERCISES", Modifier.weight(1f))
             }
         }
-        item { SectionLabel("Your routines", subtitle = "Select a routine") }
-        items(routines) { routine ->
-            Card(onClick = { onRoutine(routine) }, shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
-                Row(Modifier.fillMaxWidth().padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceContainer) {
-                        Text("0${routines.indexOf(routine) + 1}", Modifier.padding(14.dp),
-                            style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        item {
+            SectionLabel(data.activeSplit?.name ?: "Your workouts", subtitle = "Rotating training split")
+            TextButton(onClick = onPlans, enabled = !state.saving) { Text("Manage workouts & splits") }
+        }
+        items(data.workouts, key = { it.id }) { workout ->
+            OutlinedCard(onClick = { onRoutine(workout.id) }, enabled = !state.saving) {
+                Row(Modifier.fillMaxWidth().padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(workout.name, style = MaterialTheme.typography.titleMedium)
+                        Text("${workout.exercises.size} exercises", style = MaterialTheme.typography.bodyMedium)
                     }
-                    Column(Modifier.weight(1f).padding(horizontal = 16.dp)) {
-                        Text(routine, style = MaterialTheme.typography.titleMedium)
-                        Text(if (routine == "Legs") "Lower uses this routine" else
-                            "${data.exercises.count { it.routine == routine }} exercises",
-                            style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Icon(AppIcons.Arrow, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(AppIcons.Arrow, null)
                 }
             }
         }
@@ -188,7 +189,7 @@ internal fun EmptyMessage(title: String, body: String) {
 }
 
 @Composable
-internal fun SessionCard(session: Session) {
+internal fun SessionCard(session: Session, onEdit: (() -> Unit)? = null, onDelete: (() -> Unit)? = null, saving: Boolean = false) {
     var expanded by rememberSaveable(session.id) { mutableStateOf(false) }
     OutlinedCard(onClick = { expanded = !expanded }, shape = RoundedCornerShape(18.dp)) {
         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -209,74 +210,151 @@ internal fun SessionCard(session: Session) {
             }
             Text(if (expanded) "Hide details" else "Show details", style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary)
+            if (expanded && (onEdit != null || onDelete != null)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    if (onEdit != null) TextButton(onClick = onEdit, enabled = !saving) { Text("Edit workout") }
+                    if (onDelete != null) TextButton(onClick = onDelete, enabled = !saving) { Text("Delete workout") }
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun LibraryScreen(state: WorkoutState, onProgress: (String) -> Unit, onAdd: (Exercise, () -> Unit) -> Unit) {
-    var filter by rememberSaveable { mutableStateOf("All") }
+private fun LibraryScreen(
+    state: WorkoutState,
+    onProgress: (String) -> Unit,
+    onAdd: (Exercise, () -> Unit) -> Unit,
+    onUpdate: (Exercise, () -> Unit) -> Unit,
+    onArchive: (String, () -> Unit) -> Unit,
+    onRestore: (String, () -> Unit) -> Unit,
+) {
+    var query by rememberSaveable { mutableStateOf("") }
+    var showArchived by rememberSaveable { mutableStateOf(false) }
     var adding by rememberSaveable { mutableStateOf(false) }
+    var editingId by rememberSaveable { mutableStateOf<String?>(null) }
+    var archivingId by rememberSaveable { mutableStateOf<String?>(null) }
+    val editing = state.data.exercises.find { it.id == editingId }
+    val archiving = state.data.exercises.find { it.id == archivingId }
+    val exercises = state.data.exercises.filter {
+        it.archived == showArchived && it.name.contains(query, ignoreCase = true)
+    }
     Column(Modifier.widthIn(max = 760.dp).fillMaxSize()) {
         Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
             Heading("LIBRARY", "Exercises")
             FilledTonalButton(onClick = { adding = true }, enabled = !state.saving) {
                 Icon(AppIcons.Add, null); Spacer(Modifier.width(8.dp)); Text("New exercise")
             }
-            RoutineFilter(filter) { filter = it }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(selected = !showArchived, onClick = { showArchived = false }, label = { Text("Active") })
+                FilterChip(selected = showArchived, onClick = { showArchived = true }, label = {
+                    Text("Archived (${state.data.exercises.count { it.archived }})")
+                })
+            }
+            OutlinedTextField(query, { query = it }, label = { Text("Search exercises") }, singleLine = true)
         }
         LazyColumn(contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(state.data.exercises.filter { filter == "All" || it.routine == filter }, key = { it.id }) { exercise ->
-                ExerciseRow(exercise, exercise.template.replace("{n}", "…"), onClick = { onProgress(exercise.id) })
+            if (exercises.isEmpty()) item { EmptyMessage("No exercises", if (showArchived)
+                "Archived exercises will appear here." else "Add an exercise to build your routine.") }
+            items(exercises, key = { it.id }) { exercise ->
+                ExerciseRow(exercise,
+                    (if (exercise.archived) "Archived · " else "") + exercise.template.replace("{n}", "…"),
+                    onClick = { onProgress(exercise.id) }, trailing = {
+                        if (exercise.archived) {
+                            TextButton(onClick = { onRestore(exercise.id) {} }, enabled = !state.saving) {
+                                Text("Restore", modifier = Modifier.semanticsLabel("Restore ${exercise.name}"))
+                            }
+                        } else {
+                            IconButton(onClick = { editingId = exercise.id }, enabled = !state.saving) {
+                                Icon(AppIcons.Edit, contentDescription = "Edit ${exercise.name}",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            IconButton(onClick = { archivingId = exercise.id }, enabled = !state.saving) {
+                                Icon(AppIcons.Archive, contentDescription = "Archive ${exercise.name}",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    })
             }
         }
     }
-    if (adding) AddExerciseDialog(state.saving, onDismiss = { adding = false }, onAdd = onAdd)
+    if (adding) ExerciseDialog(null, state.saving, onDismiss = { adding = false }, onSave = onAdd)
+    if (editing != null) ExerciseDialog(editing, state.saving,
+        onDismiss = { editingId = null }, onSave = onUpdate)
+    if (archiving != null) ArchiveExerciseDialog(archiving, state.saving,
+        onDismiss = { archivingId = null }, onArchive = onArchive)
 }
 
 @Composable
-internal fun RoutineFilter(selected: String, onSelect: (String) -> Unit) {
+internal fun ArchiveExerciseDialog(exercise: Exercise, saving: Boolean, onDismiss: () -> Unit,
+    onArchive: (String, () -> Unit) -> Unit) {
+    AlertDialog(
+        onDismissRequest = { if (!saving) onDismiss() },
+        title = { Text("Archive ${exercise.name}?") },
+        text = { Text("This hides the exercise from new workouts. Its saved workouts and progress will remain in history.") },
+        confirmButton = {
+            TextButton(enabled = !saving, onClick = { onArchive(exercise.id, onDismiss) },
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
+                Text(if (saving) "Archiving…" else "Archive")
+            }
+        },
+        dismissButton = { TextButton(enabled = !saving, onClick = onDismiss) { Text("Cancel") } },
+    )
+}
+
+@Composable
+internal fun RoutineFilter(selected: String, names: List<String> = routines, onSelect: (String) -> Unit) {
     androidx.compose.foundation.lazy.LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        items(listOf("All") + routines) { label ->
+        items(listOf("All") + names) { label ->
             FilterChip(selected = selected == label, onClick = { onSelect(label) }, label = { Text(label) })
         }
     }
 }
 
 @Composable
-internal fun ExerciseRow(exercise: Exercise, subtitle: String, onClick: () -> Unit) {
+internal fun ExerciseRow(
+    exercise: Exercise,
+    subtitle: String,
+    onClick: () -> Unit,
+    trailing: @Composable () -> Unit = { Icon(AppIcons.Arrow, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
+) {
     OutlinedCard(onClick = onClick, shape = RoundedCornerShape(18.dp)) {
         Row(Modifier.fillMaxWidth().padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(exercise.name, style = MaterialTheme.typography.titleMedium)
-                Text("${exercise.routine} · $subtitle", style = MaterialTheme.typography.bodyMedium,
+                Text(subtitle, style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Icon(AppIcons.Arrow, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            trailing()
         }
     }
 }
 
 @Composable
-private fun AddExerciseDialog(saving: Boolean, onDismiss: () -> Unit, onAdd: (Exercise, () -> Unit) -> Unit) {
-    var name by rememberSaveable { mutableStateOf("") }
-    var routine by rememberSaveable { mutableStateOf("Pull") }
-    var template by rememberSaveable { mutableStateOf("{n} reps") }
-    var unit by rememberSaveable { mutableStateOf("reps") }
+internal fun ExerciseDialog(existing: Exercise?, saving: Boolean, onDismiss: () -> Unit,
+    onSave: (Exercise, () -> Unit) -> Unit) {
+    var name by rememberSaveable(existing?.id) { mutableStateOf(existing?.name.orEmpty()) }
+    var template by rememberSaveable(existing?.id) { mutableStateOf(existing?.template ?: "{n} reps") }
+    var unit by rememberSaveable(existing?.id) { mutableStateOf(existing?.unit ?: "reps") }
     val validTemplate = template.split("{n}").size == 2 && template.length <= 120
     val valid = name.trim().isNotEmpty() && name.length <= 80 && validTemplate && unit.trim().isNotEmpty() && unit.length <= 20
-    AlertDialog(onDismissRequest = { if (!saving) onDismiss() }, title = { Text("New exercise") }, text = {
+    AlertDialog(onDismissRequest = { if (!saving) onDismiss() }, title = {
+        Text(if (existing == null) "New exercise" else "Edit exercise")
+    }, text = {
         Column(Modifier.heightIn(max = 440.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedTextField(name, { name = it.take(80) }, label = { Text("Name") }, singleLine = true)
-            RoutineFilter(routine) { if (it != "All") routine = it }
+            OutlinedTextField(name, { name = it.take(80) }, label = { Text("Name") }, singleLine = true,
+                enabled = !saving)
             OutlinedTextField(template, { template = it.take(120) }, label = { Text("Display template") },
-                isError = !validTemplate, supportingText = { Text("Use exactly one {n}, e.g. 3s + {n} pulls + 3s") })
-            OutlinedTextField(unit, { unit = it.take(20) }, label = { Text("Metric unit") }, singleLine = true)
+                enabled = !saving, isError = !validTemplate,
+                supportingText = { Text("Use exactly one {n}, e.g. 3s + {n} pulls + 3s") })
+            OutlinedTextField(unit, { unit = it.take(20) }, label = { Text("Metric unit") }, singleLine = true,
+                enabled = !saving)
         }
     }, confirmButton = {
         TextButton(enabled = valid && !saving, onClick = {
-            onAdd(Exercise(UUID.randomUUID().toString(), name.trim(), routine, template, unit.trim()), onDismiss)
-        }) { Text(if (saving) "Saving…" else "Add exercise") }
+            onSave(Exercise(existing?.id ?: UUID.randomUUID().toString(), name.trim(),
+                template, unit.trim(), existing?.archived ?: false), onDismiss)
+        }) { Text(if (saving) "Saving…" else if (existing == null) "Add exercise" else "Save changes") }
     }, dismissButton = { TextButton(enabled = !saving, onClick = onDismiss) { Text("Cancel") } })
 }

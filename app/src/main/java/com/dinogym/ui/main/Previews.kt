@@ -13,19 +13,19 @@ private val previewData = WorkoutData(sessions = listOf(8, 9, 11, 10, 12, 13).ma
 @Preview(name = "Train · Light", showBackground = true, widthDp = 393, heightDp = 852)
 @Composable
 fun TrainPreview() {
-    DinoGymTheme(darkTheme = false) { HomeScreen(WorkoutState(previewData, loading = false), {}, {}, {}, { _, _ -> }) }
+    DinoGymTheme(darkTheme = false) { HomeScreen(WorkoutState(previewData, loading = false), {}, {}, {}, { _, _ -> }, { _, _ -> }) }
 }
 
 @Preview(name = "Train · Dark", showBackground = true, widthDp = 393, heightDp = 852)
 @Composable
 fun DarkPreview() {
-    DinoGymTheme(darkTheme = true) { HomeScreen(WorkoutState(previewData, loading = false), {}, {}, {}, { _, _ -> }) }
+    DinoGymTheme(darkTheme = true) { HomeScreen(WorkoutState(previewData, loading = false), {}, {}, {}, { _, _ -> }, { _, _ -> }) }
 }
 
 @Preview(name = "Train · Tablet", showBackground = true, widthDp = 900, heightDp = 1000)
 @Composable
 fun TabletPreview() {
-    DinoGymTheme(darkTheme = false) { HomeScreen(WorkoutState(previewData, loading = false), {}, {}, {}, { _, _ -> }) }
+    DinoGymTheme(darkTheme = false) { HomeScreen(WorkoutState(previewData, loading = false), {}, {}, {}, { _, _ -> }, { _, _ -> }) }
 }
 
 @Preview(name = "Workout", showBackground = true, widthDp = 393, heightDp = 852)
@@ -43,5 +43,5 @@ fun ProgressPreview() {
 @Preview(name = "Exercises", showBackground = true, widthDp = 393, heightDp = 852)
 @Composable
 fun ExercisesPreview() {
-    DinoGymTheme(darkTheme = false) { HomeScreen(WorkoutState(previewData, loading = false), {}, {}, {}, { _, _ -> }, initialTab = 2) }
+    DinoGymTheme(darkTheme = false) { HomeScreen(WorkoutState(previewData, loading = false), {}, {}, {}, { _, _ -> }, { _, _ -> }, initialTab = 2) }
 }
