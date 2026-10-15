@@ -37,11 +37,13 @@ fun MainNavigation(viewModel: WorkoutViewModel = viewModel()) {
                     else backStack.add(Workout(draft?.workoutId ?: it))
                 },
                     onProgress = { backStack.add(ExerciseProgress(it)) },
+                    onWorkoutProgress = { exercise, workout -> backStack.add(ExerciseProgress(exercise, workout)) },
                     onHistory = { backStack.add(History) }, onAddExercise = viewModel::addExercise,
                     onUpdateExercise = viewModel::updateExercise,
                     onArchiveExercise = viewModel::archiveExercise,
                     onRestoreExercise = viewModel::restoreExercise,
-                    onPlans = { backStack.add(Plans) })
+                    onPlans = { backStack.add(Plans) },
+                    onEditWorkout = { backStack.add(EditPlan(it)) })
             }
             entry<Workout> { key ->
                 WorkoutScreen(key.routine, state, onBack = { backStack.removeLastOrNull() },
@@ -52,7 +54,7 @@ fun MainNavigation(viewModel: WorkoutViewModel = viewModel()) {
             }
             entry<ExerciseProgress> { key ->
                 ExerciseProgressScreen(key.exerciseId, state.data, onBack = { backStack.removeLastOrNull() },
-                    saving = state.saving, onUpdateExercise = viewModel::updateExercise,
+                    workoutId = key.workoutId, saving = state.saving, onUpdateExercise = viewModel::updateExercise,
                     onArchiveExercise = viewModel::archiveExercise,
                     onRestoreExercise = viewModel::restoreExercise)
             }
@@ -67,6 +69,10 @@ fun MainNavigation(viewModel: WorkoutViewModel = viewModel()) {
             }
             entry<Plans> {
                 PlannerScreen(state, { backStack.removeLastOrNull() }, viewModel::saveWorkout, viewModel::saveSplit, viewModel::selectSplit)
+            }
+            entry<EditPlan> { key ->
+                PlannerScreen(state, { backStack.removeLastOrNull() }, viewModel::saveWorkout, viewModel::saveSplit,
+                    viewModel::selectSplit, initialWorkoutId = key.workoutId)
             }
             entry<History> {
                 HistoryScreen(state.data, onBack = { backStack.removeLastOrNull() },

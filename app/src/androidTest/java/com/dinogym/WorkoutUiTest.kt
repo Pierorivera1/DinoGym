@@ -51,9 +51,10 @@ class WorkoutUiTest {
         compose.onNodeWithText("Active").performClick()
         compose.onNodeWithText("Chin-ups").assertExists()
         compose.onNodeWithText("Progress", useUnmergedTree = true).performClick()
+        compose.onNodeWithText("Pull", substring = false).performClick()
         compose.onNodeWithText("Latest: 9 reps × 3").assertExists().performClick()
         compose.onNodeWithText("Chin-ups").assertExists()
-        compose.onNodeWithText("Recent sessions").assertExists()
+        compose.onNodeWithText("Weekly progress").assertExists()
         compose.runOnIdle {
             assertEquals(9, data.history(exercise.id).single().second.value)
             assertEquals("Chin-ups", data.exercises.single().name)

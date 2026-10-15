@@ -10,33 +10,37 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp
 import com.dinogym.data.*
 import java.time.Instant
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 @Composable
-fun ProgressScreen(data: WorkoutData, onProgress: (String) -> Unit) {
-    var filter by rememberSaveable { mutableStateOf("All") }
+fun ProgressScreen(data: WorkoutData, onProgress: (String, String) -> Unit) {
+    var workoutId by rememberSaveable { mutableStateOf<String?>(null) }
+    val ordered = (data.activeSplit?.workoutIds.orEmpty().mapNotNull { id -> data.workouts.find { it.id == id } } + data.workouts).distinctBy { it.id }
     LazyColumn(Modifier.widthIn(max = 760.dp).fillMaxSize(), contentPadding = PaddingValues(24.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        item { Heading("EXERCISE HISTORY", "Your progress") }
-        item {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                Stat("${data.sessions.size}", "SESSIONS", Modifier.weight(1f))
-                Stat("${data.sessions.sumOf { session -> session.entries.sumOf { it.sets } }}", "SETS LOGGED", Modifier.weight(1f))
+        verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        item { Heading("WORKOUT HISTORY", "Your progress", "Choose a workout, then an exercise to see your weekly progress.") }
+        items(ordered, key = { it.id }) { workout ->
+            OutlinedCard(onClick = { workoutId = if (workoutId == workout.id) null else workout.id }) {
+                Column(Modifier.fillMaxWidth().padding(20.dp)) {
+                    Text(workout.name, style = MaterialTheme.typography.titleLarge)
+                    Text("${workout.exercises.size} exercises · ${if (workoutId == workout.id) "Hide" else "View progress"}")
+                }
+            }
+            if (workoutId == workout.id) {
+                val ids = (workout.exercises.map { it.exerciseId } + data.sessions.filter { it.belongsTo(workout) }
+                    .flatMap { it.entries.map { entry -> entry.exercise.id } }).distinct()
+                ids.forEach { id ->
+                    data.progressExercises.find { it.id == id }?.let { exercise ->
+                        ExerciseRow(exercise, data.history(id).lastOrNull { it.first.belongsTo(workout) }?.second?.let { "Latest: ${it.display}" } ?: "No sessions yet", onClick = { onProgress(id, workout.id) })
+                    }
+                }
             }
         }
-        item { RoutineFilter(filter, data.workouts.map { it.name }) { filter = it } }
-        if (data.sessions.isEmpty()) item {
-            EmptyMessage("No sessions yet", "Log a workout and your exercise history will appear here.")
-        }
-        items(data.progressExercises.filter { filter == "All" || data.workouts.any { w -> w.name == filter && w.exercises.any { e -> e.exerciseId == it.id } } }, key = { it.id }) { exercise ->
-            val history = data.history(exercise.id)
-            ExerciseRow(exercise, history.lastOrNull()?.second?.let { "Latest: ${it.display}" } ?: "No sessions yet",
-                onClick = { onProgress(exercise.id) })
-        }
+        if (ordered.isEmpty()) item { EmptyMessage("No workouts yet", "Create a workout to organize exercise progress.") }
     }
 }
 
@@ -46,6 +50,7 @@ fun ExerciseProgressScreen(
     data: WorkoutData,
     onBack: () -> Unit,
     saving: Boolean = false,
+    workoutId: String? = null,
     onUpdateExercise: (Exercise, () -> Unit) -> Unit = { _, _ -> },
     onArchiveExercise: (String, () -> Unit) -> Unit = { _, _ -> },
     onRestoreExercise: (String, () -> Unit) -> Unit = { _, _ -> },
@@ -54,11 +59,12 @@ fun ExerciseProgressScreen(
     val editable = data.exercises.find { it.id == exerciseId }
     var editing by rememberSaveable(exerciseId) { mutableStateOf(false) }
     var archiving by rememberSaveable(exerciseId) { mutableStateOf(false) }
-    val history = data.history(exerciseId)
+    val workout = data.workouts.find { it.id == workoutId }
+    val history = data.history(exerciseId).filter { workout == null || it.first.belongsTo(workout) }
     DetailPage("Exercise progress", { if (!saving) onBack() }) { padding ->
         LazyColumn(Modifier.widthIn(max = 760.dp).fillMaxSize().padding(padding),
             contentPadding = PaddingValues(24.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
-            item { Heading("EXERCISE", exercise?.name ?: "Exercise unavailable",
+            item { Heading(workout?.name ?: "EXERCISE", exercise?.name ?: "Exercise unavailable",
                 exercise?.template?.replace("{n}", "…") ?: "") }
             if (editable != null) item {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -84,16 +90,17 @@ fun ExerciseProgressScreen(
                     Card(shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
                         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                            Text("Recent sessions", style = MaterialTheme.typography.titleMedium)
-                            val recent = history.takeLast(8)
+                            Text("Weekly progress", style = MaterialTheme.typography.titleMedium)
+                            val recent = history
+                            val weekly = weeklyProgress(history)
                             Text("0–${recent.maxOf { it.second.value }} ${exercise?.unit.orEmpty()}",
                                 style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            ValueChart(recent.map { it.second.value }, exercise?.unit.orEmpty())
+                            ValueChart(weekly, exercise?.unit.orEmpty())
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text(dateLabel(recent.first().first.performedAt), style = MaterialTheme.typography.labelMedium)
                                 if (recent.size > 1) Text(dateLabel(recent.last().first.performedAt), style = MaterialTheme.typography.labelMedium)
                             }
-                            Text("Best set value per session · all sets shown below", style = MaterialTheme.typography.bodySmall,
+                            Text("Best set each week · weeks without logs have no dot. All sets shown below.", style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
@@ -119,22 +126,22 @@ fun ExerciseProgressScreen(
 }
 
 @Composable
-private fun ValueChart(values: List<Int>, unit: String) {
+private fun ValueChart(points: List<WeeklyProgress>, unit: String) {
     val primary = MaterialTheme.colorScheme.primary
     val baseline = MaterialTheme.colorScheme.outlineVariant
-    Canvas(Modifier.fillMaxWidth().height(160.dp).semanticsLabel(
-        "Recent values in $unit, oldest first: ${values.joinToString()}. Maximum ${values.maxOrNull() ?: 0}.",
+    Canvas(Modifier.fillMaxWidth().height(180.dp).semanticsLabel(
+        "Weekly best set in $unit: ${points.joinToString { "${it.week}: ${it.value}" }}",
     )) {
-        val max = (values.maxOrNull() ?: 1).coerceAtLeast(1)
-        val gap = size.width / values.size
-        val barWidth = minOf(gap * .5f, 32.dp.toPx())
-        drawLine(baseline, Offset(0f, size.height), Offset(size.width, size.height), 1.dp.toPx())
-        values.forEachIndexed { index, value ->
-            val height = (size.height - 12.dp.toPx()) * value / max
-            drawRoundRect(primary.copy(alpha = if (index == values.lastIndex) 1f else .35f),
-                topLeft = Offset(gap * index + (gap - barWidth) / 2, size.height - height),
-                size = Size(barWidth, height), cornerRadius = androidx.compose.ui.geometry.CornerRadius(5.dp.toPx()))
+        val max = points.maxOf { it.value }.coerceAtLeast(1)
+        val inset = 6.dp.toPx()
+        val span = ChronoUnit.WEEKS.between(points.first().week, points.last().week).coerceAtLeast(1)
+        val positions = points.map {
+            Offset(inset + (size.width - 2 * inset) * ChronoUnit.WEEKS.between(points.first().week, it.week).toFloat() / span,
+                size.height - inset - (size.height - 2 * inset) * it.value / max)
         }
+        drawLine(baseline, Offset(inset, size.height - inset), Offset(size.width - inset, size.height - inset), 1.dp.toPx())
+        positions.zipWithNext().forEach { (start, end) -> drawLine(primary, start, end, 2.dp.toPx()) }
+        positions.forEach { drawCircle(primary, 4.dp.toPx(), it) }
     }
 }
 

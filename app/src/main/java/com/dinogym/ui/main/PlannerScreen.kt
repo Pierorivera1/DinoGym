@@ -17,10 +17,11 @@ import java.util.UUID
 @Composable
 fun PlannerScreen(state: WorkoutState, onBack: () -> Unit,
     onSaveWorkout: (WorkoutTemplate, () -> Unit) -> Unit,
-    onSaveSplit: (TrainingSplit, () -> Unit) -> Unit, onSelectSplit: (String) -> Unit) {
-    var editingWorkout by rememberSaveable { mutableStateOf<String?>(null) }
+    onSaveSplit: (TrainingSplit, () -> Unit) -> Unit, onSelectSplit: (String) -> Unit,
+    initialWorkoutId: String? = null) {
+    var editingWorkout by rememberSaveable { mutableStateOf(initialWorkoutId) }
     var editingSplit by rememberSaveable { mutableStateOf<String?>(null) }
-    val close = { editingWorkout = null; editingSplit = null }
+    val close = { if (initialWorkoutId != null) onBack() else { editingWorkout = null; editingSplit = null } }
     if (editingWorkout != null) {
         WorkoutTemplateEditor(state, state.data.workouts.find { it.id == editingWorkout }, close, onSaveWorkout)
         return

@@ -7,7 +7,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable data class Workout(val routine: String) : NavKey
 @Serializable data class EditWorkout(val sessionId: String) : NavKey
-@Serializable data class ExerciseProgress(val exerciseId: String) : NavKey
+@Serializable data class ExerciseProgress(val exerciseId: String, val workoutId: String? = null) : NavKey
 @Serializable data object History : NavKey
 
 @Serializable data object Plans : NavKey
+@Serializable data class EditPlan(val workoutId: String) : NavKey

@@ -1,7 +1,6 @@
 package com.dinogym.ui.main
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
@@ -14,7 +13,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dinogym.data.*
 import java.time.Instant
@@ -37,6 +35,8 @@ fun HomeScreen(
     onRestoreExercise: (String, () -> Unit) -> Unit = { _, _ -> },
     initialTab: Int = 0,
     onPlans: () -> Unit = {},
+    onWorkoutProgress: (String, String) -> Unit = { exercise, _ -> onProgress(exercise) },
+    onEditWorkout: (String) -> Unit = { onPlans() },
 ) {
     var tab by rememberSaveable { mutableIntStateOf(initialTab) }
     val labels = listOf("Train", "Progress", "Exercises")
@@ -64,90 +64,13 @@ fun HomeScreen(
                 }
                 Box(Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
                     when (tab) {
-                        0 -> TrainScreen(state, onRoutine, onHistory, onPlans)
-                        1 -> ProgressScreen(state.data, onProgress)
+                        0 -> TrainScreen(state, onRoutine, onHistory, onPlans, onProgress, onEditWorkout)
+                        1 -> ProgressScreen(state.data, onWorkoutProgress)
                         2 -> LibraryScreen(state, onProgress, onAddExercise, onUpdateExercise,
                             onArchiveExercise, onRestoreExercise)
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun TrainScreen(state: WorkoutState, onRoutine: (String) -> Unit, onHistory: () -> Unit, onPlans: () -> Unit) {
-    val data = state.data
-    val last = data.sessions.maxByOrNull { it.performedAt }
-    val next = data.nextWorkout ?: data.workouts.firstOrNull()
-    val weekStart = java.time.LocalDate.now().with(java.time.DayOfWeek.MONDAY)
-        .atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-    LazyColumn(
-        modifier = Modifier.widthIn(max = 760.dp).fillMaxSize(),
-        contentPadding = PaddingValues(24.dp), verticalArrangement = Arrangement.spacedBy(24.dp),
-    ) {
-        item {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.primaryContainer) {
-                    Icon(AppIcons.Train, null, Modifier.padding(12.dp), tint = MaterialTheme.colorScheme.primary)
-                }
-                Spacer(Modifier.width(10.dp))
-                Text("dinogym", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-            }
-        }
-        item { Heading("OVERVIEW", "Training") }
-        item {
-            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
-                shape = RoundedCornerShape(24.dp)) {
-                Column(Modifier.fillMaxWidth().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text("UP NEXT", style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .75f))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text(state.draft?.name ?: next?.name ?: "Create a workout", style = MaterialTheme.typography.headlineMedium)
-                            Text("${state.draft?.exercises?.size ?: next?.exercises?.count { planned -> data.exercises.any { it.id == planned.exerciseId && !it.archived } } ?: 0} exercises",
-                                style = MaterialTheme.typography.bodyMedium)
-                        }
-                        Icon(AppIcons.Train, null, Modifier.size(40.dp), tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = .65f))
-                    }
-                    Button(onClick = { if (next != null || state.draft != null) onRoutine(state.draft?.workoutId ?: next?.id.orEmpty()) else onPlans() }, enabled = !state.saving, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.onSurface)) {
-                        Text(if (state.draft != null) "Resume workout" else if (next == null) "Create workout" else "Start workout", Modifier.weight(1f))
-                        Icon(AppIcons.Arrow, null)
-                    }
-                }
-            }
-        }
-        item {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                Stat("${data.sessions.count { it.performedAt >= weekStart }}", "THIS WEEK", Modifier.weight(1f))
-                Stat("${data.sessions.size}", "TOTAL SESSIONS", Modifier.weight(1f))
-                Stat("${data.exercises.count { !it.archived }}", "EXERCISES", Modifier.weight(1f))
-            }
-        }
-        item {
-            SectionLabel(data.activeSplit?.name ?: "Your workouts", subtitle = "Rotating training split")
-            TextButton(onClick = onPlans, enabled = !state.saving) { Text("Manage workouts & splits") }
-        }
-        items(data.workouts, key = { it.id }) { workout ->
-            OutlinedCard(onClick = { onRoutine(workout.id) }, enabled = !state.saving) {
-                Row(Modifier.fillMaxWidth().padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text(workout.name, style = MaterialTheme.typography.titleMedium)
-                        Text("${workout.exercises.size} exercises", style = MaterialTheme.typography.bodyMedium)
-                    }
-                    Icon(AppIcons.Arrow, null)
-                }
-            }
-        }
-        item {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                SectionLabel("Last session", modifier = Modifier.weight(1f))
-                TextButton(onClick = onHistory) { Text("View history") }
-            }
-            if (last == null) EmptyMessage("No sessions yet", "Finish a workout to see it here.")
-            else SessionCard(last)
         }
     }
 }
