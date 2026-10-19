@@ -1,112 +1,84 @@
 # DinoGym
 
-DinoGym is a native Android workout tracker for recording bodyweight training and reviewing progress. It is designed for quick logging during a workout, with local storage so logging and history work offline.
+DinoGym is a native Android workout tracker for bodyweight training. Build a training split, log individual sets, and review your progress. Workouts, exercise definitions, and history stay on your device and work offline.
 
-## Screenshots
+## Install
 
-| Training | Workout logging | Progress | Settings | Tablet layout |
-| --- | --- | --- | --- | --- |
-| ![Training screen](docs/screenshots/train.png) | ![Workout screen](docs/screenshots/workout.png) | ![Progress screen](docs/screenshots/progress.png) | ![Theme settings in light mode](docs/screenshots/settings.png) | ![Tablet layout](docs/screenshots/tablet.png) |
+[Download the latest APK](https://github.com/Pierorivera1/DinoGym/releases/latest/download/app-debug.apk) from GitHub Releases. Open it on an Android 8.0+ device and allow installation from the download source if Android asks. Releases currently use debug APKs.
 
-## Download
-
-[Download the latest APK](https://github.com/Pierorivera1/DinoGym/releases/latest/download/app-debug.apk) from GitHub Releases. This is a debug build for direct installation; Android may ask you to allow installs from your browser.
+The release APK follows the latest published tag; changes on `main` are available by building from source until a new release is published.
 
 ## Features
 
-- **Browse your plan:** swipe between the compact day overview and exercise details, or tap their tabs. Tap a selected day again to open its details, select a workout before starting it, or edit it from its day menu. Green accents and warm white surfaces define light mode.
-- **Plan training:** create named workouts and rotating training splits, reorder their exercises/workouts, and choose the split to follow. The home screen shows the next workout and advances after it is completed.
-- **Log workouts:** open the compact exercise overview, edit individual sets with reps (or a custom metric), optional kilograms, then mark sets logged. Only logged sets are saved. Optionally update workout targets when finishing.
-- **Share exercises:** maintain one exercise library and add the same exercise to multiple workouts with independent targets. Create exercises with a display template containing exactly one `{n}` placeholder and a metric unit. For example, `3s + {n} pulls + 3s` keeps the holds fixed while tracking pull repetitions.
-- **Manage exercises:** create exercises directly from the Add exercise picker, edit exercises, archive them after confirmation, and restore them from the Archived list. Archived exercises stay out of new workouts; saved history keeps its original exercise details.
-- **Manage workouts:** expand sessions in workout history, correct their values and sets, or delete a session after confirmation. Editing preserves the session's ID and date.
-- **Review progress:** compare a workout with the previous session, expand saved workout history, and open exercises within each workout and compare weekly best-set values in a connected-dot line chart across the full saved history. Weeks start on Monday; missing weeks are not treated as zero.
-- **Stay focused:** focus the next set’s input after logging, show the exercise’s previous results, and automatically move to the next exercise after its last set. Adjust an active or paused rest by 15 seconds, and filter workout history with the training calendar.
-- **Resume and rest:** active session drafts survive app restarts. Logging an intermediate set starts its configurable rest timer; the last set skips rest. Pause, resume, restart, or skip it. A quiet ongoing notification supports background rest, with a two-second sound-only completion alert and no vibration.
-- **Use it offline:** workouts and custom exercises are stored on the device and remain available after restarting the app.
-- **Choose your theme:** open Settings at the top right of Exercises and toggle Dark mode. Your choice is saved between launches; the app follows the system appearance until you choose a mode. Wider layouts show a navigation rail.
+- **Training plans:** create named workouts and rotating splits, reorder exercises, and set independent targets for each workout. Completing the next workout advances the split.
+- **Set logging:** record repetitions or a custom metric, with optional weight in kilograms. Log a set to focus the next unfinished set; log the last set to open the next unfinished exercise automatically. Only logged sets are saved, and you can update workout targets when finishing.
+- **Rest timers:** configure rest between sets, pause or skip it, and adjust by 15 seconds. The last set skips automatic rest. Timers continue in the background and finish with about two seconds of sound, without vibration.
+- **Exercise library:** create exercises from the library or directly from an Add exercise picker. Reuse exercises across workouts, edit them, or archive and restore them while preserving saved history.
+- **History and progress:** browse sessions by date, correct saved sets, and delete sessions after confirmation. Charts show weekly best-set values, with workout-specific filtering. Weeks start on Monday; missing weeks are not recorded as zero.
+- **Resume and appearance:** resume saved workout drafts after restarting the app. Choose light or dark mode; wider layouts use a navigation rail.
 
-## Phone requirements
+Custom exercise templates contain exactly one `{n}` placeholder and a metric unit. For example, `3s + {n} pulls + 3s` with unit `pulls` tracks repetitions while keeping the holds fixed. Workout screens have no notes input; notes in older history are preserved.
 
-- Android phone running Android 8.0 (API 26) or newer.
-- Internet access is only needed to download the APK. Workouts and custom exercises are stored on the phone and work offline.
+## Screenshots
 
-The app targets Android 16 (API 36) and supports Android 8.0 (API 26) and newer. You do not need a computer or Android Studio to install or use the released APK. Download it from [GitHub Releases](https://github.com/Pierorivera1/DinoGym/releases/latest/download/app-debug.apk), open the downloaded APK on your phone, and allow installation from that source if Android asks. This release is a debug APK; Android may show a confirmation before installing it.
+| Training | Progress | Settings |
+| --- | --- | --- |
+| ![Training screen](docs/screenshots/train.png) | ![Progress screen](docs/screenshots/progress.png) | ![Theme settings](docs/screenshots/settings.png) |
 
-## Optional: open and run the project in Android Studio
+## Build and run
 
-Android Studio is only needed if you want to build or modify the app from source, or run it from the IDE. Open the repository root (`DinoGym`) as a Gradle project, let Gradle sync, then select the `app` configuration and an Android 8.0+ phone or emulator and press **Run**. For this development workflow, install Android SDK Platform 36 when prompted and use JDK 17 (Android Studio's bundled Gradle JDK is suitable). An internet connection is needed for the initial Gradle sync/build because Gradle downloads the project dependencies and plugins.
+Use JDK 17 and Android SDK Platform 36. Open the repository root in Android Studio, sync Gradle, and run the `app` configuration on an Android 8.0+ phone or emulator. The project compiles and targets API 36; its minimum is API 26.
 
-Compose previews are in `app/src/main/java/com/dinogym/ui/main/Previews.kt`. Open that file and use the editor's Split or Design view to inspect the sample light, dark, workout, progress, exercise, and wider-screen layouts. Preview data is separate from installed app data.
-
-## Build from the command line
-
-From the repository root, build the debug APK:
+From the repository root:
 
 ```bash
 ./gradlew :app:assembleDebug
-```
-
-The APK is created at `app/build/outputs/apk/debug/app-debug.apk`. Install it on a connected device with:
-
-```bash
 ./gradlew :app:installDebug
 ```
 
-Run the local checks with:
+The first command creates `app/build/outputs/apk/debug/app-debug.apk`; the second installs it on a connected device. Initial builds need internet access to download dependencies. The Gradle wrapper is included; on Windows, use `gradlew.bat`.
+
+Compose previews and synthetic preview data are in [Previews.kt](app/src/main/java/com/dinogym/ui/main/Previews.kt).
+
+## Architecture
+
+The app uses Kotlin, Jetpack Compose with Material 3, Navigation 3, AndroidX lifecycle, and Kotlin serialization. Versions are centralized in [gradle/libs.versions.toml](gradle/libs.versions.toml).
+
+| Location | Responsibility |
+| --- | --- |
+| [ui/main/](app/src/main/java/com/dinogym/ui/main/) | Training, planning, workout logging, history, and progress screens |
+| [WorkoutViewModel.kt](app/src/main/java/com/dinogym/ui/main/WorkoutViewModel.kt) | Screen state, save operations, and draft persistence |
+| [data/](app/src/main/java/com/dinogym/data/) | Models, validation, progress calculations, JSON encoding, and local storage |
+| [timer/](app/src/main/java/com/dinogym/timer/) | Foreground rest timer and completion sound |
+| [Navigation.kt](app/src/main/java/com/dinogym/Navigation.kt) | Screen navigation and action wiring |
+| [theme/](app/src/main/java/com/dinogym/theme/) | Compose colors and typography |
+
+Storage uses a local JSON snapshot rather than a database. This keeps persistence small; each save rewrites the snapshot. Repository writes use `AtomicFile` to protect against partial writes, and failed reads preserve the saved file and report an error.
+
+## Data and limitations
+
+Data lives in the app's private directory: `workouts.json` stores exercises, plans, splits, and sessions; `active-workout.json` stores the current draft. Legacy workout files are decoded on load, and the first save retains the original as `workouts-v1.backup.json` before upgrading to schema version 2.
+
+There are no accounts, cloud sync, or export/import tools. Android backup and device transfer are disabled. Uninstalling the app or clearing its storage removes local data.
+
+Splits rotate by workout completion rather than weekdays. Rest sounds respect alarm volume and device audio policy; force-stopping the app stops the timer. Verify background sound on the physical device you use for training.
+
+## Verify and contribute
+
+Run unit tests and Android Lint:
 
 ```bash
 ./gradlew :app:testDebugUnitTest :app:lintDebug
 ```
 
-Instrumented tests require a running emulator or connected Android device:
+With a running emulator or connected device, run UI, storage, and timer tests:
 
 ```bash
 ./gradlew :app:connectedDebugAndroidTest
 ```
 
-The Gradle wrapper is included, so a separate Gradle installation is not required. On Windows, use `gradlew.bat` in place of `./gradlew`.
+Keep changes focused and follow the existing feature and data organization. Run device tests for UI or timer changes. Keep machine-specific files, build output, signing keys, and credentials out of commits.
 
-## Project structure
+The [release workflow](.github/workflows/release-apk.yml) builds and publishes a debug APK when a `v*` tag is pushed. Production signing and release minification are not configured.
 
-```text
-.
-├── app/
-│   └── src/
-│       ├── main/java/com/dinogym/
-│       │   ├── data/           # Workout models and local JSON repository
-│       │   ├── theme/          # Compose theme and typography
-│       │   ├── ui/main/        # Training, workout, progress, and previews
-│       │   ├── MainActivity.kt
-│       │   └── Navigation.kt
-│       ├── test/               # Local unit tests
-│       └── androidTest/         # Device and UI tests
-├── docs/screenshots/           # App screenshots used in this README
-├── gradle/                     # Wrapper and version catalog
-├── build.gradle.kts            # Root Gradle plugins
-└── settings.gradle.kts         # Gradle project and repositories
-```
-
-The app uses Kotlin, Jetpack Compose with Material 3, AndroidX lifecycle and Navigation 3, Kotlin serialization, and Gradle Kotlin DSL. Dependency and plugin versions are centralized in `gradle/libs.versions.toml`.
-
-## Data and privacy
-
-Workout data is stored locally in the app's private files directory as `workouts.json`; the active draft is stored separately as `active-workout.json`. Version 2 stores shared exercises, workout templates, splits, and individual set records. Legacy files are decoded without being rewritten until a normal save; that first save retains the original in `workouts-v1.backup.json`. Known matching starter duplicates are consolidated, while customized variants and historical display details are preserved. Writes use Android's `AtomicFile` support to reduce the chance of a partial write. If stored data cannot be read, the app reports the problem and preserves the file instead of replacing it with empty history. The app does not currently include accounts, cloud synchronization, export/import, or a supported backup-and-restore flow. Uninstalling the app or clearing its storage removes local workouts and custom exercises; export important data before doing so once an export feature is available.
-
-There is no network requirement during workout logging. Gradle does download build dependencies when syncing or building the project.
-
-## Current scope and limitations
-
-- Weight is optional and uses kilograms. Splits rotate by completion rather than weekdays.
-- Rest sounds respect device audio policy; force-stopping the app stops the timer. Background sound should also be verified on the target physical device. The Android 14+ foreground service declares its workout-timer special use; distribution through Google Play requires the corresponding foreground-service declaration/review.
-- Charts show the best recorded set value per session across all workouts for an exercise; history includes every logged set and optional weight.
-- Persistence currently uses a single local JSON snapshot. Room/SQLite migrations, cloud sync, and multi-device conflict handling are future work.
-- The release build is not configured for minification or production signing. Keep signing keys and credentials outside version control when adding a release workflow.
-
-## Contributing
-
-Keep changes focused and consistent with the existing feature and data organization. Before opening a change, run the unit tests and Android Lint commands above; run instrumented tests when changing UI flows or device-specific behavior. Do not commit machine-specific `local.properties`, build output, IDE state, signing keys, or credentials.
-
-## License
-
-No license has been added to this repository yet. All rights remain with the copyright holder until a license is provided.
+No license file is included in this repository.
