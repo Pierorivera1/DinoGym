@@ -29,8 +29,9 @@ class RestTimerService : Service() {
         mutable.value = RestCountdown()
         persist()
         // Respect the device alarm volume and audio policy; never vibrate or show a heads-up alert.
-        tone = runCatching { ToneGenerator(AudioManager.STREAM_ALARM, 80).also { it.startTone(ToneGenerator.TONE_PROP_BEEP, 800) } }.getOrNull()
-        handler.postDelayed({ tone?.release(); tone = null; stopSelf() }, 1000)
+        // TONE_PROP_BEEP is fixed at 35 ms even when a longer duration is requested.
+        tone = runCatching { ToneGenerator(AudioManager.STREAM_ALARM, 80).also { it.startTone(ToneGenerator.TONE_DTMF_0, 2000) } }.getOrNull()
+        handler.postDelayed({ tone?.release(); tone = null; stopSelf() }, 2000)
     }
 
     override fun onCreate() {

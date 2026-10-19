@@ -6,6 +6,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -17,12 +19,17 @@ import com.dinogym.data.Exercise
 internal fun SetRows(
     sets: List<DraftSet>, exercise: Exercise, enabled: Boolean,
     onChange: (List<DraftSet>) -> Unit, onLog: ((Int) -> Unit)? = null, maxReps: Boolean = false,
+    focusSet: Int? = null,
 ) {
     var weightVisible by rememberSaveable(exercise.id) { mutableStateOf(false) }
     val hasWeight = sets.any { it.weight.isNotBlank() }
     val showWeight = weightVisible || hasWeight
     val activeSet = if (onLog != null) sets.indexOfFirst { !it.completed } else -1
     sets.forEachIndexed { index, set ->
+        val requester = remember(exercise.id, index) { FocusRequester() }
+        LaunchedEffect(exercise.id, focusSet) {
+            if (focusSet == index) requester.requestFocus()
+        }
         Surface(shape = RoundedCornerShape(12.dp), color = when {
             index == activeSet -> MaterialTheme.colorScheme.primaryContainer
             set.completed -> MaterialTheme.colorScheme.surfaceContainerLow
@@ -33,7 +40,7 @@ internal fun SetRows(
             Text("${index + 1}", Modifier.width(20.dp))
             OutlinedTextField(set.value, { value ->
                 onChange(sets.mapIndexed { i, old -> if (i == index) old.copy(value = value.take(5), completed = false) else old })
-            }, Modifier.weight(1f), label = { Text(exercise.unit) }, enabled = enabled, singleLine = true,
+            }, Modifier.weight(1f).focusRequester(requester), label = { Text(exercise.unit) }, enabled = enabled, singleLine = true,
                 supportingText = if (maxReps) {
                     { Text(if (onLog != null) "Max reps · enter completed reps" else "Max reps per set") }
                 } else if (exercise.template != "{n} ${exercise.unit}") {

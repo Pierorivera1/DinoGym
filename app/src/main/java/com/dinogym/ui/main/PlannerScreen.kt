@@ -18,12 +18,13 @@ import java.util.UUID
 fun PlannerScreen(state: WorkoutState, onBack: () -> Unit,
     onSaveWorkout: (WorkoutTemplate, () -> Unit) -> Unit,
     onSaveSplit: (TrainingSplit, () -> Unit) -> Unit, onSelectSplit: (String) -> Unit,
-    initialWorkoutId: String? = null) {
+    initialWorkoutId: String? = null,
+    onAddExercise: (Exercise, () -> Unit) -> Unit = { _, _ -> }) {
     var editingWorkout by rememberSaveable { mutableStateOf(initialWorkoutId) }
     var editingSplit by rememberSaveable { mutableStateOf<String?>(null) }
     val close = { if (initialWorkoutId != null) onBack() else { editingWorkout = null; editingSplit = null } }
     if (editingWorkout != null) {
-        WorkoutTemplateEditor(state, state.data.workouts.find { it.id == editingWorkout }, close, onSaveWorkout)
+        WorkoutTemplateEditor(state, state.data.workouts.find { it.id == editingWorkout }, close, onSaveWorkout, onAddExercise)
         return
     }
     if (editingSplit != null) {
@@ -65,7 +66,8 @@ fun PlannerScreen(state: WorkoutState, onBack: () -> Unit,
 
 @Composable
 private fun WorkoutTemplateEditor(state: WorkoutState, existing: WorkoutTemplate?, onBack: () -> Unit,
-    onSave: (WorkoutTemplate, () -> Unit) -> Unit) {
+    onSave: (WorkoutTemplate, () -> Unit) -> Unit,
+    onAddExercise: (Exercise, () -> Unit) -> Unit) {
     var id by rememberSaveable { mutableStateOf(existing?.id ?: UUID.randomUUID().toString()) }
     var name by rememberSaveable { mutableStateOf(existing?.name.orEmpty()) }
     var encoded by rememberSaveable { mutableStateOf(WorkoutCodec.json.encodeToString(existing?.exercises.orEmpty().mapNotNull { planned ->
@@ -119,6 +121,7 @@ private fun WorkoutTemplateEditor(state: WorkoutState, existing: WorkoutTemplate
         }
     }
     if (picking) ExercisePicker(state.data.exercises.filter { !it.archived && entries.none { e -> e.exercise.id == it.id } },
+        saving = state.saving, onCreate = onAddExercise,
         onDismiss = { picking = false }, onPick = { exercise ->
             change(entries + DraftExercise(exercise, List(3) { DraftSet() })); picking = false; expanded = exercise.id
         })
@@ -175,14 +178,23 @@ private fun SplitEditor(state: WorkoutState, existing: TrainingSplit?, onBack: (
 }
 
 @Composable
-internal fun ExercisePicker(exercises: List<Exercise>, onDismiss: () -> Unit, onPick: (Exercise) -> Unit) {
+internal fun ExercisePicker(exercises: List<Exercise>, onDismiss: () -> Unit, onPick: (Exercise) -> Unit,
+    saving: Boolean, onCreate: (Exercise, () -> Unit) -> Unit) {
+    var creating by rememberSaveable { mutableStateOf(false) }
+    if (creating) {
+        ExerciseDialog(null, saving, onDismiss = { creating = false }, onSave = { exercise, close ->
+            onCreate(exercise) { close(); onPick(exercise) }
+        })
+        return
+    }
     var query by rememberSaveable { mutableStateOf("") }
     AlertDialog(onDismissRequest = onDismiss, title = { Text("Add exercise") }, text = {
         Column {
             OutlinedTextField(query, { query = it }, label = { Text("Search exercises") }, singleLine = true)
             LazyColumn(Modifier.heightIn(max = 360.dp)) {
                 val matches = exercises.filter { it.name.contains(query, ignoreCase = true) }
-                if (matches.isEmpty()) item { Text("No matching exercises. Create exercises in the Exercises tab.") }
+                item { TextButton(onClick = { creating = true }, enabled = !saving) { Text("Create exercise") } }
+                if (matches.isEmpty()) item { Text("No matching exercises.") }
                 items(matches, key = { it.id }) { exercise ->
                     TextButton(onClick = { onPick(exercise) }) { Text(exercise.name) }
                 }

@@ -103,14 +103,14 @@ class WorkoutSessionUiTest {
         compose.onNodeWithText("Pull-ups").performClick()
         compose.onAllNodesWithText("reps").onFirst().performTextReplacement("10")
         compose.onNodeWithContentDescription("Log set 1").performClick()
-        compose.onNodeWithText("Notes (optional)").performTextReplacement("Corrected")
+        compose.onNodeWithText("Notes (optional)").assertDoesNotExist()
         restoration.emulateSavedInstanceStateRestore()
         compose.onNodeWithText("10").assertExists()
-        compose.onNodeWithText("Corrected").assertExists()
+        compose.onNodeWithText("Notes (optional)").assertDoesNotExist()
         compose.onNodeWithText("Save changes").performClick()
         compose.onNodeWithText("Save session").performClick()
         compose.runOnIdle {
-            assertEquals(session.copy(entries = listOf(Entry(exercise, listOf(SetRecord(10), SetRecord(9)), "Corrected"))), saved)
+            assertEquals(session.copy(entries = listOf(Entry(exercise, listOf(SetRecord(10), SetRecord(9)), "Original note"))), saved)
         }
     }
 
@@ -146,7 +146,7 @@ class WorkoutSessionUiTest {
 
     @Test fun previousPerformanceAndNextExerciseKeepLoggingInOneFlow() {
         val exercises = starterExercises.take(2)
-        val workout = WorkoutTemplate("test", "Pull", exercises.map { PlannedExercise(it.id, listOf(SetRecord(8)), 0) })
+        val workout = WorkoutTemplate("test", "Pull", exercises.map { PlannedExercise(it.id, listOf(SetRecord(8)), 360) })
         val previous = Session("Pull", listOf(Entry(exercises.first(), 6, 1, "Controlled")), performedAt = 100)
         compose.setContent {
             DinoGymTheme {
@@ -155,15 +155,51 @@ class WorkoutSessionUiTest {
         }
         compose.onNodeWithText("Pull-ups").performClick()
         compose.onNodeWithText("6 reps × 1").assertExists()
-        compose.onNodeWithText("Controlled").assertExists()
+        compose.onNodeWithText("Controlled").assertDoesNotExist()
         compose.onNodeWithText("kg (optional)").assertDoesNotExist()
         compose.onNodeWithText("Log set").performClick()
-        compose.onNodeWithText("Next exercise").performClick()
+        compose.onNodeWithText("Next exercise").assertDoesNotExist()
+        compose.onNodeWithText("Skip rest").assertDoesNotExist()
         compose.onNodeWithText("Front holds + pulls").assertExists()
         compose.onNodeWithText("3s + 8 pulls + 3s").assertExists()
         compose.onNodeWithText("Log set").performClick()
         compose.onNodeWithText("Finish workout").performClick()
         compose.onNodeWithText("2 sets will be saved.").assertExists()
+    }
+
+
+    @Test fun loggingMovesRepsFocusToNextSet() {
+        val exercise = starterExercises.first()
+        val workout = WorkoutTemplate("focus", "Focus", listOf(PlannedExercise(exercise.id, List(3) { SetRecord(8) }, 0)))
+        compose.setContent {
+            DinoGymTheme {
+                WorkoutScreen("focus", WorkoutState(WorkoutData(workouts = listOf(workout)), loading = false), {}, {})
+            }
+        }
+        compose.onNodeWithText("Pull-ups").performClick()
+        compose.onAllNodesWithText("reps")[0].performClick()
+        compose.onNodeWithText("Log set").performClick()
+        compose.onAllNodesWithText("reps")[1].assertIsFocused()
+        compose.onNodeWithText("Log set").performClick()
+        compose.onAllNodesWithText("reps")[2].assertIsFocused()
+    }
+
+    @Test fun pickerCreatesAndAddsExerciseAfterSaving() {
+        var created: Exercise? = null
+        var draft: WorkoutDraft? = null
+        compose.setContent {
+            DinoGymTheme {
+                WorkoutScreen("custom", WorkoutState(WorkoutData(workouts = listOf(WorkoutTemplate("custom", "Custom", emptyList()))), loading = false),
+                    {}, {}, onDraft = { draft = it }, onAddExercise = { exercise, saved -> created = exercise; saved() })
+            }
+        }
+        compose.onNodeWithText("Add exercise").performClick()
+        compose.onNodeWithText("Create exercise").performClick()
+        compose.onNodeWithText("Name").performTextReplacement("Custom row")
+        compose.onNode(hasText("Add exercise") and hasAnyAncestor(isDialog())).performClick()
+        compose.onNodeWithText("Custom row").assertExists()
+        compose.onNodeWithText("Notes (optional)").assertDoesNotExist()
+        compose.runOnIdle { assertEquals(created, draft!!.exercises.single().exercise) }
     }
 
     @Test fun calendarFiltersHistoryAndRestoresSelection() {

@@ -21,6 +21,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.delay
 
@@ -42,6 +43,7 @@ fun WorkoutScreen(
     routine: String, state: WorkoutState, onBack: () -> Unit, onSave: (Session) -> Unit,
     session: Session? = null, onDraft: (WorkoutDraft) -> Unit = {},
     onDiscard: (() -> Unit)? = null, onFinish: ((Session, Boolean) -> Unit)? = null,
+    onAddExercise: (Exercise, () -> Unit) -> Unit = { _, _ -> },
 ) {
     val context = LocalContext.current
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
@@ -58,6 +60,8 @@ fun WorkoutScreen(
         onDraft(value)
     }
     LaunchedEffect(initial.id) { onDraft(draft) }
+    val focusManager = LocalFocusManager.current
+    var focusSet by remember { mutableStateOf<Pair<String, Int>?>(null) }
     var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
     var discard by rememberSaveable { mutableStateOf(false) }
     var finishing by rememberSaveable { mutableStateOf(false) }
@@ -88,8 +92,21 @@ fun WorkoutScreen(
     fun log(entry: DraftExercise, index: Int) {
         val set = entry.sets[index]
         if (set.record() == null) return
-        updateExercise(entry.copy(sets = entry.sets.mapIndexed { i, old -> if (i == index) old.copy(completed = !old.completed) else old }))
-        if (!set.completed && !draft.editing) startRest(entry.restSeconds)
+        val updated = entry.copy(sets = entry.sets.mapIndexed { i, old -> if (i == index) old.copy(completed = !old.completed) else old })
+        updateExercise(updated)
+        if (set.completed) focusSet = null
+        if (!set.completed && !draft.editing) {
+            val nextSet = updated.sets.indexOfFirst { !it.completed }
+            if (nextSet >= 0) {
+                focusSet = entry.exercise.id to nextSet
+                startRest(entry.restSeconds)
+            } else {
+                RestTimerService.stop(context)
+                focusManager.clearFocus()
+                focusSet = null
+                if (nextExercise != null) selectedId = nextExercise.exercise.id
+            }
+        }
     }
     val back = { if (!state.saving) { if (selectedId != null) selectedId = null else onBack() } }
     if (!LocalInspectionMode.current) BackHandler { back() }
@@ -182,16 +199,13 @@ fun WorkoutScreen(
                 if (previous != null) item {
                     Text("Last time · ${dateLabel(previous.first.performedAt)}", style = MaterialTheme.typography.labelMedium)
                     Text(previous.second.display, style = MaterialTheme.typography.bodyMedium)
-                    if (previous.second.notes.isNotBlank()) Text(previous.second.notes,
-                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         SetRows(selected.sets, selected.exercise, !state.saving,
-                            onChange = { updateExercise(selected.copy(sets = it)) }, onLog = { log(selected, it) }, maxReps = selected.maxReps)
+                            onChange = { focusSet = null; updateExercise(selected.copy(sets = it)) }, onLog = { log(selected, it) }, maxReps = selected.maxReps,
+                            focusSet = focusSet?.takeIf { it.first == selected.exercise.id }?.second)
                         if (selected.sets.any { it.record() == null }) Text("Enter 0–9999 ${selected.exercise.unit}; weight must be a non-negative number in kg.", color = MaterialTheme.colorScheme.error)
-                        OutlinedTextField(selected.notes, { updateExercise(selected.copy(notes = it.take(500))) },
-                            label = { Text("Notes (optional)") }, modifier = Modifier.fillMaxWidth(), enabled = !state.saving)
                         TextButton(onClick = { timerDialog = true }) { Text("Rest · ${formatRestDuration(selected.restSeconds)}") }
                     }
                 }
@@ -210,7 +224,7 @@ fun WorkoutScreen(
         { picking = false }, { exercise ->
             change(draft.copy(exercises = draft.exercises + DraftExercise(exercise, List(3) { DraftSet() })))
             picking = false; selectedId = exercise.id
-        })
+        }, state.saving, onAddExercise)
     if (finishing) AlertDialog(onDismissRequest = { if (!state.saving) finishing = false },
         title = { Text(if (draft.editing) "Save session changes?" else "Finish workout?") }, text = {
             Column {

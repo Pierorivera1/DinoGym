@@ -1,5 +1,6 @@
 package com.dinogym
 
+import android.app.ActivityManager
 import android.app.NotificationManager
 import android.content.Context
 import android.os.SystemClock
@@ -16,6 +17,25 @@ class RestTimerTest {
     @get:Rule val compose = createComposeRule()
     private val context get() = ApplicationProvider.getApplicationContext<Context>()
     @After fun stopTimer() { RestTimerService.stop(context) }
+
+    @Suppress("DEPRECATION") // getRunningServices still exposes the caller's own services.
+    @Test fun completionKeepsServiceAliveForTwoSecondAlarm() {
+        compose.setContent { Text("Timer alarm test") }
+        val activityManager = context.getSystemService(ActivityManager::class.java)
+        fun timerRunning() = activityManager.getRunningServices(Int.MAX_VALUE).any {
+            it.service.className == RestTimerService::class.java.name
+        }
+        compose.runOnIdle { RestTimerService.start(context, 1) }
+        compose.waitUntil(5000) { RestTimerService.state.value.active }
+        compose.waitUntil(5000) { !RestTimerService.state.value.active }
+        val started = SystemClock.elapsedRealtime()
+        // Native ToneGenerator playback is not observable through activePlaybackConfigurations.
+        assertTrue(timerRunning())
+        SystemClock.sleep(1500)
+        assertTrue("Service should retain the alarm after 1.5 seconds", timerRunning())
+        compose.waitUntil(1500) { !timerRunning() }
+        assertTrue("Service should stop after about two seconds", SystemClock.elapsedRealtime() - started in 1800..2800)
+    }
 
     @Test fun foregroundCountdownPausesRestartsCompletesAndUsesSilentNotification() {
         compose.setContent { Text("Timer test") }
