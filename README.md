@@ -16,12 +16,12 @@ The release APK follows the latest published tag; changes on `main` are availabl
 
 ## Features
 
-- **Training plans:** create named workouts and rotating splits, reorder exercises, and set independent targets for each workout. Completing the next workout advances the split.
+- **Training plans:** create named workouts and rotating splits, hold the six-dot handles to reorder exercises, delete workouts from Manage workouts & splits, and set independent targets for each workout. Completing the next workout advances the split.
 - **Set logging:** record repetitions or a custom metric, with optional weight in kilograms. Log a set to focus the next unfinished set; log the last set to open the next unfinished exercise automatically. Only logged sets are saved, and you can update workout targets when finishing.
-- **Rest timers:** configure rest between sets, pause or skip it, and adjust by 15 seconds. The last set skips automatic rest. Timers continue in the background and finish with about two seconds of sound, without vibration.
+- **Rest timers:** configure up to nine minutes of rest between sets, pause or skip it, and adjust by 15 seconds. The last set skips automatic rest. Timers continue in the background and finish with about two seconds of sound, without vibration.
 - **Exercise library:** create exercises from the library or directly from an Add exercise picker. Reuse exercises across workouts, edit them, or archive and restore them while preserving saved history.
 - **History and progress:** browse sessions by date, correct saved sets, and delete sessions after confirmation. Charts show weekly best-set values, with workout-specific filtering. Weeks start on Monday; missing weeks are not recorded as zero.
-- **Resume and appearance:** resume saved workout drafts after restarting the app. Choose light or dark mode; wider layouts use a navigation rail.
+- **Resume and appearance:** resume saved workout drafts after restarting the app. Fresh installs start in light mode; dark mode uses sage green accents on charcoal surfaces. Your choice is saved. Wider layouts use a navigation rail.
 
 Custom exercise templates contain exactly one `{n}` placeholder and a metric unit. For example, `3s + {n} pulls + 3s` with unit `pulls` tracks repetitions while keeping the holds fixed. Workout screens have no notes input; notes in older history are preserved.
 

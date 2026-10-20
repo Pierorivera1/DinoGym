@@ -72,6 +72,8 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
     )
 
     fun saveWorkout(workout: WorkoutTemplate, done: () -> Unit) = save(state.value.data.saveWorkout(workout), done)
+    fun deleteWorkout(id: String, done: () -> Unit) = save(state.value.data.deleteWorkout(id), done)
+
     fun saveSplit(split: TrainingSplit, done: () -> Unit) = save(state.value.data.saveSplit(split), done)
     fun selectSplit(id: String) = save(state.value.data.selectSplit(id)) {}
 

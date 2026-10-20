@@ -16,7 +16,7 @@ data class RestCountdown(val deadline: Long = 0, val pausedMs: Long = 0) {
     fun remaining(now: Long) = if (deadline > 0) (deadline - now).coerceAtLeast(0) else pausedMs
     val active get() = deadline > 0 || pausedMs > 0
     fun adjust(seconds: Int, now: Long): RestCountdown {
-        val adjusted = (remaining(now) + seconds * 1000L).coerceIn(0, 3600000)
+        val adjusted = (remaining(now) + seconds * 1000L).coerceIn(0, 540000)
         return if (deadline > 0) RestCountdown(now + adjusted) else RestCountdown(pausedMs = adjusted)
     }
 }
@@ -49,7 +49,7 @@ class RestTimerService : Service() {
         tone?.release(); tone = null
         val now = SystemClock.elapsedRealtime()
         when (intent?.action) {
-            "start" -> mutable.value = RestCountdown(now + intent.getIntExtra("seconds", 165).coerceIn(1, 3600) * 1000L)
+            "start" -> mutable.value = RestCountdown(now + intent.getIntExtra("seconds", 165).coerceIn(1, 540) * 1000L)
             "pause" -> mutable.value = RestCountdown(pausedMs = mutable.value.remaining(now))
             "resume" -> mutable.value = RestCountdown(now + mutable.value.pausedMs)
             "add15" -> mutable.value = mutable.value.adjust(15, now)

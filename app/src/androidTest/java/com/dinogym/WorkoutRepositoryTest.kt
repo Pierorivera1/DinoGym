@@ -10,6 +10,26 @@ import java.io.File
 import java.util.UUID
 
 class WorkoutRepositoryTest {
+    @Test fun oldRestDurationsLoadWithinNineMinutesWithoutLosingData() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val directory = File(context.cacheDir, "rest-migration-${UUID.randomUUID()}").apply { mkdirs() }
+        try {
+            val workout = WorkoutTemplate("long", "Long", listOf(PlannedExercise("pull-ups", restSeconds = 3600)))
+            val data = WorkoutData(workouts = listOf(workout))
+            val draft = WorkoutDraft.start(workout, data)
+            val repository = WorkoutRepository(directory)
+            repository.save(data)
+            repository.saveDraft(draft)
+            val loaded = repository.load()
+            assertEquals(540, loaded.workouts.single().exercises.single().restSeconds)
+            assertEquals(data.exercises, loaded.exercises)
+            val loadedDraft = repository.loadDraft()!!
+            assertEquals(draft.id, loadedDraft.id)
+            assertEquals(draft.exercises.single().sets, loadedDraft.exercises.single().sets)
+            assertEquals(540, loadedDraft.exercises.single().restSeconds)
+        } finally { directory.deleteRecursively() }
+    }
+
     @Test fun persistsAcrossRepositoryInstancesAndPreservesInvalidFiles() = runTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val directory = File(context.cacheDir, "repository-test-${UUID.randomUUID()}").apply { mkdirs() }

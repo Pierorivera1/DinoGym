@@ -86,6 +86,20 @@ data class WorkoutData(
         if (workouts.any { it.id == workout.id }) workouts.map { if (it.id == workout.id) workout else it }
         else workouts + workout)
 
+    fun deleteWorkout(id: String): WorkoutData {
+        val remainingSplits = splits.mapNotNull { split ->
+            val ids = split.workoutIds.filterNot { it == id }
+            if (ids.isEmpty()) null else split.copy(workoutIds = ids)
+        }
+        val active = remainingSplits.find { it.id == activeSplitId }
+        val originalIds = activeSplit?.workoutIds.orEmpty()
+        val survivingPositions = originalIds.indices.filter { originalIds[it] != id }
+        val current = if (originalIds.isEmpty()) 0 else nextWorkoutIndex % originalIds.size
+        val next = survivingPositions.indexOfFirst { it >= current }.coerceAtLeast(0)
+        return copy(workouts = workouts.filterNot { it.id == id }, splits = remainingSplits,
+            activeSplitId = active?.id, nextWorkoutIndex = if (active == null) 0 else next)
+    }
+
     fun saveSplit(split: TrainingSplit) = copy(splits =
         if (splits.any { it.id == split.id }) splits.map { if (it.id == split.id) split else it }
         else splits + split, nextWorkoutIndex = if (activeSplitId == split.id) 0 else nextWorkoutIndex)

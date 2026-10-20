@@ -77,23 +77,22 @@ internal fun RestDurationDialog(
     initial: Int, onDismiss: () -> Unit, onStart: ((Int) -> Unit)? = null,
     startLabel: String = "Start", onSave: (Int) -> Unit,
 ) {
-    var minutes by rememberSaveable { mutableStateOf((initial / 60).toString()) }
-    var seconds by rememberSaveable { mutableStateOf((initial % 60).toString().padStart(2, '0')) }
+    var minutes by rememberSaveable { mutableStateOf((initial.coerceIn(0, 540) / 60).toString()) }
+    var seconds by rememberSaveable { mutableStateOf((initial.coerceIn(0, 540) % 60).toString().padStart(2, '0')) }
     val mins = minutes.toIntOrNull()
     val secs = seconds.toIntOrNull()
-    val duration = if (mins in 0..60 && secs in 0..59) mins!! * 60 + secs!! else null
-    val valid = duration in 0..3600
+    val duration = if (mins in 0..9 && secs in 0..59) mins!! * 60 + secs!! else null
+    val valid = duration in 0..540
     AlertDialog(onDismissRequest = onDismiss, title = { Text("Rest timer") }, text = {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(minutes, { minutes = it.take(2) }, Modifier.weight(1f),
-                    label = { Text("Minutes") }, singleLine = true, isError = mins !in 0..60 || !valid,
+                    label = { Text("Minutes") }, singleLine = true, isError = mins !in 0..9 || !valid,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
                 OutlinedTextField(seconds, { seconds = it.take(2) }, Modifier.weight(1f),
                     label = { Text("Seconds") }, singleLine = true, isError = secs !in 0..59 || !valid,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
             }
-            Text("0:00 disables automatic rest · maximum 60:00")
         }
     }, confirmButton = {
         TextButton(enabled = valid, onClick = {

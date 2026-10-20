@@ -1,7 +1,6 @@
 package com.dinogym.theme
 
 import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -20,21 +19,27 @@ private val LightColors = lightColorScheme(
     outline = Color(0xFF818B7B), surfaceTint = Color(0xFF385540),
 )
 private val DarkColors = darkColorScheme(
-    primary = Color(0xFF82ABFF), onPrimary = Color(0xFF082655),
-    tertiary = Color(0xFF2B66D9), onTertiary = Color.White,
-    primaryContainer = Color(0xFF1D3358), onPrimaryContainer = Color(0xFFDCE7FF),
-    secondary = Color(0xFF82ABFF), onSecondary = Color(0xFF082655),
-    secondaryContainer = Color(0xFF26334B), onSecondaryContainer = Color(0xFFDCE7FF),
-    background = Color(0xFF202020), surface = Color(0xFF202020),
-    onBackground = Color(0xFFF0F0F2), onSurface = Color(0xFFF0F0F2),
-    surfaceContainer = Color(0xFF292929), surfaceContainerLow = Color(0xFF141414),
-    onSurfaceVariant = Color(0xFFB0B2BA), outlineVariant = Color(0xFF383B43),
-    outline = Color(0xFF858A96), surfaceTint = Color(0xFF82ABFF),
+    primary = Color(0xFFA5CFA8), onPrimary = Color(0xFF12371E),
+    tertiary = Color(0xFFB8CCAA), onTertiary = Color(0xFF24351D),
+    tertiaryContainer = Color(0xFF3A4C32), onTertiaryContainer = Color(0xFFD4E8C5),
+    primaryContainer = Color(0xFF2B4F35), onPrimaryContainer = Color(0xFFC1ECC3),
+    secondary = Color(0xFFBBCBB7), onSecondary = Color(0xFF263526),
+    secondaryContainer = Color(0xFF3C4B3B), onSecondaryContainer = Color(0xFFD7E8D2),
+    background = Color(0xFF181C18), surface = Color(0xFF181C18),
+    onBackground = Color(0xFFE1E5DC), onSurface = Color(0xFFE1E5DC),
+    surfaceContainer = Color(0xFF222722), surfaceContainerLow = Color(0xFF1C211C),
+    surfaceContainerLowest = Color(0xFF101510), surfaceContainerHigh = Color(0xFF2C312B),
+    surfaceContainerHighest = Color(0xFF373C36), surfaceDim = Color(0xFF101510),
+    surfaceBright = Color(0xFF373C36), surfaceVariant = Color(0xFF41493F),
+    onSurfaceVariant = Color(0xFFC1C9BC), outlineVariant = Color(0xFF41493F),
+    outline = Color(0xFF8B9486), surfaceTint = Color(0xFFA5CFA8),
+    inverseSurface = Color(0xFFE1E5DC), inverseOnSurface = Color(0xFF2C312B),
+    inversePrimary = Color(0xFF385540),
 )
 
 @Composable
 fun DinoGymTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {

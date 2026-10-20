@@ -72,11 +72,11 @@ fun MainNavigation(viewModel: WorkoutViewModel = viewModel(),
                     onFinish = { completed, _ -> viewModel.finishWorkout(completed, false) { backStack.removeLastOrNull() } })
             }
             entry<Plans> {
-                PlannerScreen(state, { backStack.removeLastOrNull() }, viewModel::saveWorkout, viewModel::saveSplit, viewModel::selectSplit, onAddExercise = viewModel::addExercise)
+                PlannerScreen(state, { backStack.removeLastOrNull() }, viewModel::saveWorkout, viewModel::saveSplit, viewModel::selectSplit, onAddExercise = viewModel::addExercise, onDeleteWorkout = viewModel::deleteWorkout)
             }
             entry<EditPlan> { key ->
                 PlannerScreen(state, { backStack.removeLastOrNull() }, viewModel::saveWorkout, viewModel::saveSplit,
-                    viewModel::selectSplit, initialWorkoutId = key.workoutId, onAddExercise = viewModel::addExercise)
+                    viewModel::selectSplit, initialWorkoutId = key.workoutId, onAddExercise = viewModel::addExercise, onDeleteWorkout = viewModel::deleteWorkout)
             }
             entry<History> {
                 HistoryScreen(state.data, onBack = { backStack.removeLastOrNull() },

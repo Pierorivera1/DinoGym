@@ -14,6 +14,6 @@ class RestCountdownTest {
         val paused = RestCountdown(pausedMs = 60000)
         assertEquals(RestCountdown(pausedMs = 75000), paused.adjust(15, now))
         assertEquals(RestCountdown(), RestCountdown(pausedMs = 1000).adjust(-15, now))
-        assertEquals(3600000L, RestCountdown(pausedMs = 3600000).adjust(15, now).pausedMs)
+        assertEquals(540000L, RestCountdown(pausedMs = 540000).adjust(15, now).pausedMs)
     }
 }

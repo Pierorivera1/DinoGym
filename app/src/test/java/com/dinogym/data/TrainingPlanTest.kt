@@ -5,6 +5,23 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class TrainingPlanTest {
+    @Test fun deletingWorkoutCleansSplitsAndKeepsHistoryAndNextWorkout() {
+        val session = Session("Pull", listOf(Entry(starterExercises.first(), 8, 1)), workoutId = "Pull")
+        val data = WorkoutData(sessions = listOf(session), nextWorkoutIndex = 2)
+        val deleted = data.deleteWorkout("Pull")
+        assertEquals("Legs", deleted.nextWorkout?.id)
+        assertEquals(listOf(session), deleted.sessions)
+        assertFalse(deleted.workouts.any { it.id == "Pull" })
+        assertTrue(deleted.splits.all { "Pull" !in it.workoutIds })
+        assertEquals("Upper", data.deleteWorkout("Legs").nextWorkout?.id)
+        val empty = data.copy(splits = listOf(TrainingSplit("only", "Only", listOf("Pull", "Pull"))),
+            activeSplitId = "only").deleteWorkout("Pull")
+        assertTrue(empty.splits.isEmpty())
+        assertNull(empty.activeSplitId)
+        assertNull(empty.nextWorkout)
+        assertEquals(listOf(session), empty.sessions)
+    }
+
     @Test fun newRestsDefaultToTwoMinutesFortyFiveSecondsAndSavedDurationsSurvive() {
         val exercise = starterExercises.first()
         assertEquals(165, PlannedExercise(exercise.id).restSeconds)

@@ -11,6 +11,11 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
 object AppIcons {
+    val DragHandle = icon("Reorder") {
+        for (x in listOf(9f, 15f)) for (y in listOf(6f, 12f, 18f)) {
+            moveTo(x, y); lineTo(x, y + .1f)
+        }
+    }
     val More = icon("More options") {
         moveTo(12f, 5f); lineTo(12f, 5.1f)
         moveTo(12f, 12f); lineTo(12f, 12.1f)

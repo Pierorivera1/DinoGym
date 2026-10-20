@@ -16,14 +16,20 @@ class WorkoutRepository(directory: File) {
 
     suspend fun load(): WorkoutData = withContext(Dispatchers.IO) {
         if (!file.baseFile.exists() && !File(file.baseFile.path + ".bak").exists()) WorkoutData()
-        else file.openRead().bufferedReader().use { WorkoutCodec.decode(it.readText()) }
+        else file.openRead().bufferedReader().use { WorkoutCodec.decode(it.readText()) }.let { data ->
+            data.copy(workouts = data.workouts.map { workout ->
+                workout.copy(exercises = workout.exercises.map { it.copy(restSeconds = it.restSeconds.coerceAtMost(540)) })
+            })
+        }
     }
 
     private val draftFile = AtomicFile(File(directory, "active-workout.json"))
 
     suspend fun loadDraft(): WorkoutDraft? = withContext(Dispatchers.IO) {
         if (!draftFile.baseFile.exists() && !File(draftFile.baseFile.path + ".bak").exists()) null
-        else draftFile.openRead().bufferedReader().use { json.decodeFromString<WorkoutDraft>(it.readText()) }
+        else draftFile.openRead().bufferedReader().use { json.decodeFromString<WorkoutDraft>(it.readText()) }.let { draft ->
+            draft.copy(exercises = draft.exercises.map { it.copy(restSeconds = it.restSeconds.coerceAtMost(540)) })
+        }
     }
 
     suspend fun saveDraft(draft: WorkoutDraft?) = withContext(Dispatchers.IO) {
