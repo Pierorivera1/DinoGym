@@ -4,21 +4,21 @@ DinoGym is a native Android workout tracker for bodyweight training. Build a tra
 
 ## Screenshots
 
-| Training | Progress | Settings |
-| --- | --- | --- |
-| ![Training screen](docs/screenshots/train.png) | ![Progress screen](docs/screenshots/progress.png) | ![Theme settings](docs/screenshots/settings.png) |
+| Training | Progress | Light settings | Dark settings |
+| --- | --- | --- | --- |
+| ![Training screen](docs/screenshots/train.png) | ![Progress screen](docs/screenshots/progress.png) | ![Light theme settings](docs/screenshots/settings.png) | ![Sage green dark theme](docs/screenshots/dark.png) |
 
 ## Install
 
 [Download the latest APK](https://github.com/Pierorivera1/DinoGym/releases/latest/download/app-debug.apk) from GitHub Releases. Open it on an Android 8.0+ device and allow installation from the download source if Android asks. Releases currently use debug APKs.
 
-The release APK follows the latest published tag; changes on `main` are available by building from source until a new release is published.
+Version **1.0.3** includes drag reordering, workout deletion, the nine-minute rest limit, automatic exercise advancement, and the updated themes. Install the APK over version 1.0.2 to keep your local data; do not uninstall first. Fresh installs start in light mode, and updates preserve your saved theme choice.
 
 ## Features
 
-- **Training plans:** create named workouts and rotating splits, hold the six-dot handles to reorder exercises, delete workouts from Manage workouts & splits, and set independent targets for each workout. Completing the next workout advances the split.
+- **Training plans:** create named workouts and rotating splits, hold the six-dot handles to reorder exercises, delete workouts from Manage workouts & splits, and set independent targets for each workout. Completing the next workout advances the split. Editors collapse while dragging so the list can scroll. Deleting a workout removes it from splits while keeping saved history.
 - **Set logging:** record repetitions or a custom metric, with optional weight in kilograms. Log a set to focus the next unfinished set; log the last set to open the next unfinished exercise automatically. Only logged sets are saved, and you can update workout targets when finishing.
-- **Rest timers:** configure up to nine minutes of rest between sets, pause or skip it, and adjust by 15 seconds. The last set skips automatic rest. Timers continue in the background and finish with about two seconds of sound, without vibration.
+- **Rest timers:** configure up to nine minutes of rest between sets, pause or skip it, and adjust by 15 seconds. Previously saved rests longer than nine minutes are capped when loaded. The last set skips automatic rest. Timers continue in the background and finish with about two seconds of sound, without vibration.
 - **Exercise library:** create exercises from the library or directly from an Add exercise picker. Reuse exercises across workouts, edit them, or archive and restore them while preserving saved history.
 - **History and progress:** browse sessions by date, correct saved sets, and delete sessions after confirmation. Charts show weekly best-set values, with workout-specific filtering. Weeks start on Monday; missing weeks are not recorded as zero.
 - **Resume and appearance:** resume saved workout drafts after restarting the app. Fresh installs start in light mode; dark mode uses sage green accents on charcoal surfaces. Your choice is saved. Wider layouts use a navigation rail.
