@@ -20,7 +20,7 @@ As of 2026-11-16. Remove an item when it is done or decided, and record decision
 
 ## Still to decide
 
-- [ ] Mocks for the rest of the first version: Programs, Exercises, Stats, Settings (see [DESIGN.md](DESIGN.md)). The style and the workout-flow mocks are approved (decision 33)
+- [ ] The owner reviews the second mock batch (Programs, Exercises, Stats, Settings): they are on the canvas and were built from without approval (decision 41)
 - [ ] The sync design: how conflicts between devices are resolved
 - [ ] The DynamoDB data model
 - [ ] The AWS region

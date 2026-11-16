@@ -247,3 +247,15 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
   - **Screenshots with Roborazzi and Robolectric** (test-only libraries, added to the version catalog). The laptop cannot run an emulator (decision 15), so a JVM test renders the components and screens to PNG files for comparing against the mocks. The images are written on every unit-test run and are not compared automatically, because font rendering differs between machines. Rejected: Google's Compose screenshot plugin (still alpha); no visual check at all.
 - **Why:** These keep the look exact to DESIGN.md while staying inside the CPU limits.
 - **Icon source:** `docs/design/icons/gen_icons.py` generates the vector drawables from the 16×16 bitmaps.
+
+## 41. Second mock batch, built before the owner's review (2026-11-16)
+
+- **Decision:** The mocks for Programs, Exercises, Stats and Settings were added to the design canvas and `docs/design/mocks/`, and tasks 7–10 are built from them without waiting for the owner's approval. This is a one-time exception to decision 16: the owner asked for tasks 1–10 in one run and told the AI to make the open decisions. DESIGN.md marks these mocks "awaiting the owner's review"; anything the owner changes later is a follow-up task.
+- **Interaction choices in the mocks:**
+  - **No Save buttons.** Edits are stored as they happen, like logged sets. Removing an item from a list offers UNDO; deleting a whole program, routine or session asks first. Rejected: Save/Cancel on every editor, which needs "discard changes?" dialogs.
+  - **Adding is always `+ NEW` in the section header**, and it opens the editor directly. This answers the version 1 complaint that add and edit were hard to find.
+  - **Routines have their own list**, because one routine can be used by several programs.
+  - **Exercises are archived, never deleted**, so their history and progress stay.
+  - **Settings opens from a gear button on Home's header.** This changes the approved Home mock. Rejected: a sixth tab in the bottom bar.
+  - **The bottom bar shows only on the four tab screens.** Editors and detail screens have a top bar with back.
+- **Why:** Building from mocks keeps the screens consistent with the approved style even when the owner has not seen each one.

@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Routine editor</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 900px; height: 960px; box-sizing: border-box; background: #E4E0EA; padding: 40px; display: flex; gap: 40px; font-family: Inter, sans-serif">
+  <sc-for list="{{vs}}" as="v" hint-placeholder-count="2">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">{{v.label}}</div>
+      <div style="width: 390px; height: 844px; box-sizing: border-box; background: {{v.t.bg}}; color: {{v.t.outline}}; display: flex; flex-direction: column; overflow: hidden">
+        <div style="flex-grow: 1; min-height: 0; overflow: hidden; padding: 0 16px; display: flex; flex-direction: column; gap: 14px">
+          <header style="height: 56px; flex-shrink: 0; display: grid; grid-template-columns: 48px 1fr 48px; gap: 8px; align-items: center">
+            <a href="ProgramEdit.dc.html" aria-label="{{v.s.backAria}}" style="width: 48px; height: 48px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.back}}" fill="{{v.t.action}}"></path></svg></a>
+            <h1 style="margin: 0; text-align: center; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 22px">{{v.s.title}}</h1>
+            <button type="button" aria-label="{{v.s.deleteAria}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: transparent; border: 2px solid {{v.t.danger}}; clip-path: {{n}}; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.trash}}" fill="{{v.t.danger}}"></path></svg></button>
+          </header>
+
+          <label style="display: flex; flex-direction: column; gap: 6px">
+            <span style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}"><span>{{v.s.nameLabel}}</span><span style="font-weight: 400; letter-spacing: 0">{{v.s.saves}}</span></span>
+            <input type="text" value="PULL" style="height: 52px; box-sizing: border-box; padding: 0 14px; background: {{v.t.bg}}; color: {{v.t.outline}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; font-family: Inter, sans-serif; font-size: 16px; outline: none">
+          </label>
+
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">
+            <span>{{v.s.exLabel}}</span><span>{{v.s.exMeta}}</span>
+          </div>
+
+          <ol style="margin: -6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px">
+            <sc-for list="{{v.before}}" as="e" hint-placeholder-count="2">
+              <li style="height: 60px; box-sizing: border-box; display: flex; align-items: center; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}">
+                <button type="button" aria-label="{{e.dragAria}}" style="width: 40px; height: 56px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: transparent; border: 0; cursor: grab"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.drag}}" fill="{{v.t.muted}}"></path></svg></button>
+                <button type="button" aria-expanded="false" aria-label="{{e.aria}}" style="flex-grow: 1; min-width: 0; height: 56px; padding: 0 10px 0 0; display: flex; align-items: center; gap: 10px; background: transparent; border: 0; color: {{v.t.outline}}; text-align: left; font-family: Inter, sans-serif; cursor: pointer">
+                  <span style="width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: {{v.t.surface2}}; clip-path: {{n}}"><svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{e.icon}}" fill="{{v.t.outline}}"></path></svg></span>
+                  <span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                    <span style="font-size: 15px; font-weight: 600">{{e.name}}</span>
+                    <span style="font-size: 13px; color: {{v.t.muted}}">{{e.meta}}</span>
+                  </span>
+                  <svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true" style="transform: rotate(90deg)"><path d="{{ic.chevR}}" fill="{{v.t.muted}}"></path></svg>
+                </button>
+              </li>
+            </sc-for>
+
+            <li style="filter: drop-shadow(4px 4px 0 {{v.t.shadow}}); margin-bottom: 4px">
+              <div style="background: {{v.t.selBg}}; color: {{v.t.outline}}; border: 2px solid {{v.t.selBorder}}; clip-path: {{n}}; padding: 2px 4px 14px 0; display: flex; flex-direction: column; gap: 8px">
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <button type="button" aria-label="{{v.s.dragOpen}}" style="width: 40px; height: 52px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: transparent; border: 0; cursor: grab"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.drag}}" fill="{{v.t.activeMuted}}"></path></svg></button>
+                  <span style="width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: {{v.t.surface2}}; clip-path: {{n}}"><svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.pull}}" fill="{{v.t.outline}}"></path></svg></span>
+                  <h2 style="margin: 0; flex-grow: 1; font-size: 16px; font-weight: 600">{{v.s.openName}}</h2>
+                  <button type="button" aria-label="{{v.s.removeAria}}" style="width: 48px; height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: transparent; border: 2px solid {{v.t.danger}}; clip-path: {{n}}; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.trash}}" fill="{{v.t.danger}}"></path></svg></button>
+                  <button type="button" aria-expanded="true" aria-label="{{v.s.collapseAria}}" style="width: 48px; height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true" style="transform: rotate(-90deg)"><path d="{{ic.chevR}}" fill="{{v.t.outline}}"></path></svg></button>
+                </div>
+
+                <div style="padding: 0 10px 0 14px; display: flex; flex-direction: column; gap: 8px">
+                  <div style="display: flex; align-items: center; justify-content: space-between">
+                    <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.activeMuted}}">{{v.s.sets}}</span>
+                    <div style="display: flex; align-items: center; gap: 4px">
+                      <button type="button" aria-label="{{v.s.setsLess}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.minus}}" fill="{{v.t.outline}}"></path></svg></button>
+                      <span style="width: 52px; text-align: center; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 30px; line-height: 1">2</span>
+                      <button type="button" aria-label="{{v.s.setsMore}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.plus}}" fill="{{v.t.outline}}"></path></svg></button>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; align-items: center; justify-content: space-between">
+                    <span id="reps-mode" style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.activeMuted}}">{{v.s.reps}}</span>
+                    <div role="radiogroup" aria-labelledby="reps-mode" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; width: 200px">
+                      <sc-for list="{{v.repSeg}}" as="sg" hint-placeholder-count="2">
+                        <button type="button" role="radio" aria-checked="{{sg.on}}" style="height: 48px; background: {{sg.bg}}; color: {{sg.fg}}; border: 2px solid {{sg.border}}; clip-path: {{n}}; box-shadow: {{sg.shadow}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer">{{sg.label}}</button>
+                      </sc-for>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; align-items: center; justify-content: space-between">
+                    <span style="font-size: 13px; color: {{v.t.activeMuted}}">{{v.s.repsHelp}}</span>
+                    <div style="display: flex; align-items: center; gap: 4px">
+                      <button type="button" aria-label="{{v.s.repsLess}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.minus}}" fill="{{v.t.outline}}"></path></svg></button>
+                      <span style="width: 52px; text-align: center; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 30px; line-height: 1">6</span>
+                      <button type="button" aria-label="{{v.s.repsMore}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.plus}}" fill="{{v.t.outline}}"></path></svg></button>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; align-items: center; justify-content: space-between">
+                    <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.activeMuted}}">{{v.s.rest}}</span>
+                    <a href="RestPicker.dc.html" aria-label="{{v.s.restAria}}" style="width: 148px; height: 48px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; background: {{v.t.surface}}; color: {{v.t.outline}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.timer}}" fill="{{v.t.action}}"></path></svg>2:30</a>
+                  </div>
+                </div>
+              </div>
+            </li>
+
+            <sc-for list="{{v.after}}" as="e" hint-placeholder-count="3">
+              <li style="height: 60px; box-sizing: border-box; display: flex; align-items: center; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}">
+                <button type="button" aria-label="{{e.dragAria}}" style="width: 40px; height: 56px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: transparent; border: 0; cursor: grab"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.drag}}" fill="{{v.t.muted}}"></path></svg></button>
+                <button type="button" aria-expanded="false" aria-label="{{e.aria}}" style="flex-grow: 1; min-width: 0; height: 56px; padding: 0 10px 0 0; display: flex; align-items: center; gap: 10px; background: transparent; border: 0; color: {{v.t.outline}}; text-align: left; font-family: Inter, sans-serif; cursor: pointer">
+                  <span style="width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: {{v.t.surface2}}; clip-path: {{n}}"><svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{e.icon}}" fill="{{v.t.outline}}"></path></svg></span>
+                  <span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                    <span style="font-size: 15px; font-weight: 600">{{e.name}}</span>
+                    <span style="font-size: 13px; color: {{v.t.muted}}">{{e.meta}}</span>
+                  </span>
+                  <svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true" style="transform: rotate(90deg)"><path d="{{ic.chevR}}" fill="{{v.t.muted}}"></path></svg>
+                </button>
+              </li>
+            </sc-for>
+          </ol>
+        </div>
+
+        <div style="flex-shrink: 0; padding: 12px 16px 16px; background: {{v.t.bg}}; border-top: 2px solid {{v.t.surface2}}">
+          <a href="ExercisePicker.dc.html" style="height: 60px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; background: {{v.t.primary}}; color: {{v.t.onPrimary}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px">
+            <svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.plus}}" fill="{{v.t.onPrimary}}"></path></svg>{{v.s.add}}
+          </a>
+        </div>
+      </div>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["EN + ES","EN","ES"],"default":"EN + ES"},"$preview":{"width":900,"height":960}}'>
+const T = {
+  night: { name: 'NIGHT', bg: '#0C0915', surface: '#1C1430', surface2: '#2A1F45', outline: '#F4F2F7', muted: '#A39BB6', primary: '#A98BFF', onPrimary: '#0C0915', select: '#F5D23A', onSelect: '#0C0915', action: '#F0A030', danger: '#FF4D4D', hi: 'rgba(255,255,255,0.22)', lo: 'rgba(0,0,0,0.45)', shadow: '#4A3A80', selBg: '#1C1430', selBorder: '#F5D23A', activeMuted: '#A39BB6' },
+  day: { name: 'DAY', bg: '#FBF3E8', surface: '#FFFDF8', surface2: '#F3E6D6', outline: '#33213F', muted: '#7A6684', primary: '#6B4FC8', onPrimary: '#FBF3E8', select: '#FBDA61', onSelect: '#33213F', action: '#33213F', danger: '#B8326A', hi: 'rgba(255,255,255,0.6)', lo: 'rgba(51,33,63,0.25)', shadow: '#33213F', selBg: '#FBDA61', selBorder: '#33213F', activeMuted: '#5A4466' }
+};
+const N = 'polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px)';
+function px(rows) { let d = ''; rows.forEach(function (r, y) { for (let x = 0; x < r.length; x++) { if (r[x] === '#') d += 'M' + x + ' ' + y + 'h1v1h-1z'; } }); return d; }
+const I = {
+  plus: px(['','','','','.......##','.......##','.......##','...##########','...##########','.......##','.......##','.......##']),
+  minus: px(['','','','','','','','...##########','...##########']),
+  timer: px(['','......####','.....######','....##....##','...#...##...#','..#....##....#','..#....##....#','..#....####..#','..#..........#','..#..........#','...#........#','....##....##','.....######']),
+  back: px(['','','','......##','.....##','....##','...##','..############','..############','...##','....##','.....##','......##']),
+  trash: px(['','......####','.....#....#','..############','..############','...#........#','...#.##..##.#','...#.##..##.#','...#.##..##.#','...#.##..##.#','...#........#','...##########']),
+  drag: px(['','','','.....##..##','.....##..##','','','.....##..##','.....##..##','','','.....##..##','.....##..##']),
+  chevR: px(['','','.....##','.....###','......###','.......###','........###','........###','.......###','......###','.....###','.....##']),
+  pull: px(['################','.##..........##','.....##..##','.....#.##.#','.......##','......####','.....#.##.#','.......##','.......##','......#..#','......#..#','.....##..##']),
+  lever: px(['################','.##..........##','.....##','.....##','.....##','..##.##','..############','.....##########']),
+  curl: px(['','','..##.....##','..#########','..##..##.##','......##','......##','......##','......##.###','......########','......#########','......#########']),
+  row: px(['','...########','....#....#','....#....#','.##.######','.##..########','........#######','............###','.............##','..............#','..............#','################'])
+};
+const S = {
+  en: {
+    backAria: 'Back', title: 'EDIT ROUTINE', deleteAria: 'Delete routine', nameLabel: 'NAME', saves: 'Changes save as you go', exLabel: 'EXERCISES · 6', exMeta: '14 SETS',
+    openName: 'Pull-ups', dragOpen: 'Move Pull-ups. Drag, or use actions to move up or down', removeAria: 'Remove Pull-ups from this routine', collapseAria: 'Close Pull-ups settings',
+    sets: 'SETS', setsLess: 'One less set', setsMore: 'One more set', reps: 'REPS', modes: ['FIXED', 'RANGE'], repsHelp: 'Target', repsLess: 'One less rep', repsMore: 'One more rep', rest: 'REST', restAria: 'Rest 2 minutes 30 seconds, tap to change', add: 'ADD EXERCISE',
+    move: 'Move ', moveTail: '. Drag, or use actions to move up or down', open: 'Open settings for ', rest_: 'rest',
+    ex: [['lever', 'Front lever + pulls', '2 × 4', '2:30'], ['curl', 'Forearm curl', '3 × 13', '1:30'], ['curl', 'Reverse curl', '2 × 25', '1:30'], ['row', 'Rows', '3 × 12', '2:30'], ['curl', 'Bicep curl', '2 × 12', '1:30']]
+  },
+  es: {
+    backAria: 'Volver', title: 'EDITAR RUTINA', deleteAria: 'Borrar rutina', nameLabel: 'NOMBRE', saves: 'Los cambios se guardan solos', exLabel: 'EJERCICIOS · 6', exMeta: '14 SERIES',
+    openName: 'Dominadas', dragOpen: 'Mover Dominadas. Arrastra o usa las acciones para subir o bajar', removeAria: 'Quitar Dominadas de esta rutina', collapseAria: 'Cerrar ajustes de Dominadas',
+    sets: 'SERIES', setsLess: 'Una serie menos', setsMore: 'Una serie más', reps: 'REPS', modes: ['FIJO', 'RANGO'], repsHelp: 'Objetivo', repsLess: 'Una repetición menos', repsMore: 'Una repetición más', rest: 'DESCANSO', restAria: 'Descanso de 2 minutos 30 segundos, toca para cambiar', add: 'AGREGAR EJERCICIO',
+    move: 'Mover ', moveTail: '. Arrastra o usa las acciones para subir o bajar', open: 'Abrir ajustes de ', rest_: 'descanso',
+    ex: [['lever', 'Front lever + dominadas', '2 × 4', '2:30'], ['curl', 'Curl de antebrazo', '3 × 13', '1:30'], ['curl', 'Curl inverso', '2 × 25', '1:30'], ['row', 'Remo', '3 × 12', '2:30'], ['curl', 'Curl de bíceps', '2 × 12', '1:30']]
+  }
+};
+class Component extends DCLogic {
+  renderVals() {
+    const L = this.props.lang ?? 'EN + ES';
+    const pairs = L === 'EN' ? [['night', 'en'], ['day', 'en']] : L === 'ES' ? [['night', 'es'], ['day', 'es']] : [['night', 'en'], ['day', 'es']];
+    const vs = pairs.map(function (p) {
+      const t = T[p[0]], s = S[p[1]];
+      const rows = s.ex.map(function (e) { return { icon: I[e[0]], name: e[1], meta: e[2] + ' · ' + s.rest_ + ' ' + e[3], dragAria: s.move + e[1] + s.moveTail, aria: s.open + e[1] }; });
+      return {
+        t: t, s: s,
+        label: t.name + ' · ' + (p[1] === 'en' ? 'ENGLISH' : 'ESPAÑOL'),
+        before: rows.slice(0, 2),
+        after: rows.slice(2),
+        repSeg: s.modes.map(function (l, i) {
+          const on = i === 0;
+          return { label: l, on: on ? 'true' : 'false', bg: on ? t.select : t.surface, fg: on ? t.onSelect : t.outline, border: on ? t.outline : t.action, shadow: on ? 'none' : 'inset 0 2px 0 ' + t.hi + ', inset 0 -4px 0 ' + t.lo };
+        })
+      };
+    });
+    return { vs: vs, n: N, ic: I };
+  }
+}
+</script>
+</body>
+</html>

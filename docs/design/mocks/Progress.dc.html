@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Exercise progress</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 900px; height: 960px; box-sizing: border-box; background: #E4E0EA; padding: 40px; display: flex; gap: 40px; font-family: Inter, sans-serif">
+  <sc-for list="{{vs}}" as="v" hint-placeholder-count="2">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">{{v.label}}</div>
+      <div style="width: 390px; height: 844px; box-sizing: border-box; background: {{v.t.bg}}; color: {{v.t.outline}}; padding: 0 16px 16px; display: flex; flex-direction: column; gap: 14px; overflow: hidden">
+        <header style="height: 56px; flex-shrink: 0; display: grid; grid-template-columns: 48px 1fr 48px; gap: 8px; align-items: center">
+          <a href="SessionDetail.dc.html" aria-label="{{v.s.backAria}}" style="width: 48px; height: 48px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.back}}" fill="{{v.t.action}}"></path></svg></a>
+          <h1 style="margin: 0; text-align: center; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 22px">{{v.s.title}}</h1>
+          <span></span>
+        </header>
+
+        <div style="display: flex; gap: 14px; align-items: center">
+          <div style="width: 64px; height: 64px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: {{v.t.surface2}}; clip-path: {{n}}">
+            <svg viewBox="0 0 16 16" width="48" height="48" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.pull}}" fill="{{v.t.outline}}"></path></svg>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 2px">
+            <h2 style="margin: 0; font-size: 22px; font-weight: 600">{{v.s.exName}}</h2>
+            <span style="font-size: 14px; color: {{v.t.muted}}">{{v.s.exSub}}</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+          <sc-for list="{{v.stats}}" as="st" hint-placeholder-count="3">
+            <div style="background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; padding: 10px 12px 14px; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">{{st.k}}</span>
+              <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 28px; line-height: 1; color: {{st.c}}">{{st.v}}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <figure style="margin: 0; padding: 12px 14px 10px; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; display: flex; flex-direction: column; gap: 8px">
+          <figcaption style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">{{v.s.chartLabel}}</figcaption>
+          <div role="img" aria-label="{{v.s.chartAria}}" style="position: relative; width: 326px; height: 196px">
+            <span style="position: absolute; left: 0; top: 4px; width: 20px; text-align: right; font-size: 11px; line-height: 16px; color: {{v.t.muted}}">8</span>
+            <span style="position: absolute; left: 0; top: 36px; width: 20px; text-align: right; font-size: 11px; line-height: 16px; color: {{v.t.muted}}">7</span>
+            <span style="position: absolute; left: 0; top: 68px; width: 20px; text-align: right; font-size: 11px; line-height: 16px; color: {{v.t.muted}}">6</span>
+            <span style="position: absolute; left: 0; top: 100px; width: 20px; text-align: right; font-size: 11px; line-height: 16px; color: {{v.t.muted}}">5</span>
+            <span style="position: absolute; left: 0; top: 132px; width: 20px; text-align: right; font-size: 11px; line-height: 16px; color: {{v.t.muted}}">4</span>
+            <svg viewBox="0 0 298 168" width="298" height="168" shape-rendering="crispEdges" aria-hidden="true" style="position: absolute; left: 28px; top: 4px">
+              <line x1="0" y1="8" x2="298" y2="8" stroke="{{v.t.muted}}" stroke-opacity="0.4" stroke-width="2" stroke-dasharray="2 4"></line>
+              <line x1="0" y1="40" x2="298" y2="40" stroke="{{v.t.muted}}" stroke-opacity="0.4" stroke-width="2" stroke-dasharray="2 4"></line>
+              <line x1="0" y1="72" x2="298" y2="72" stroke="{{v.t.muted}}" stroke-opacity="0.4" stroke-width="2" stroke-dasharray="2 4"></line>
+              <line x1="0" y1="104" x2="298" y2="104" stroke="{{v.t.muted}}" stroke-opacity="0.4" stroke-width="2" stroke-dasharray="2 4"></line>
+              <line x1="0" y1="136" x2="298" y2="136" stroke="{{v.t.muted}}" stroke-opacity="0.4" stroke-width="2" stroke-dasharray="2 4"></line>
+              <path d="M18 166 V136 H68 V104 H146 V72 H262 V40 V166 Z" fill="{{v.t.tint}}"></path>
+              <path d="M18 136 H68 V104 H146 V72 H262 V40" fill="none" stroke="{{v.t.primary}}" stroke-width="2"></path>
+              <line x1="0" y1="167" x2="298" y2="167" stroke="{{v.t.muted}}" stroke-width="2"></line>
+              <rect x="16" y="134" width="4" height="4" fill="{{v.t.primary}}"></rect>
+              <rect x="66" y="102" width="4" height="4" fill="{{v.t.primary}}"></rect>
+              <rect x="144" y="70" width="4" height="4" fill="{{v.t.primary}}"></rect>
+              <rect x="258" y="36" width="8" height="8" fill="{{v.t.select}}" stroke="{{v.t.outline}}" stroke-width="2"></rect>
+            </svg>
+            <sc-for list="{{v.months}}" as="m" hint-placeholder-count="5">
+              <span style="position: absolute; top: 178px; left: {{m.left}}; width: 40px; text-align: center; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: {{v.t.muted}}">{{m.label}}</span>
+            </sc-for>
+          </div>
+        </figure>
+
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">
+            <span>{{v.s.recordsLabel}}</span><span>{{v.s.newest}}</span>
+          </div>
+          <ul style="margin: 0; padding: 0; list-style: none; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}">
+            <sc-for list="{{v.records}}" as="r" hint-placeholder-count="4">
+              <li style="height: 44px; padding: 0 12px; display: flex; align-items: center; gap: 10px; border-bottom: 2px dotted {{v.t.surface2}}; background: {{r.bg}}">
+                <span style="flex-grow: 1; font-size: 15px">{{r.date}}</span>
+                <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px">{{r.reps}}</span>
+                <span style="width: 72px; text-align: right; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 14px; color: {{r.dc}}">{{r.delta}}</span>
+              </li>
+            </sc-for>
+          </ul>
+          <span style="font-size: 13px; line-height: 1.4; color: {{v.t.muted}}">{{v.s.rule}}</span>
+        </div>
+      </div>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["EN + ES","EN","ES"],"default":"EN + ES"},"$preview":{"width":900,"height":960}}'>
+const T = {
+  night: { name: 'NIGHT', bg: '#0C0915', surface: '#1C1430', surface2: '#2A1F45', outline: '#F4F2F7', muted: '#A39BB6', primary: '#A98BFF', select: '#F5D23A', action: '#F0A030', success: '#5CD27A', hi: 'rgba(255,255,255,0.22)', lo: 'rgba(0,0,0,0.45)', tint: 'rgba(169,139,255,0.20)', bestBg: 'rgba(92,210,122,0.14)' },
+  day: { name: 'DAY', bg: '#FBF3E8', surface: '#FFFDF8', surface2: '#F3E6D6', outline: '#33213F', muted: '#7A6684', primary: '#6B4FC8', select: '#FBDA61', action: '#33213F', success: '#2F7D45', hi: 'rgba(255,255,255,0.6)', lo: 'rgba(51,33,63,0.25)', tint: 'rgba(107,79,200,0.15)', bestBg: '#E3F3E6' }
+};
+const N = 'polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px)';
+function px(rows) { let d = ''; rows.forEach(function (r, y) { for (let x = 0; x < r.length; x++) { if (r[x] === '#') d += 'M' + x + ' ' + y + 'h1v1h-1z'; } }); return d; }
+const I = {
+  back: px(['','','','......##','.....##','....##','...##','..############','..############','...##','....##','.....##','......##']),
+  pull: px(['################','.##..........##','.....##..##','.....#.##.#','.......##','......####','.....#.##.#','.......##','.......##','......#..#','......#..#','.....##..##'])
+};
+const S = {
+  en: {
+    backAria: 'Back', title: 'PROGRESS', exName: 'Pull-ups', exSub: 'Set 1 · reps', stats: [['BEST', '7'], ['GAIN', '+3'], ['RECORDS', '4']],
+    chartLabel: 'SET 1 BEST OVER TIME', chartAria: 'Set 1 best for pull-ups: 4 on 7 July, 5 on 4 August, 6 on 15 September, 7 on 16 November',
+    months: ['JUL', 'AUG', 'SEP', 'OCT', 'NOV'], recordsLabel: 'RECORDS', newest: 'NEWEST FIRST', first: 'FIRST',
+    records: [['Mon 16 Nov', '7'], ['Tue 15 Sep', '6'], ['Mon 4 Aug', '5'], ['Tue 7 Jul', '4']],
+    rule: 'Only set 1 counts. A day is listed when it beats your best.'
+  },
+  es: {
+    backAria: 'Volver', title: 'PROGRESO', exName: 'Dominadas', exSub: 'Serie 1 · reps', stats: [['MEJOR', '7'], ['AVANCE', '+3'], ['RÉCORDS', '4']],
+    chartLabel: 'MEJOR SERIE 1 EN EL TIEMPO', chartAria: 'Mejor serie 1 en dominadas: 4 el 7 de julio, 5 el 4 de agosto, 6 el 15 de septiembre, 7 el 16 de noviembre',
+    months: ['JUL', 'AGO', 'SEP', 'OCT', 'NOV'], recordsLabel: 'RÉCORDS', newest: 'MÁS RECIENTE PRIMERO', first: 'PRIMERO',
+    records: [['lun 16 nov', '7'], ['mar 15 sep', '6'], ['lun 4 ago', '5'], ['mar 7 jul', '4']],
+    rule: 'Solo cuenta la serie 1. Un día aparece cuando supera tu mejor marca.'
+  }
+};
+const MONTH_LEFT = ['42px', '99px', '156px', '213px', '270px'];
+class Component extends DCLogic {
+  renderVals() {
+    const L = this.props.lang ?? 'EN + ES';
+    const pairs = L === 'EN' ? [['night', 'en'], ['day', 'en']] : L === 'ES' ? [['night', 'es'], ['day', 'es']] : [['night', 'en'], ['day', 'es']];
+    const vs = pairs.map(function (p) {
+      const t = T[p[0]], s = S[p[1]];
+      return {
+        t: t, s: s,
+        label: t.name + ' · ' + (p[1] === 'en' ? 'ENGLISH' : 'ESPAÑOL'),
+        stats: s.stats.map(function (x, i) { return { k: x[0], v: x[1], c: i === 1 ? t.success : t.outline }; }),
+        months: s.months.map(function (m, i) { return { label: m, left: MONTH_LEFT[i] }; }),
+        records: s.records.map(function (r, i) {
+          const last = i === s.records.length - 1;
+          return { date: r[0], reps: r[1], delta: last ? s.first : '▲ +1', dc: last ? t.muted : t.success, bg: i === 0 ? t.bestBg : 'transparent' };
+        })
+      };
+    });
+    return { vs: vs, n: N, ic: I };
+  }
+}
+</script>
+</body>
+</html>

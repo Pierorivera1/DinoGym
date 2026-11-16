@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Program editor</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 900px; height: 960px; box-sizing: border-box; background: #E4E0EA; padding: 40px; display: flex; gap: 40px; font-family: Inter, sans-serif">
+  <sc-for list="{{vs}}" as="v" hint-placeholder-count="2">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">{{v.label}}</div>
+      <div style="width: 390px; height: 844px; box-sizing: border-box; background: {{v.t.bg}}; color: {{v.t.outline}}; padding: 0 16px 16px; display: flex; flex-direction: column; gap: 14px; overflow: hidden">
+        <header style="height: 56px; flex-shrink: 0; display: grid; grid-template-columns: 48px 1fr 48px; gap: 8px; align-items: center">
+          <a href="ProgramList.dc.html" aria-label="{{v.s.backAria}}" style="width: 48px; height: 48px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.back}}" fill="{{v.t.action}}"></path></svg></a>
+          <h1 style="margin: 0; text-align: center; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 22px">{{v.s.title}}</h1>
+          <button type="button" aria-label="{{v.s.deleteAria}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: transparent; border: 2px solid {{v.t.danger}}; clip-path: {{n}}; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.trash}}" fill="{{v.t.danger}}"></path></svg></button>
+        </header>
+
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: {{v.t.muted}}">
+          <span style="padding: 2px 6px; background: {{v.t.select}}; color: {{v.t.onSelect}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 12px">{{v.s.active}}</span>
+          <span>{{v.s.saves}}</span>
+        </div>
+
+        <label style="display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">{{v.s.nameLabel}}</span>
+          <input type="text" value="{{v.s.name}}" style="height: 52px; box-sizing: border-box; padding: 0 14px; background: {{v.t.bg}}; color: {{v.t.outline}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; font-family: Inter, sans-serif; font-size: 16px; outline: none">
+        </label>
+
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <span id="type-label" style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">{{v.s.typeLabel}}</span>
+          <div role="radiogroup" aria-labelledby="type-label" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px">
+            <sc-for list="{{v.typeSeg}}" as="sg" hint-placeholder-count="2">
+              <button type="button" role="radio" aria-checked="{{sg.on}}" style="height: 48px; background: {{sg.bg}}; color: {{sg.fg}}; border: 2px solid {{sg.border}}; clip-path: {{n}}; box-shadow: {{sg.shadow}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 16px; cursor: pointer">{{sg.label}}</button>
+            </sc-for>
+          </div>
+          <span style="font-size: 13px; color: {{v.t.muted}}">{{v.s.typeHelp}}</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">
+            <span>{{v.s.cycleLabel}}</span><span>{{v.s.cycleMeta}}</span>
+          </div>
+          <ol style="margin: 0; padding: 0; list-style: none; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}">
+            <sc-for list="{{v.steps}}" as="c" hint-placeholder-count="6">
+              <li style="height: 56px; display: flex; align-items: center; border-bottom: 2px dotted {{v.t.surface2}}">
+                <button type="button" aria-label="{{c.dragAria}}" style="width: 40px; height: 56px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: transparent; border: 0; cursor: grab"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.drag}}" fill="{{v.t.muted}}"></path></svg></button>
+                <span style="width: 20px; flex-shrink: 0; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 15px; color: {{v.t.muted}}">{{c.n}}</span>
+                <sc-if value="{{c.isRoutine}}" hint-placeholder-val="{{true}}">
+                  <a href="RoutineEdit.dc.html" aria-label="{{c.editAria}}" style="flex-grow: 1; min-width: 0; height: 56px; display: flex; align-items: center; gap: 8px; text-decoration: none; color: {{v.t.outline}}">
+                    <span style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px">
+                      <span style="display: flex; align-items: center; gap: 8px">
+                        <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px; line-height: 1">{{c.name}}</span>
+                        <sc-if value="{{c.next}}" hint-placeholder-val="{{false}}"><span style="padding: 1px 6px; background: {{v.t.select}}; color: {{v.t.onSelect}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 11px">{{v.s.next}}</span></sc-if>
+                      </span>
+                      <span style="font-size: 13px; color: {{v.t.muted}}">{{c.meta}}</span>
+                    </span>
+                    <svg viewBox="0 0 16 16" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.chevR}}" fill="{{v.t.muted}}"></path></svg>
+                  </a>
+                </sc-if>
+                <sc-if value="{{c.isRest}}" hint-placeholder-val="{{false}}">
+                  <span style="flex-grow: 1; display: flex; align-items: center; gap: 8px; font-size: 15px; color: {{v.t.muted}}"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.zzz}}" fill="{{v.t.muted}}"></path></svg>{{v.s.restDay}}</span>
+                </sc-if>
+                <button type="button" aria-label="{{c.removeAria}}" style="width: 48px; height: 48px; margin: 0 4px 0 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: transparent; border: 2px solid {{v.t.surface2}}; clip-path: {{n}}; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.close}}" fill="{{v.t.muted}}"></path></svg></button>
+              </li>
+            </sc-for>
+          </ol>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+          <button type="button" style="height: 56px; display: flex; align-items: center; justify-content: center; gap: 6px; background: {{v.t.surface}}; color: {{v.t.outline}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 17px; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.plus}}" fill="{{v.t.action}}"></path></svg>{{v.s.addRoutine}}</button>
+          <button type="button" style="height: 56px; display: flex; align-items: center; justify-content: center; gap: 6px; background: {{v.t.surface}}; color: {{v.t.outline}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 17px; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.plus}}" fill="{{v.t.action}}"></path></svg>{{v.s.addRest}}</button>
+        </div>
+
+        <p style="margin: 0; font-size: 13px; line-height: 1.4; color: {{v.t.muted}}">{{v.s.dragHelp}}</p>
+      </div>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["EN + ES","EN","ES"],"default":"EN + ES"},"$preview":{"width":900,"height":960}}'>
+const T = {
+  night: { name: 'NIGHT', bg: '#0C0915', surface: '#1C1430', surface2: '#2A1F45', outline: '#F4F2F7', muted: '#A39BB6', primary: '#A98BFF', onPrimary: '#0C0915', select: '#F5D23A', onSelect: '#0C0915', action: '#F0A030', danger: '#FF4D4D', hi: 'rgba(255,255,255,0.22)', lo: 'rgba(0,0,0,0.45)' },
+  day: { name: 'DAY', bg: '#FBF3E8', surface: '#FFFDF8', surface2: '#F3E6D6', outline: '#33213F', muted: '#7A6684', primary: '#6B4FC8', onPrimary: '#FBF3E8', select: '#FBDA61', onSelect: '#33213F', action: '#33213F', danger: '#B8326A', hi: 'rgba(255,255,255,0.6)', lo: 'rgba(51,33,63,0.25)' }
+};
+const N = 'polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px)';
+function px(rows) { let d = ''; rows.forEach(function (r, y) { for (let x = 0; x < r.length; x++) { if (r[x] === '#') d += 'M' + x + ' ' + y + 'h1v1h-1z'; } }); return d; }
+const I = {
+  plus: px(['','','','','.......##','.......##','.......##','...##########','...##########','.......##','.......##','.......##']),
+  close: px(['','','...##......##','....##....##','.....##..##','......####','......####','.....##..##','....##....##','...##......##']),
+  back: px(['','','','......##','.....##','....##','...##','..############','..############','...##','....##','.....##','......##']),
+  trash: px(['','......####','.....#....#','..############','..############','...#........#','...#.##..##.#','...#.##..##.#','...#.##..##.#','...#.##..##.#','...#........#','...##########']),
+  drag: px(['','','','.....##..##','.....##..##','','','.....##..##','.....##..##','','','.....##..##','.....##..##']),
+  chevR: px(['','','.....##','.....###','......###','.......###','........###','........###','.......###','......###','.....###','.....##']),
+  zzz: px(['','..........####','............#','...........#','..######..####','..######','......##','.....##','....##','...##','..######','..######'])
+};
+const S = {
+  en: {
+    backAria: 'Back to programs', title: 'EDIT PROGRAM', deleteAria: 'Delete program', active: 'ACTIVE', saves: 'Changes save as you go.', nameLabel: 'NAME', name: 'My program', typeLabel: 'TYPE', types: ['GYM', 'CALISTHENICS'], typeHelp: 'Calisthenics hides the weight field unless an exercise turns it on.',
+    cycleLabel: 'CYCLE', cycleMeta: '6 STEPS, THEN REPEATS', next: 'NEXT', restDay: 'Rest day', addRoutine: 'ROUTINE', addRest: 'REST DAY',
+    exercises: ' exercises', drag: 'Move step ', dragTail: '. Drag, or use actions to move up or down', edit: 'Edit routine ', remove: 'Remove step ', restName: 'Rest day',
+    dragHelp: 'Hold the dots and drag to reorder. Tap a routine to edit it. ✕ removes the step from the cycle, not the routine.'
+  },
+  es: {
+    backAria: 'Volver a programas', title: 'EDITAR PROGRAMA', deleteAria: 'Borrar programa', active: 'ACTIVO', saves: 'Los cambios se guardan solos.', nameLabel: 'NOMBRE', name: 'Mi programa', typeLabel: 'TIPO', types: ['GYM', 'CALISTENIA'], typeHelp: 'Calistenia oculta el peso, salvo en los ejercicios que lo activen.',
+    cycleLabel: 'CICLO', cycleMeta: '6 PASOS, LUEGO SE REPITE', next: 'SIGUE', restDay: 'Descanso', addRoutine: 'RUTINA', addRest: 'DESCANSO',
+    exercises: ' ejercicios', drag: 'Mover paso ', dragTail: '. Arrastra o usa las acciones para subir o bajar', edit: 'Editar rutina ', remove: 'Quitar paso ', restName: 'Descanso',
+    dragHelp: 'Mantén presionados los puntos y arrastra para reordenar. Toca una rutina para editarla. ✕ quita el paso del ciclo, no la rutina.'
+  }
+};
+const STEPS = [['PULL', 6], ['PUSH', 5], ['LEGS', 3], [null, 0], ['UPPER', 7], ['LOWER', 3]];
+class Component extends DCLogic {
+  renderVals() {
+    const L = this.props.lang ?? 'EN + ES';
+    const pairs = L === 'EN' ? [['night', 'en'], ['day', 'en']] : L === 'ES' ? [['night', 'es'], ['day', 'es']] : [['night', 'en'], ['day', 'es']];
+    const vs = pairs.map(function (p) {
+      const t = T[p[0]], s = S[p[1]];
+      return {
+        t: t, s: s,
+        label: t.name + ' · ' + (p[1] === 'en' ? 'ENGLISH' : 'ESPAÑOL'),
+        typeSeg: s.types.map(function (l, i) {
+          const on = i === 1;
+          return { label: l, on: on ? 'true' : 'false', bg: on ? t.select : t.surface, fg: on ? t.onSelect : t.outline, border: on ? t.outline : t.action, shadow: on ? 'none' : 'inset 0 2px 0 ' + t.hi + ', inset 0 -4px 0 ' + t.lo };
+        }),
+        steps: STEPS.map(function (st, i) {
+          const name = st[0] || s.restName;
+          return { n: String(i + 1), isRoutine: !!st[0], isRest: !st[0], next: i === 0, name: st[0], meta: st[1] + s.exercises, dragAria: s.drag + (i + 1) + ', ' + name + s.dragTail, editAria: s.edit + name, removeAria: s.remove + (i + 1) + ', ' + name };
+        })
+      };
+    });
+    return { vs: vs, n: N, ic: I };
+  }
+}
+</script>
+</body>
+</html>
