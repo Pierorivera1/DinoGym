@@ -41,6 +41,11 @@ import io.github.pierorivera1.dinogym.ui.navigation.SummaryRoute
 import io.github.pierorivera1.dinogym.ui.navigation.WorkoutRoute
 import io.github.pierorivera1.dinogym.ui.navigation.route
 import io.github.pierorivera1.dinogym.ui.navigation.tabFor
+import io.github.pierorivera1.dinogym.ui.programs.ProgramEditEntry
+import io.github.pierorivera1.dinogym.ui.programs.ProgramEditRoute
+import io.github.pierorivera1.dinogym.ui.programs.ProgramListEntry
+import io.github.pierorivera1.dinogym.ui.programs.RoutineEditEntry
+import io.github.pierorivera1.dinogym.ui.programs.RoutineEditRoute
 import io.github.pierorivera1.dinogym.ui.theme.DinoTheme
 import io.github.pierorivera1.dinogym.ui.workout.RestEntry
 import io.github.pierorivera1.dinogym.ui.workout.SummaryEntry
@@ -83,12 +88,33 @@ fun DinoGymNavigation(appViewModel: AppViewModel = hiltViewModel()) {
                 entry<HomeRoute> {
                     HomeEntry(
                         onWorkoutStarted = { backStack.openWorkout() },
-                        onEditRoutine = { /* The routine editor arrives with the Programs task. */ },
+                        onEditRoutine = { backStack.add(RoutineEditRoute(it)) },
                         onOpenSettings = { /* The Settings screen arrives in a later task. */ },
                         onOpenHistory = { backStack.openTab(BottomTab.STATS) },
                     )
                 }
-                entry<ProgramsRoute> { PlaceholderScreen(R.string.nav_programs) }
+                entry<ProgramsRoute> {
+                    ProgramListEntry(
+                        onOpenProgram = { id, isNew -> backStack.add(ProgramEditRoute(id, isNew)) },
+                        onOpenRoutine = { id, isNew -> backStack.add(RoutineEditRoute(id, isNew)) },
+                    )
+                }
+                entry<ProgramEditRoute> { key ->
+                    ProgramEditEntry(
+                        programId = key.programId,
+                        isNew = key.isNew,
+                        onBack = { if (backStack.last() == key) backStack.removeLastOrNull() },
+                        onOpenRoutine = { id, isNew -> backStack.add(RoutineEditRoute(id, isNew)) },
+                    )
+                }
+                entry<RoutineEditRoute> { key ->
+                    RoutineEditEntry(
+                        routineId = key.routineId,
+                        isNew = key.isNew,
+                        onBack = { if (backStack.last() == key) backStack.removeLastOrNull() },
+                        onOpenExercise = { backStack.add(ExerciseEditRoute(it, isNew = true)) },
+                    )
+                }
                 entry<StatsRoute> { PlaceholderScreen(R.string.nav_stats) }
                 entry<ExercisesRoute> {
                     ExerciseLibraryEntry(onOpenExercise = { id, isNew -> backStack.add(ExerciseEditRoute(id, isNew)) })
