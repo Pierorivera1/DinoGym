@@ -313,3 +313,16 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **No minification yet:** R8 stays off. Shrinking could break Room, Hilt or serialization at runtime in ways only a phone shows, and the APK size does not matter for a sideloaded app. Rejected for now: R8 with keep rules, worth revisiting with tests on a device.
 - **Rejected:** Signing on the laptop and uploading by hand (no record of what was built); Play App Signing (no Play Store, decision 8); a keystore committed in encrypted form (one leaked password away from public).
 - **Risk:** The key cannot be replaced without uninstalling the app. The owner must back up `~/.config/dinogym/`.
+
+## 47. Stats screens: what counts as progress (2026-11-16)
+
+- **Decision:** Task 9 built the Stats tab (HISTORY / PROGRESS), the past session and the progress view from the mocks. Behaviour the mocks do not show:
+  - **A first ever set 1 is not a new best**, the same as the summary. Rejected: tagging first sessions.
+  - **Weight shows only when set 1 logged more than 0 kg**, so bodyweight exercises in a Gym program never read `0 kg × 8`. Rejected: following the exercise's weight switch.
+  - **GAIN and record deltas show kilograms when the weight went up** (`+2.5 kg`), otherwise reps, because more weight usually means fewer reps. Rejected: always reps.
+  - **Chart:** the y axis is kilograms for weighted exercises (a same-weight record with more reps is a flat step; the list has the exact value) and reps otherwise. The x axis gives each month an equal slot from the first record to today, with at most 6 labels. Rejected: an estimated-strength scale; a plain linear date axis.
+  - **Show-only exercises** (jump rope) are left out of PROGRESS: they never have results.
+  - **Editing a past set saves on every tap**, one write at a time, in the app's scope so leaving the screen never drops the last tap. The summary recomputes when its session's sets change. Rejected: debouncing; a summary that shows stale numbers after EDIT.
+  - **Deleting a session** removes it and any summary of it from the back stack. Rejected: returning to a summary of a deleted session.
+- **Not drawn:** the PROGRESS list (exercise tile, name, best set 1) follows the history rows' style. It needs the owner's review with the rest of the second batch.
+- **Why:** Records should mean real improvement, and a correction to a past set should show everywhere at once.
