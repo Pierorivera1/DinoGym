@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 16x16 pixel icon "chevron", redrawn from ProgramEdit.dc.html. Tinted in code; the fill is a placeholder. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M5,2h2v1h-2zM5,3h3v1h-3zM6,4h3v1h-3zM7,5h3v1h-3zM8,6h3v1h-3zM8,7h3v1h-3zM7,8h3v1h-3zM6,9h3v1h-3zM5,10h3v1h-3zM5,11h2v1h-2z" />
+</vector>

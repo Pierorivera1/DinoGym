@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Exercises tab (ui/exercises): the library and the exercise editor. -->
+<resources>
+    <!-- Library. -->
+    <string name="exercises_title">EXERCISES</string>
+    <string name="exercises_new_cd">New exercise</string>
+    <!-- The name a new exercise gets. It is user data afterwards. -->
+    <string name="exercises_new_name">New exercise</string>
+    <string name="exercises_filter_active">ACTIVE · %1$d</string>
+    <string name="exercises_filter_archived">ARCHIVED · %1$d</string>
+    <string name="exercises_empty_active">No exercises yet. Tap NEW to add one.</string>
+    <string name="exercises_empty_archived">Nothing archived. An archived exercise keeps its history and comes back with RESTORE.</string>
+
+    <!-- Editor. -->
+    <string name="exercise_edit_title">EDIT EXERCISE</string>
+    <string name="exercise_edit_back_cd">Back to exercises</string>
+    <string name="exercise_missing">This exercise no longer exists.</string>
+    <string name="exercise_name_label">NAME</string>
+    <string name="exercise_name_error">Give it a name. The old name stays until then.</string>
+    <string name="exercise_icon_label">ICON</string>
+    <string name="exercise_icon_lever">Front lever</string>
+    <string name="exercise_icon_pull_up">Pull-up</string>
+    <string name="exercise_icon_row">Row</string>
+    <string name="exercise_icon_curl">Curl</string>
+    <string name="exercise_icon_raise">Raise</string>
+    <string name="exercise_icon_dip">Dip</string>
+    <string name="exercise_icon_push_up">Push-up</string>
+    <string name="exercise_icon_squat">Squat</string>
+    <string name="exercise_icon_jump_rope">Jump rope</string>
+    <string name="exercise_icon_generic">Other</string>
+    <string name="exercise_kind_label">HOW IT IS LOGGED</string>
+    <string name="exercise_kind_reps">REPS</string>
+    <string name="exercise_kind_pattern">PATTERN</string>
+    <string name="exercise_kind_show_only">SHOW ONLY</string>
+    <string name="exercise_kind_show_only_help">Shown in the routine but never logged, like jump rope at the end of Legs.</string>
+    <string name="exercise_pattern_label">PATTERN</string>
+    <string name="exercise_pattern_help">{n} is the number you log. Shows as:</string>
+    <string name="exercise_pattern_error">Put {n} where the logged number goes. The last pattern with {n} is kept until then.</string>
+    <string name="exercise_weight">Log weight</string>
+    <string name="exercise_weight_help_off">Off: Calisthenics programs hide the weight field for this exercise.</string>
+    <string name="exercise_weight_help_on">On: the weight field shows in every program.</string>
+    <string name="exercise_archive">ARCHIVE</string>
+    <string name="exercise_restore">RESTORE</string>
+    <!-- %1$s is a list of routine names, such as "Pull and Upper". -->
+    <string name="exercise_used_in">Used in %1$s.</string>
+    <string name="exercise_used_nowhere">Not used in any routine.</string>
+    <string name="exercise_archive_help">Archiving hides it from the picker; its history and progress stay. Restore it from the Archived list.</string>
+    <string name="exercise_archived_help">Archived: hidden from the picker. Its history and progress stay. RESTORE brings it back.</string>
+    <!-- Joins the last two names of a list: "Pull and Upper", "Pull, Push and Upper". -->
+    <string name="exercise_list_and">%1$s and %2$s</string>
+</resources>

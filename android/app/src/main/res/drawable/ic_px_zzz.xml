@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 16x16 pixel icon "zzz", redrawn from ProgramEdit.dc.html. Tinted in code; the fill is a placeholder. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M10,1h4v1h-4zM12,2h1v1h-1zM11,3h1v1h-1zM2,4h6v1h-6zM10,4h4v1h-4zM2,5h6v1h-6zM6,6h2v1h-2zM5,7h2v1h-2zM4,8h2v1h-2zM3,9h2v1h-2zM2,10h6v1h-6zM2,11h6v1h-6z" />
+</vector>

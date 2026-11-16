@@ -28,6 +28,9 @@ import androidx.navigation3.ui.NavDisplay
 import io.github.pierorivera1.dinogym.R
 import io.github.pierorivera1.dinogym.ui.components.BottomBar
 import io.github.pierorivera1.dinogym.ui.components.BottomTab
+import io.github.pierorivera1.dinogym.ui.exercises.ExerciseEditEntry
+import io.github.pierorivera1.dinogym.ui.exercises.ExerciseEditRoute
+import io.github.pierorivera1.dinogym.ui.exercises.ExerciseLibraryEntry
 import io.github.pierorivera1.dinogym.ui.home.HomeEntry
 import io.github.pierorivera1.dinogym.ui.navigation.ExercisesRoute
 import io.github.pierorivera1.dinogym.ui.navigation.HomeRoute
@@ -87,7 +90,12 @@ fun DinoGymNavigation(appViewModel: AppViewModel = hiltViewModel()) {
                 }
                 entry<ProgramsRoute> { PlaceholderScreen(R.string.nav_programs) }
                 entry<StatsRoute> { PlaceholderScreen(R.string.nav_stats) }
-                entry<ExercisesRoute> { PlaceholderScreen(R.string.nav_exercises) }
+                entry<ExercisesRoute> {
+                    ExerciseLibraryEntry(onOpenExercise = { id, isNew -> backStack.add(ExerciseEditRoute(id, isNew)) })
+                }
+                entry<ExerciseEditRoute> { key ->
+                    ExerciseEditEntry(key.exerciseId, key.isNew, onBack = { if (backStack.last() == key) backStack.removeLastOrNull() })
+                }
                 entry<WorkoutRoute> {
                     WorkoutEntry(
                         onOpenRest = { if (backStack.last() == WorkoutRoute) backStack.add(RestRoute) },

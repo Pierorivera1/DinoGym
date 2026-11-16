@@ -16,30 +16,30 @@ import io.github.pierorivera1.dinogym.ui.theme.DinoTheme
 import io.github.pierorivera1.dinogym.ui.theme.SteppedShape
 
 /**
- * The pixel drawable for an exercise's icon key (decision 30). Only the pull-up icon is drawn
- * so far; the other keys show the dumbbell as a placeholder until their icons arrive.
+ * The pixel drawable for an exercise's icon key (decision 30). GENERIC ("Other" in the
+ * editor) uses the dumbbell, the same icon as the Exercises tab.
  */
 @DrawableRes
 fun ExerciseIcon.drawable(): Int = when (this) {
     ExerciseIcon.PULL_UP -> R.drawable.ic_px_pull
-    ExerciseIcon.ROW,
-    ExerciseIcon.CURL,
-    ExerciseIcon.DIP,
-    ExerciseIcon.PUSH_UP,
-    ExerciseIcon.RAISE,
-    ExerciseIcon.SQUAT,
-    ExerciseIcon.LEVER,
-    ExerciseIcon.JUMP_ROPE,
-    ExerciseIcon.GENERIC,
-    -> R.drawable.ic_px_exercises
+    ExerciseIcon.ROW -> R.drawable.ic_px_row
+    ExerciseIcon.CURL -> R.drawable.ic_px_curl
+    ExerciseIcon.DIP -> R.drawable.ic_px_dip
+    ExerciseIcon.PUSH_UP -> R.drawable.ic_px_pushup
+    ExerciseIcon.RAISE -> R.drawable.ic_px_raise
+    ExerciseIcon.SQUAT -> R.drawable.ic_px_squat
+    ExerciseIcon.LEVER -> R.drawable.ic_px_lever
+    ExerciseIcon.JUMP_ROPE -> R.drawable.ic_px_jump_rope
+    ExerciseIcon.GENERIC -> R.drawable.ic_px_exercises
 }
 
 /**
  * An exercise's icon on a stepped `surface2` tile, as on the active exercise screen
- * (64dp tile, icon at 3x). Decorative: the exercise name is always next to it.
+ * (64dp tile, icon at 3x). The library uses a 56dp tile with a 48dp icon ([iconSize]).
+ * Decorative: the exercise name is always next to it.
  */
 @Composable
-fun ExerciseTile(icon: ExerciseIcon, modifier: Modifier = Modifier, size: Dp = 64.dp) {
+fun ExerciseTile(icon: ExerciseIcon, modifier: Modifier = Modifier, size: Dp = 64.dp, iconSize: Dp = size * 3 / 4) {
     val colors = DinoTheme.colors
     Box(
         modifier = modifier
@@ -48,6 +48,6 @@ fun ExerciseTile(icon: ExerciseIcon, modifier: Modifier = Modifier, size: Dp = 6
             .background(colors.surface2),
         contentAlignment = Alignment.Center,
     ) {
-        PixelIcon(icon.drawable(), colors.outline, size = size * 3 / 4)
+        PixelIcon(icon.drawable(), colors.outline, size = iconSize)
     }
 }

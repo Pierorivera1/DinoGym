@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 16x16 pixel icon "pushup", redrawn from ExerciseEdit.dc.html. Tinted in code; the fill is a placeholder. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M1,4h2v1h-2zM1,5h2v1h-2zM2,6h5v1h-5zM2,7h1v1h-1zM6,7h5v1h-5zM2,8h1v1h-1zM10,8h5v1h-5zM2,9h1v1h-1zM14,9h2v1h-2zM2,10h1v1h-1zM15,10h1v1h-1zM1,11h2v1h-2zM15,11h1v1h-1zM0,12h16v1h-16z" />
+</vector>

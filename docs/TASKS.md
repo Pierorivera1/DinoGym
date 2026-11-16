@@ -13,7 +13,7 @@ Order agreed 2026-11-16. Tasks 1–10 are planned in detail; from task 11 on the
 - [x] **5. Workout flow** (approved mocks). Home, active exercise, rest picker, rest timer in the background, summary. A workout survives an app restart.
 - [x] **6. Second mock batch** (alongside tasks 1–5). Programs, Exercises, Stats, Settings, for the owner's approval.
 - [ ] **7. Programs.** Program list, cycle editor, routine editor, exercise picker.
-- [ ] **8. Exercises.** Library, add and edit (icon, fixed-pattern template, weight switch), archive and restore.
+- [x] **8. Exercises.** Library, add and edit (icon, fixed-pattern template, weight switch), archive and restore.
 - [ ] **9. Stats.** History by date, edit a past session, progress view per exercise.
 - [ ] **10. Settings and first release.** Theme setting, Spanish review of every string, release signing (keystore kept out of git), signed APK on GitHub Releases. **The owner switches from version 1 here.**
 

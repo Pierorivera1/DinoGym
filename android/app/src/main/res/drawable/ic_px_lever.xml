@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 16x16 pixel icon "lever", redrawn from ExerciseEdit.dc.html. Tinted in code; the fill is a placeholder. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M0,0h16v1h-16zM1,1h2v1h-2zM13,1h2v1h-2zM5,2h2v1h-2zM5,3h2v1h-2zM5,4h2v1h-2zM2,5h2v1h-2zM5,5h2v1h-2zM2,6h12v1h-12zM5,7h10v1h-10z" />
+</vector>
