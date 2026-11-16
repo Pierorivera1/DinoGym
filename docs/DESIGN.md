@@ -14,15 +14,22 @@ Decision 16 still applies: a screen is built only after its mock is approved.
 | Screen | Mock | Status |
 |---|---|---|
 | Style tile (tokens, type, components) | `Main.dc.html` | Approved |
-| Home | `Home.dc.html` | Approved |
+| Home | `Home.dc.html` | Approved. Settings gear added to the header 2026-11-16, awaiting the owner's review |
 | Active exercise (set logging) | `Workout.dc.html` | Approved |
 | Rest time picker (sheet) | `RestPicker.dc.html` | Approved |
 | Rest timer | `Rest.dc.html` | Approved |
 | Workout summary | `Summary.dc.html` | Approved |
-| Programs: list, program editor (cycle), routine editor, exercise picker | – | **Needs a mock**, part of the first version |
-| Exercises: library, edit, archive and restore | – | **Needs a mock**, part of the first version |
-| Stats: history by date, edit a past session, progress view per exercise | – | **Needs a mock**, part of the first version |
-| Settings (theme: system / Night / Day) | – | **Needs a mock**, part of the first version |
+| Programs list (programs and routines) | `ProgramList.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
+| Program editor (name, type, cycle) | `ProgramEdit.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
+| Routine editor | `RoutineEdit.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
+| Exercise picker (sheet) | `ExercisePicker.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
+| Exercise library (active / archived) | `ExerciseLibrary.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
+| Exercise editor (archive and restore) | `ExerciseEdit.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
+| Settings | `Settings.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
+| Stats: history by date | `StatsHistory.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
+| Stats: past session (edit, delete) | `SessionDetail.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
+| Stats: progress for one exercise | `Progress.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
+| Stats: progress tab (list of exercises with their best) | – | Needs a mock (described under Screen notes, not drawn) |
 | Body weight chart and weigh-in entry | – | Needs a mock (after the first version) |
 | Sign-in, sync status, sharing, reminders, web | – | Later |
 
@@ -108,7 +115,16 @@ Pixelify Sans covers á é í ó ú ü ñ ¿ ¡ in both cases (checked on the st
 | **Scroll picker** | Two wheels (MIN, SEC). The selected row sits in a stepped `select`-bordered band with the cursor at its left. Neighbours shrink (40 → 26 → 18sp) and fade (`outline` → `muted` → `faint`). Seconds move in 5-second steps; range 0:00–9:00 |
 | **Cycle strip** | One stepped box per step in the program cycle. Current: `sel*` colours and the cursor. Rest days show `ZZZ` in `muted` |
 | **Cursor** | Dinocito's 8×8 face (`CUR_O`, `CUR_Y` in the mocks), drawn at 2×–4×. Marks the current item; replaces the icon on a selected tab |
-| **Icons** | Our own 16×16 bitmaps drawn at 2× or 3×, one colour, `crispEdges`. The first set (home, programs, start, stats, exercises, check, timer, plus, minus, close, edit, skip, pull) is in `Main.dc.html` and is a first draft to redraw as vector drawables |
+| **Icons** | Our own 16×16 bitmaps drawn at 2× or 3×, one colour, `crispEdges`. The first set (home, programs, start, stats, exercises, check, timer, plus, minus, close, edit, skip, pull) is in `Main.dc.html`. The second set (gear, back, chevron, drag, trash, search, archive, zzz, and the exercise types lever, row, curl, raise, dip, push-up, squat, rope) is in the `px([...])` tables of the boards that use it (`ExerciseEdit.dc.html` has all the exercise types). All are first drafts to redraw as vector drawables. A chevron pointing down or up is the same bitmap rotated 90° |
+| **Section header** (new) | `label` on the left, a 48dp secondary `+ NEW` button on the right. The add action for every list (programs, routines, exercises) |
+| **Top bar** (new) | 56dp grid `48 / 1fr / 48`: back (secondary icon button, `action` border, back arrow), title in `title` 22sp, then a danger trash button or an empty cell |
+| **Text field** (new) | `label` above; 52dp box, `bg` fill, 2dp `outline` border, stepped, `body` 16sp. No focus colour change in the mocks |
+| **Segmented control** (new) | 2–4 equal boxes, 4dp gaps, 48dp tall. Unselected: secondary button. Selected: `select` fill, `onSelect` text, `outline` border, no bands (looks pressed). Used as tabs (Stats, library filter) and as a radio group (type, kind, reps mode, theme) |
+| **Switch** (new) | 60×32 stepped box, 2dp `outline` border, 4dp padding, 20dp square knob. Off: `surface2` fill, knob `outline`, left. On: `primary` fill, knob `onPrimary`, right. The touch target is 64×48 |
+| **Reorderable row** (new) | 40dp drag handle (drag icon in `muted`) on the left, content, a 48dp remove button on the right. Long-press the handle to drag; TalkBack gets "Move up" / "Move down" actions |
+| **Checkbox** (new) | 28dp square, 2dp `outline` border. Checked: `select` fill with the check icon in `onSelect`. The whole row is the target |
+| **Set chip** (new) | 48×52 stepped box: `SET n` (`S n` in Spanish) over the reps in Pixelify; a `success` ▲ marks a set-1 record. Selected chip uses `sel*` colours |
+| **Chart** (new) | Stepped line, 2dp `primary` stroke, flat `primary` tint under it (20% Night, 15% Day), dotted 2dp grid lines in `muted` at 40%, 4dp square points, latest point 8dp `select` with an `outline` border. Axis labels Inter 11sp `muted` |
 
 ## Bottom bar
 
@@ -128,6 +144,22 @@ These record behaviour shown in the approved mocks.
 - **Rest time picker:** opened from the rest button. Applies to that exercise in that routine. Shortcuts: 1:30 isolation, 2:30 compound (TRAINING.md defaults).
 - **Rest timer:** `numberXl` timer, 10-block bar, −15s / +15s, mascot text box with what comes next, SKIP REST, and a note that it keeps running with the screen off (foreground service).
 - **Summary:** title, routine and duration, text box naming any new best, TIME / SETS / BESTS panels, set-1 reps per exercise against last time (`=` or `▲ +n`), next step in the cycle, EDIT and FINISH.
+
+These record behaviour shown in the mocks of 2026-11-16 that await review:
+
+- **Navigation:** the bar shows on the four tab screens (Home, Programs list, Stats, Exercise library). Editors, the past session, progress and Settings are pushed screens with the top bar (back on the left) and no bottom bar, like the workout flow.
+- **Saving:** editors have no SAVE button. Every change is written to Room as it happens (as sets already are), and each editor says "Changes save as you go". Removing an item from a list (a cycle step, an exercise from a routine) happens at once with an UNDO snackbar. Deleting a whole program, routine or session (the danger trash in the top bar) asks first in a dialog, because it leaves the screen. All deletes are soft (`deletedAt`).
+- **Creating:** `+ NEW` creates the row with a default name ("New program", "New routine", "New exercise") and opens its editor with the name field focused.
+- **Programs list:** two sections, YOUR PROGRAMS and ROUTINES, each with `+ NEW` in its header. The active program uses the `sel*` colours, the cursor and an `ACTIVE` tag, and shows its cycle strip with the next step marked. Tapping a program or routine opens its editor. Routines are listed on their own because one routine can be used in several programs.
+- **Program editor:** NAME, TYPE (Gym / Calisthenics segmented control), CYCLE as reorderable rows (step number, routine name and exercise count, or a rest day with the zzz icon; the next step has a `NEXT` tag). Tapping a routine step opens the routine editor; ✕ removes the step only, never the routine. `+ ROUTINE` opens a sheet listing the routines plus "New routine"; `+ REST DAY` appends a rest step. An inactive program shows a primary `USE THIS PROGRAM` button at the bottom (not drawn).
+- **Routine editor:** NAME, then the exercises as reorderable cards showing `sets × reps · rest`. Tapping a card expands it in place (one at a time, `sel*` colours and the hard shadow): SETS stepper, REPS mode (FIXED / RANGE; RANGE shows two steppers, from and to), REST button opening the rest picker, and a trash button that removes the exercise from this routine. `+ ADD EXERCISE` is a primary button fixed at the bottom. Also reached from the edit button on Home's Up next card.
+- **Exercise picker:** a full-height window sheet over the routine editor. Search field at the top; results show icon, name, kind, and an `IN ROUTINE` tag. Rows are checkboxes, so several exercises can be added at once with `ADD n EXERCISES`. `+ NEW EXERCISE "<query>"` opens the exercise editor with the query as the name; coming back, the new exercise is ticked. Archived exercises do not appear.
+- **Exercise library:** `+ NEW` in the header; ACTIVE / ARCHIVED segmented control with counts; a three-column grid of tiles (56dp `surface2` icon tile at 3×, name under it, up to three lines), alphabetical. Tapping a tile opens the exercise editor.
+- **Exercise editor:** NAME, ICON (radio grid of the 10 type icons), HOW IT IS LOGGED (REPS / PATTERN / SHOW ONLY). PATTERN shows the template field with `{n}` and a live preview. Log weight switch (decision 26). ARCHIVE at the bottom, with a note of which routines use it; archiving keeps history and progress. An archived exercise opens with RESTORE in place of ARCHIVE. Exercises are never hard-deleted from the UI.
+- **Settings:** reached from a 48dp gear button in Home's header (secondary style, next to the date). THEME segmented control (System / Night / Day, default System). LANGUAGE is a read-only box saying the app follows the phone (English or Spanish). ABOUT: version, source code link (opens GitHub in the browser), open-source licences screen, MIT licence. A mascot text box at the bottom.
+- **Stats history:** HISTORY / PROGRESS segmented control at the top. History groups finished sessions by month, newest first; each row has a date tile, routine, duration and set count, and a `▲ n BEST` tag when it set records. Rest days and skips are not sessions, so they do not appear. PROGRESS lists every active exercise with its best set 1 and opens the progress view (not drawn).
+- **Past session:** title is the routine; date, duration and sets under it; trash deletes the session after a dialog (the cycle does not move back). One card per exercise with set chips. Tapping a chip opens a stepper under that card; the value saves as it changes and set-1 changes recompute progress. Tapping the exercise name opens its progress.
+- **Progress:** exercise tile and name; BEST / GAIN / RECORDS panels; the stepped chart of set-1 records over all time (one step per record day, months on the x axis); RECORDS list newest first with `▲ +n`, the first entry marked `FIRST`. With weight, a record is more weight or the same weight with more reps, shown as `20 kg × 8`.
 
 ## Theme setting
 

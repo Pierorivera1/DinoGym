@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stats history</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 900px; height: 960px; box-sizing: border-box; background: #E4E0EA; padding: 40px; display: flex; gap: 40px; font-family: Inter, sans-serif">
+  <sc-for list="{{vs}}" as="v" hint-placeholder-count="2">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">{{v.label}}</div>
+      <div style="width: 390px; height: 844px; box-sizing: border-box; background: {{v.t.bg}}; color: {{v.t.outline}}; display: flex; flex-direction: column; overflow: hidden">
+        <div style="flex-grow: 1; min-height: 0; overflow: hidden; padding: 0 16px; display: flex; flex-direction: column; gap: 12px">
+          <header style="height: 56px; flex-shrink: 0; display: flex; align-items: center">
+            <h1 style="margin: 0; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 26px">STATS</h1>
+          </header>
+
+          <div role="tablist" aria-label="Stats" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px">
+            <sc-for list="{{v.seg}}" as="sg" hint-placeholder-count="2">
+              <button type="button" role="tab" aria-selected="{{sg.on}}" style="height: 48px; background: {{sg.bg}}; color: {{sg.fg}}; border: 2px solid {{sg.border}}; clip-path: {{n}}; box-shadow: {{sg.shadow}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 16px; cursor: pointer">{{sg.label}}</button>
+            </sc-for>
+          </div>
+
+          <h2 style="margin: 4px 0 0; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">{{v.s.month}}</h2>
+          <ul style="margin: -4px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px">
+            <sc-for list="{{v.rows}}" as="r" hint-placeholder-count="8">
+              <li>
+                <a href="SessionDetail.dc.html" aria-label="{{r.aria}}" style="height: 64px; box-sizing: border-box; padding: 0 8px 0 8px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: {{v.t.outline}}; background: {{v.t.surface}}; border: 2px solid {{v.t.surface2}}; clip-path: {{n}}">
+                  <span style="width: 48px; height: 48px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: {{v.t.surface2}}; clip-path: {{n}}">
+                    <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">{{r.dow}}</span>
+                    <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px; line-height: 1">{{r.day}}</span>
+                  </span>
+                  <span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+                    <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px; line-height: 1">{{r.routine}}</span>
+                    <span style="font-size: 13px; color: {{v.t.muted}}">{{r.meta}}</span>
+                  </span>
+                  <sc-if value="{{r.hasBest}}" hint-placeholder-val="{{false}}"><span style="padding: 3px 6px; background: {{v.t.select}}; color: {{v.t.onSelect}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 12px; white-space: nowrap">{{r.best}}</span></sc-if>
+                  <svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.chevR}}" fill="{{v.t.muted}}"></path></svg>
+                </a>
+              </li>
+            </sc-for>
+          </ul>
+        </div>
+
+        <nav aria-label="Main" style="background: {{v.t.surface}}; border-top: 2px solid {{v.t.outline}}; padding: 8px 6px 12px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; align-items: end">
+          <sc-for list="{{v.tabs}}" as="tab" hint-placeholder-count="5">
+            <a href="#" aria-current="{{tab.current}}" style="height: {{tab.h}}; margin-top: {{tab.mt}}; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; background: {{tab.bg}}; color: {{tab.fg}}; border: 2px solid {{tab.border}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}">
+              <sc-if value="{{tab.sel}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 8 8" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{cur.y}}" fill="#F5D23A"></path><path d="{{cur.o}}" fill="#33213F"></path></svg></sc-if>
+              <sc-if value="{{tab.notSel}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{tab.icon}}" fill="{{tab.fg}}"></path></svg></sc-if>
+              <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 11px; line-height: 1; white-space: nowrap">{{tab.label}}</span>
+            </a>
+          </sc-for>
+        </nav>
+      </div>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["EN + ES","EN","ES"],"default":"EN + ES"},"$preview":{"width":900,"height":960}}'>
+const T = {
+  night: { name: 'NIGHT', bg: '#0C0915', surface: '#1C1430', surface2: '#2A1F45', outline: '#F4F2F7', muted: '#A39BB6', primary: '#A98BFF', onPrimary: '#0C0915', select: '#F5D23A', onSelect: '#0C0915', action: '#F0A030', hi: 'rgba(255,255,255,0.22)', lo: 'rgba(0,0,0,0.45)', selBg: '#1C1430', selBorder: '#F5D23A', selText: '#F5D23A', navBorder: '#F0A030' },
+  day: { name: 'DAY', bg: '#FBF3E8', surface: '#FFFDF8', surface2: '#F3E6D6', outline: '#33213F', muted: '#7A6684', primary: '#6B4FC8', onPrimary: '#FBF3E8', select: '#FBDA61', onSelect: '#33213F', action: '#33213F', hi: 'rgba(255,255,255,0.6)', lo: 'rgba(51,33,63,0.25)', selBg: '#FBDA61', selBorder: '#33213F', selText: '#33213F', navBorder: '#33213F' }
+};
+const N = 'polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px)';
+function px(rows) { let d = ''; rows.forEach(function (r, y) { for (let x = 0; x < r.length; x++) { if (r[x] === '#') d += 'M' + x + ' ' + y + 'h1v1h-1z'; } }); return d; }
+const I = {
+  home: px(['','.......##','......####','.....##..##','....##....##','...##......##','..##........##','.##..........##','...#........#','...#..####..#','...#..#..#..#','...#..#..#..#','...#..#..#..#','...####..####']),
+  programs: px(['','.....######','..####....####','..#..######..#','..#..........#','..#.##.#####.#','..#..........#','..#.##.#####.#','..#..........#','..#.##.#####.#','..#..........#','..#.##.###...#','..#..........#','..############']),
+  start: px(['','','....#','....###','....#####','....#######','....#########','....##########','....##########','....#########','....#######','....#####','....###','....#']),
+  stats: px(['','','...........##','...........##','.......##..##','.......##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','.##############']),
+  exercises: px(['','','','..##........##','.###........###','.###........###','.##############','.##############','.###........###','.###........###','..##........##']),
+  chevR: px(['','','.....##','.....###','......###','.......###','........###','........###','.......###','......###','.....###','.....##'])
+};
+const CUR_O = px(['..####..', '.#....#.', '#......#', '#.#..#.#', '#......#', '#..##..#', '.#....#.', '..####..']);
+const CUR_Y = px(['........', '..####..', '.######.', '.#.##.#.', '.######.', '.##..##.', '..####..', '........']);
+const DATA = [['16', 'PULL', '42:10', 14, 1], ['14', 'LOWER', '31:05', 5, 0], ['13', 'UPPER', '48:30', 15, 2], ['11', 'LEGS', '29:40', 5, 0], ['10', 'PUSH', '38:15', 11, 1], ['9', 'PULL', '41:50', 14, 0], ['8', 'LOWER', '30:20', 5, 0], ['7', 'UPPER', '47:05', 15, 0]];
+const S = {
+  en: { seg: ['HISTORY', 'PROGRESS'], month: 'NOVEMBER 2026', dows: ['MON', 'SAT', 'FRI', 'WED', 'TUE', 'MON', 'SUN', 'SAT'], sets: ' sets', best1: '▲ 1 BEST', bestN: ' BESTS', open: 'Open ', on: ', ', months: ' Nov', tabs: ['HOME', 'PROGRAMS', 'START', 'STATS', 'EXERCISES'] },
+  es: { seg: ['HISTORIAL', 'PROGRESO'], month: 'NOVIEMBRE 2026', dows: ['LUN', 'SÁB', 'VIE', 'MIÉ', 'MAR', 'LUN', 'DOM', 'SÁB'], sets: ' series', best1: '▲ 1 RÉCORD', bestN: ' RÉCORDS', open: 'Abrir ', on: ', ', months: ' nov', tabs: ['INICIO', 'PROGRAMAS', 'EMPEZAR', 'STATS', 'EJERCICIOS'] }
+};
+class Component extends DCLogic {
+  renderVals() {
+    const L = this.props.lang ?? 'EN + ES';
+    const pairs = L === 'EN' ? [['night', 'en'], ['day', 'en']] : L === 'ES' ? [['night', 'es'], ['day', 'es']] : [['night', 'en'], ['day', 'es']];
+    const navIcons = [I.home, I.programs, I.start, I.stats, I.exercises];
+    const vs = pairs.map(function (p) {
+      const t = T[p[0]], s = S[p[1]];
+      return {
+        t: t, s: s,
+        label: t.name + ' · ' + (p[1] === 'en' ? 'ENGLISH' : 'ESPAÑOL'),
+        seg: s.seg.map(function (l, i) {
+          const on = i === 0;
+          return { label: l, on: on ? 'true' : 'false', bg: on ? t.select : t.surface, fg: on ? t.onSelect : t.outline, border: on ? t.outline : t.action, shadow: on ? 'none' : 'inset 0 2px 0 ' + t.hi + ', inset 0 -4px 0 ' + t.lo };
+        }),
+        rows: DATA.map(function (d, i) {
+          const best = d[4] === 1 ? s.best1 : '▲ ' + d[4] + s.bestN;
+          return { dow: s.dows[i], day: d[0], routine: d[1], meta: d[2] + ' · ' + d[3] + s.sets, hasBest: d[4] > 0, best: best, aria: s.open + d[1] + s.on + s.dows[i] + ' ' + d[0] + s.months };
+        }),
+        tabs: s.tabs.map(function (l, i) {
+          const sel = i === 3, start = i === 2;
+          return { label: l, icon: navIcons[i], sel: sel, notSel: !sel, current: sel ? 'page' : 'false', h: start ? '76px' : '64px', mt: start ? '-20px' : '0', bg: start ? t.primary : (sel ? t.selBg : t.surface), fg: start ? t.onPrimary : (sel ? t.selText : t.outline), border: start ? t.outline : (sel ? t.selBorder : t.navBorder) };
+        })
+      };
+    });
+    return { vs: vs, n: N, ic: I, cur: { o: CUR_O, y: CUR_Y } };
+  }
+}
+</script>
+</body>
+</html>
