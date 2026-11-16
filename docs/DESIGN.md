@@ -29,7 +29,7 @@ Decision 16 still applies: a screen is built only after its mock is approved.
 | Stats: history by date | `StatsHistory.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
 | Stats: past session (edit, delete) | `SessionDetail.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
 | Stats: progress for one exercise | `Progress.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
-| Stats: progress tab (list of exercises with their best) | – | Needs a mock (described under Screen notes, not drawn) |
+| Stats: progress tab (list of exercises with their best) | – | Built without a mock (task 9, decision 47), awaiting the owner's review |
 | Body weight chart and weigh-in entry | – | Needs a mock (after the first version) |
 | Sign-in, sync status, sharing, reminders, web | – | Later |
 

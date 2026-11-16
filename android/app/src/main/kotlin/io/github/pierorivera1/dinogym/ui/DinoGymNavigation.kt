@@ -41,6 +41,11 @@ import io.github.pierorivera1.dinogym.ui.navigation.SummaryRoute
 import io.github.pierorivera1.dinogym.ui.navigation.WorkoutRoute
 import io.github.pierorivera1.dinogym.ui.navigation.route
 import io.github.pierorivera1.dinogym.ui.navigation.tabFor
+import io.github.pierorivera1.dinogym.ui.stats.ProgressEntry
+import io.github.pierorivera1.dinogym.ui.stats.ProgressRoute
+import io.github.pierorivera1.dinogym.ui.stats.SessionDetailEntry
+import io.github.pierorivera1.dinogym.ui.stats.SessionRoute
+import io.github.pierorivera1.dinogym.ui.stats.StatsEntry
 import io.github.pierorivera1.dinogym.ui.settings.LicencesEntry
 import io.github.pierorivera1.dinogym.ui.settings.LicencesRoute
 import io.github.pierorivera1.dinogym.ui.settings.SettingsEntry
@@ -93,7 +98,23 @@ fun DinoGymNavigation(appViewModel: AppViewModel = hiltViewModel()) {
                     )
                 }
                 entry<ProgramsRoute> { PlaceholderScreen(R.string.nav_programs) }
-                entry<StatsRoute> { PlaceholderScreen(R.string.nav_stats) }
+                entry<StatsRoute> {
+                    StatsEntry(
+                        onOpenSession = { backStack.add(SessionRoute(it)) },
+                        onOpenProgress = { backStack.add(ProgressRoute(it)) },
+                    )
+                }
+                entry<SessionRoute> { key ->
+                    SessionDetailEntry(
+                        sessionId = key.sessionId,
+                        onBack = { if (backStack.last() == key) backStack.removeLastOrNull() },
+                        onDeleted = { backStack.leaveDeletedSession(key.sessionId) },
+                        onOpenProgress = { if (backStack.last() == key) backStack.add(ProgressRoute(it)) },
+                    )
+                }
+                entry<ProgressRoute> { key ->
+                    ProgressEntry(key.exerciseId, onBack = { if (backStack.last() == key) backStack.removeLastOrNull() })
+                }
                 entry<ExercisesRoute> {
                     ExerciseLibraryEntry(onOpenExercise = { id, isNew -> backStack.add(ExerciseEditRoute(id, isNew)) })
                 }
@@ -129,7 +150,7 @@ fun DinoGymNavigation(appViewModel: AppViewModel = hiltViewModel()) {
                     SummaryEntry(
                         sessionId = key.sessionId,
                         onFinish = { backStack.openTab(BottomTab.HOME) },
-                        onEditSession = { /* Editing a past session arrives with the Stats task. */ },
+                        onEditSession = { if (backStack.last() == key) backStack.add(SessionRoute(it)) },
                     )
                 }
             },
@@ -176,6 +197,16 @@ private fun NavBackStack<NavKey>.openSummary(sessionId: String) {
     clear()
     add(HomeRoute)
     add(SummaryRoute(sessionId))
+}
+
+/**
+ * After a session is deleted: its screen and its summary (when it was opened from the
+ * summary's EDIT) leave the stack, since both would show a session that is gone. From
+ * history this lands back on Stats; from the summary, on Home.
+ */
+private fun NavBackStack<NavKey>.leaveDeletedSession(sessionId: String) {
+    removeAll { it == SessionRoute(sessionId) || it == SummaryRoute(sessionId) }
+    if (isEmpty()) add(HomeRoute)
 }
 
 /** Stand-in for a screen that is not built yet: its title on the background. */
