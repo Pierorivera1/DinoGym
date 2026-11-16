@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shared components (ui/components): words that several screens use. -->
+<resources>
+    <string name="action_new">NEW</string>
+    <string name="action_undo">UNDO</string>
+    <string name="action_cancel">CANCEL</string>
+    <string name="label_saves_as_you_go">Changes save as you go</string>
+
+    <!-- Content descriptions for screen readers. -->
+    <string name="cd_back">Back</string>
+    <string name="cd_move_up">Move up</string>
+    <string name="cd_move_down">Move down</string>
+    <string name="cd_remove">Remove</string>
+    <string name="cd_clear">Clear</string>
+</resources>

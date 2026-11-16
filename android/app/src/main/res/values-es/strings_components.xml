@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Componentes compartidos (ui/components). -->
+<resources>
+    <string name="action_new">NUEVO</string>
+    <string name="action_undo">DESHACER</string>
+    <string name="action_cancel">CANCELAR</string>
+    <string name="label_saves_as_you_go">Los cambios se guardan solos</string>
+
+    <string name="cd_back">Volver</string>
+    <string name="cd_move_up">Subir</string>
+    <string name="cd_move_down">Bajar</string>
+    <string name="cd_remove">Quitar</string>
+    <string name="cd_clear">Borrar texto</string>
+</resources>
