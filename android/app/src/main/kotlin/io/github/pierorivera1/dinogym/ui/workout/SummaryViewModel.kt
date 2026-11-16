@@ -11,10 +11,11 @@ import io.github.pierorivera1.dinogym.data.repository.RoutineDetail
 import io.github.pierorivera1.dinogym.data.repository.RoutineRepository
 import io.github.pierorivera1.dinogym.data.repository.SessionSummary
 import io.github.pierorivera1.dinogym.domain.model.ExerciseKind
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import java.time.Instant
 import java.time.LocalDate
@@ -82,9 +83,10 @@ object SummaryStateMapper {
 }
 
 /**
- * The summary after a workout. The session is finished, so the numbers do not change while
- * the screen is open: it reads them once.
+ * The summary after a workout. It is worked out again whenever the session's sets change,
+ * so coming back from EDIT (the past session) shows the corrected numbers.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel(assistedFactory = SummaryViewModel.Factory::class)
 class SummaryViewModel @AssistedInject constructor(
     @Assisted sessionId: String,
@@ -98,13 +100,12 @@ class SummaryViewModel @AssistedInject constructor(
         fun create(sessionId: String): SummaryViewModel
     }
 
-    val state: StateFlow<SummaryUiState> = flow {
-        val summary = historyRepository.getSummary(sessionId)
-        if (summary == null) {
-            emit(SummaryUiState(isLoading = false, sessionId = sessionId))
-            return@flow
+    val state: StateFlow<SummaryUiState> = historyRepository.observeSessionDetail(sessionId)
+        .mapLatest {
+            val summary = historyRepository.getSummary(sessionId)
+                ?: return@mapLatest SummaryUiState(isLoading = false, sessionId = sessionId)
+            val routine = routineRepository.observeRoutine(summary.session.routineId).first()
+            SummaryStateMapper.map(summary, routine, ZoneId.systemDefault())
         }
-        val routine = routineRepository.observeRoutine(summary.session.routineId).first()
-        emit(SummaryStateMapper.map(summary, routine, ZoneId.systemDefault()))
-    }.stateIn(viewModelScope, SharingStarted.Lazily, SummaryUiState())
+        .stateIn(viewModelScope, SharingStarted.Lazily, SummaryUiState())
 }
