@@ -57,7 +57,7 @@ Every table uses a text UUID primary key plus `updatedAt` and a nullable `delete
 
 - Local: only the JVM unit tests of the class that changed (`./gradlew :app:testDebugUnitTest --tests '<Class>'`).
 - DAO and UI tests are `androidTest` and run only in GitHub Actions on an emulator.
-- CI on every push to `main`: build, unit tests, lint. Instrumented tests are added in step 3.
+- CI ([.github/workflows/android.yml](../.github/workflows/android.yml)) on every push that touches `android/`: build, unit tests, lint. Instrumented tests are added with the database (task 4).
 
 ## Build order
 
