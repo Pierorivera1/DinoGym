@@ -25,7 +25,7 @@ Decision 16 still applies: a screen is built only after its mock is approved.
 | Exercise picker (sheet) | `ExercisePicker.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
 | Exercise library (active / archived) | `ExerciseLibrary.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
 | Exercise editor (archive and restore) | `ExerciseEdit.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
-| Settings | `Settings.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
+| Settings | `Settings.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 10) |
 | Stats: history by date | `StatsHistory.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
 | Stats: past session (edit, delete) | `SessionDetail.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
 | Stats: progress for one exercise | `Progress.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
