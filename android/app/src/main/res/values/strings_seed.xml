@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Names of the first-run program (data/seed). They are read once, in the phone's
+    language, when the program is inserted; after that they are user data.
+-->
+<resources>
+    <string name="seed_program_name">My program</string>
+
+    <string name="seed_routine_pull">Pull</string>
+    <string name="seed_routine_push">Push</string>
+    <string name="seed_routine_legs">Legs</string>
+    <string name="seed_routine_upper">Upper</string>
+    <string name="seed_routine_lower">Lower</string>
+
+    <string name="seed_exercise_front_lever">Front lever + pulls</string>
+    <string name="seed_template_front_lever">3s + {n} pulls + 3s</string>
+    <string name="seed_exercise_forearm_curl">Forearm curl</string>
+    <string name="seed_exercise_pull_up">Pull-ups</string>
+    <string name="seed_exercise_reverse_curl">Reverse curl</string>
+    <string name="seed_exercise_row">Rows</string>
+    <string name="seed_exercise_bicep_curl">Bicep curl</string>
+    <string name="seed_exercise_dip">Dips</string>
+    <string name="seed_exercise_single_arm_lateral_raise">Single-arm lateral raise</string>
+    <string name="seed_exercise_hollow_push_up">Hollow push-ups</string>
+    <string name="seed_exercise_lateral_raise">Lateral raises</string>
+    <string name="seed_exercise_triceps_push_up">Triceps push-ups</string>
+    <string name="seed_exercise_bulgarian_split_squat">Bulgarian split squat</string>
+    <string name="seed_exercise_squat">Squats</string>
+    <string name="seed_exercise_jump_rope">Jump rope</string>
+    <string name="seed_exercise_neutral_grip_pull_up">Neutral-grip pull-ups</string>
+    <string name="seed_exercise_push_up">Push-ups</string>
+</resources>

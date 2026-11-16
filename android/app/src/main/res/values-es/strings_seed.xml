@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="seed_program_name">Mi programa</string>
+
+    <string name="seed_routine_pull">Tirón</string>
+    <string name="seed_routine_push">Empuje</string>
+    <string name="seed_routine_legs">Pierna</string>
+    <string name="seed_routine_upper">Tren superior</string>
+    <string name="seed_routine_lower">Tren inferior</string>
+
+    <string name="seed_exercise_front_lever">Front lever + jalones</string>
+    <string name="seed_template_front_lever">3s + {n} jalones + 3s</string>
+    <string name="seed_exercise_forearm_curl">Curl de antebrazo</string>
+    <string name="seed_exercise_pull_up">Dominadas</string>
+    <string name="seed_exercise_reverse_curl">Curl inverso</string>
+    <string name="seed_exercise_row">Remo</string>
+    <string name="seed_exercise_bicep_curl">Curl de bíceps</string>
+    <string name="seed_exercise_dip">Fondos</string>
+    <string name="seed_exercise_single_arm_lateral_raise">Elevación lateral a una mano</string>
+    <string name="seed_exercise_hollow_push_up">Flexiones hollow</string>
+    <string name="seed_exercise_lateral_raise">Elevaciones laterales</string>
+    <string name="seed_exercise_triceps_push_up">Flexiones de tríceps</string>
+    <string name="seed_exercise_bulgarian_split_squat">Sentadilla búlgara</string>
+    <string name="seed_exercise_squat">Sentadillas</string>
+    <string name="seed_exercise_jump_rope">Saltar la cuerda</string>
+    <string name="seed_exercise_neutral_grip_pull_up">Dominadas agarre neutro</string>
+    <string name="seed_exercise_push_up">Flexiones</string>
+</resources>

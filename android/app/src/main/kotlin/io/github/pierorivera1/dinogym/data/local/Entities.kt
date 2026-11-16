@@ -1,0 +1,144 @@
+package io.github.pierorivera1.dinogym.data.local
+
+import androidx.room3.Entity
+import androidx.room3.ForeignKey
+import androidx.room3.Index
+import androidx.room3.PrimaryKey
+
+/*
+ * Room tables (ARCHITECTURE.md, "Data model").
+ *
+ * Every synced table has a text UUID id, `updatedAt` and a nullable `deletedAt`
+ * (decision 36): ids from two phones never collide, and a soft delete is a row
+ * change that sync can send later. Times are epoch milliseconds.
+ *
+ * Enums are stored as their name in a TEXT column and converted in Mappers.kt,
+ * so the database stays readable and no type converter is needed.
+ *
+ * Foreign keys use NO ACTION: rows are only soft-deleted, so a hard delete of a
+ * parent that still has children is a bug and SQLite refuses it.
+ */
+
+@Entity(tableName = "program")
+data class ProgramEntity(
+    @PrimaryKey val id: String,
+    val name: String,
+    val type: String,
+    val currentStep: Int,
+    val isActive: Boolean,
+    val updatedAt: Long,
+    val deletedAt: Long? = null,
+)
+
+@Entity(
+    tableName = "cycle_step",
+    foreignKeys = [
+        ForeignKey(entity = ProgramEntity::class, parentColumns = ["id"], childColumns = ["programId"]),
+        ForeignKey(entity = RoutineEntity::class, parentColumns = ["id"], childColumns = ["routineId"]),
+    ],
+    indices = [Index("programId", "position"), Index("routineId")],
+)
+data class CycleStepEntity(
+    @PrimaryKey val id: String,
+    val programId: String,
+    val position: Int,
+    /** Null is a rest day. */
+    val routineId: String?,
+    val updatedAt: Long,
+    val deletedAt: Long? = null,
+)
+
+@Entity(tableName = "routine")
+data class RoutineEntity(
+    @PrimaryKey val id: String,
+    val name: String,
+    val updatedAt: Long,
+    val deletedAt: Long? = null,
+)
+
+@Entity(tableName = "exercise", indices = [Index("archived")])
+data class ExerciseEntity(
+    @PrimaryKey val id: String,
+    val name: String,
+    val iconKey: String,
+    val kind: String,
+    val template: String?,
+    val weightEnabled: Boolean,
+    val archived: Boolean,
+    val updatedAt: Long,
+    val deletedAt: Long? = null,
+)
+
+@Entity(
+    tableName = "routine_exercise",
+    foreignKeys = [
+        ForeignKey(entity = RoutineEntity::class, parentColumns = ["id"], childColumns = ["routineId"]),
+        ForeignKey(entity = ExerciseEntity::class, parentColumns = ["id"], childColumns = ["exerciseId"]),
+    ],
+    indices = [Index("routineId", "position"), Index("exerciseId")],
+)
+data class RoutineExerciseEntity(
+    @PrimaryKey val id: String,
+    val routineId: String,
+    val exerciseId: String,
+    val position: Int,
+    val sets: Int,
+    val repMin: Int,
+    val repMax: Int,
+    val restSeconds: Int,
+    val updatedAt: Long,
+    val deletedAt: Long? = null,
+)
+
+@Entity(
+    tableName = "session",
+    foreignKeys = [
+        ForeignKey(entity = RoutineEntity::class, parentColumns = ["id"], childColumns = ["routineId"]),
+        ForeignKey(entity = ProgramEntity::class, parentColumns = ["id"], childColumns = ["programId"]),
+    ],
+    indices = [Index("routineId", "endedAt"), Index("programId"), Index("endedAt")],
+)
+data class SessionEntity(
+    @PrimaryKey val id: String,
+    val routineId: String,
+    val programId: String,
+    val startedAt: Long,
+    /** Null while the workout is in progress. */
+    val endedAt: Long?,
+    /** Index into the routine's exercise list where the workout in progress is. */
+    val currentPosition: Int,
+    val updatedAt: Long,
+    val deletedAt: Long? = null,
+)
+
+@Entity(
+    tableName = "set_entry",
+    foreignKeys = [
+        ForeignKey(entity = SessionEntity::class, parentColumns = ["id"], childColumns = ["sessionId"]),
+        ForeignKey(entity = ExerciseEntity::class, parentColumns = ["id"], childColumns = ["exerciseId"]),
+    ],
+    indices = [Index("sessionId", "exerciseId", "setIndex"), Index("exerciseId", "setIndex")],
+)
+data class SetEntryEntity(
+    @PrimaryKey val id: String,
+    val sessionId: String,
+    val exerciseId: String,
+    /** 1-based. */
+    val setIndex: Int,
+    val reps: Int,
+    val weightKg: Double?,
+    val note: String?,
+    val updatedAt: Long,
+    val deletedAt: Long? = null,
+)
+
+/**
+ * Local-only flags for this install, such as "the first-run seed has run".
+ * Never synced, so it has no UUID, `updatedAt` or `deletedAt`. Keeping the flag
+ * in the same database lets the seed and its flag be written in one transaction.
+ */
+@Entity(tableName = "local_flag")
+data class LocalFlagEntity(
+    @PrimaryKey val key: String,
+    val value: String,
+)
