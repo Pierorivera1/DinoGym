@@ -65,6 +65,9 @@ Cycle: **Pull → Push → Legs → Rest → Upper → Lower**, then repeat.
 | Weight field | Shown | Hidden; can be turned on per exercise (for example weighted dips) |
 | Default rep ranges | Lower | Higher |
 | Starter program | Gym UL/PPL | Calisthenics UL/PPL |
+| Progression | Fixed sets. Add reps inside 6–10; at 10, add weight and drop back to 6. | Fixed sets. Add reps when ready. |
+
+Set volume is not tracked or targeted. The number of sets in a routine stays as written.
 
 ## Progress
 
@@ -73,15 +76,46 @@ Cycle: **Pull → Push → Legs → Rest → Upper → Lower**, then repeat.
 - The progress record keeps only the **days the first set improved** on the previous best. In calisthenics an improvement is more reps; with weight, more weight, or the same weight with more reps.
 - Full session history (every set) is still saved and editable.
 
+## Body weight
+
+- A **body weight chart** (reference: the owner's screenshot of another app, 2026-11-16: a line of weigh-ins over time with a goal line). Drawn in our pixel style, see "Charts" in [design/PIXEL-STYLE.md](design/PIXEL-STYLE.md); the mock goes through the Design thread like every screen.
+- **Logging:** a `+ LOG` button adds a weigh-in in kilograms for a date, default today. One weigh-in per day; logging again the same day replaces it. Entries can be edited and deleted.
+- **Chart:**
+  - Ranges **1M / 3M / 1Y / ALL**, as a segmented control.
+  - A stepped line on the pixel grid with a light fill under it. The latest weigh-in is a bigger highlighted point.
+  - Y axis in kg, scaled to the data in range; X axis labelled by month.
+  - Tapping a point shows its date and weight.
+- **Goal:** an optional target weight, shown in the header next to a target icon and drawn as a dashed line across the chart in a contrasting colour.
+- Works offline and syncs like workouts. The web dashboard shows the same chart.
+- Applies to both Gym and Calisthenics programs.
+- _open_ Whether to also show a 7-day average line, since daily weigh-ins are noisy.
+- _open_ Whether the goal is lose, gain or maintain (for the colour of progress), or just a line.
+
 ## Exercise images
 
-- Every exercise in the starter library has an image.
-- Candidate source: [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (Unlicense, public domain, about 800 exercises with photos). It covers gym exercises well. Calisthenics skills (front lever, hollow push-up, sissy squat, Nordic curl) may be missing and need another source or our own illustrations.
-- Images ship inside the app so they work offline.
+- **No photos.** Each exercise shows a small pixel icon for its type, as in the library tile in [design/PIXEL-STYLE.md](design/PIXEL-STYLE.md). The icons are drawn by us, so there is no licence question.
+- The starter library stays small: only the exercises the starter programs use.
+
+## What went wrong in v1
+
+- **Hard to find how to add or edit a workout.** Creating and editing routines and programs must be obvious from the main screens.
+- **The rest timer could not be set by scrolling.** v2 uses a scroll picker for minutes and seconds.
+
+## First daily-usable version (MVP)
+
+The owner switches from v1 when these exist:
+
+1. Run the owner's program and log reps (the program typed in as starter data).
+2. Add and edit routines and the program (fixes the v1 complaint above).
+3. Rest timer with a scroll picker, running in the background.
+4. History of sessions, editable.
+5. Progress view per exercise (first-set rule above).
+6. Exercise icons.
+
+English and Spanish strings apply from the start (product rule), even though it is not a feature to switch for.
+
+**Later**, roughly in this order: sign-in and sync, the starter UL/PPL programs and a program builder for other users, body weight, shareable routines, reminders, web dashboard.
 
 ## Open
 
-- _open_ What annoyed the owner in v1.
-- _open_ Must-have for the first daily-usable version, and what comes later.
-- _open_ Images for custom exercises and for skills missing from free-exercise-db.
 - _open_ Feature needs: data, backend, AWS services, permissions, cost.
