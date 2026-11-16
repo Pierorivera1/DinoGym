@@ -30,8 +30,8 @@ As of 2026-11-16. Remove an item when it is done or decided, and record decision
 ## To verify later
 
 - [ ] On a phone: Back handling in a workout, the notification permission prompt, the rest alarm and its sound with the screen off, resume after the app is killed, the scroll picker. None of these can be checked on the laptop
+- [ ] On a phone, for the Exercises screens: drag to reorder, keyboard and focus, and that edits reach the database
 - [ ] With the system font at 130%, long button labels are cut off (`EMPEZAR PULL` shows as `EMPEZAR`)
-- [ ] Exercise icons: only the pull-up icon is drawn; other exercises show a placeholder until task 8
 
 - [ ] The AWS free-tier terms for a new account (AWS changed them in 2025); [WISHLIST.md](WISHLIST.md) assumes the always-free allowances
 - [ ] The r/bodyweightfitness Recommended Routine wiki against the mirror used in [research/exercise-selection.md](research/exercise-selection.md)
