@@ -9,10 +9,14 @@ import io.github.pierorivera1.dinogym.data.local.ALL_MIGRATIONS
 import io.github.pierorivera1.dinogym.data.local.DinoDatabase
 import io.github.pierorivera1.dinogym.data.local.MIGRATION_1_2
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.File
+import java.util.UUID
 
 /**
  * Checks each migration against the exported schemas in `android/app/schemas/`: the database
@@ -24,13 +28,26 @@ class DinoDatabaseMigrationTest {
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
+    /**
+     * One file per test, deleted before and after it. The helper does not delete the file,
+     * and `createDatabase(1)` on a file another test left at version 2 makes Room migrate
+     * while creating, which it rejects ("A migration should never occur while creating a new
+     * database").
+     */
+    private val dbFile: File = instrumentation.targetContext.getDatabasePath("migration-test-${UUID.randomUUID()}.db")
+
     @get:Rule
-    val helper = MigrationTestHelper(
-        instrumentation,
-        instrumentation.targetContext.getDatabasePath(DB_NAME),
-        BundledSQLiteDriver(),
-        DinoDatabase::class,
-    )
+    val helper = MigrationTestHelper(instrumentation, dbFile, BundledSQLiteDriver(), DinoDatabase::class)
+
+    @Before
+    fun deleteBefore() = deleteDatabaseFiles()
+
+    @After
+    fun deleteAfter() = deleteDatabaseFiles()
+
+    private fun deleteDatabaseFiles() {
+        listOf("", "-wal", "-shm", "-journal").forEach { File(dbFile.path + it).delete() }
+    }
 
     @Test
     fun migrate1To2KeepsWorkoutsAndAddsBodyWeightTables() = runTest {
@@ -62,7 +79,6 @@ class DinoDatabaseMigrationTest {
     }
 
     private companion object {
-        const val DB_NAME = "migration-test.db"
         const val LATEST_VERSION = 2
     }
 }
