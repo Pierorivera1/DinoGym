@@ -142,3 +142,28 @@ data class LocalFlagEntity(
     @PrimaryKey val key: String,
     val value: String,
 )
+
+/** One body weight reading (task 11). Several on the same day are allowed; the chart averages them. */
+@Entity(tableName = "weigh_in", indices = [Index("measuredAt")])
+data class WeighInEntity(
+    @PrimaryKey val id: String,
+    /** When the weight was taken, epoch milliseconds. A past day picked in the sheet keeps the time of day it was logged. */
+    val measuredAt: Long,
+    val weightKg: Double,
+    val updatedAt: Long,
+    val deletedAt: Long? = null,
+)
+
+/**
+ * A user preference that follows the account across phones (the first one is the body
+ * weight goal). Keyed by name instead of a UUID: the same setting on two phones is one row,
+ * and sync keeps the newest `updatedAt`. Clearing a preference is a soft delete. Values are
+ * text; each key's owner converts it. Local-only settings belong in `local_flag`.
+ */
+@Entity(tableName = "preference")
+data class PreferenceEntity(
+    @PrimaryKey val key: String,
+    val value: String,
+    val updatedAt: Long,
+    val deletedAt: Long? = null,
+)

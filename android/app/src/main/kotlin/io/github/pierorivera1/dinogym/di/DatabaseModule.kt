@@ -9,10 +9,13 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.github.pierorivera1.dinogym.data.local.DinoDatabase
+import io.github.pierorivera1.dinogym.data.local.ALL_MIGRATIONS
 import io.github.pierorivera1.dinogym.data.local.ExerciseDao
+import io.github.pierorivera1.dinogym.data.local.PreferenceDao
 import io.github.pierorivera1.dinogym.data.local.ProgramDao
 import io.github.pierorivera1.dinogym.data.local.RoutineDao
 import io.github.pierorivera1.dinogym.data.local.SessionDao
+import io.github.pierorivera1.dinogym.data.local.WeighInDao
 import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Singleton
 
@@ -31,6 +34,8 @@ object DatabaseModule {
             // The bundled driver ships the same SQLite on every phone (decision 38).
             .setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(io)
+            // Real migrations only: the app holds workout history, so it never falls back to a wipe.
+            .addMigrations(*ALL_MIGRATIONS.toTypedArray())
             .build()
 
     @Provides
@@ -44,4 +49,10 @@ object DatabaseModule {
 
     @Provides
     fun provideSessionDao(db: DinoDatabase): SessionDao = db.sessionDao()
+
+    @Provides
+    fun provideWeighInDao(db: DinoDatabase): WeighInDao = db.weighInDao()
+
+    @Provides
+    fun providePreferenceDao(db: DinoDatabase): PreferenceDao = db.preferenceDao()
 }
