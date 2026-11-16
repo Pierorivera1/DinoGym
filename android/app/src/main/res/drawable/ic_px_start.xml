@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 16x16 pixel icon "start", redrawn from Main.dc.html. Tinted in code; the fill is a placeholder. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M4,2h1v1h-1zM4,3h3v1h-3zM4,4h5v1h-5zM4,5h7v1h-7zM4,6h9v1h-9zM4,7h10v1h-10zM4,8h10v1h-10zM4,9h9v1h-9zM4,10h7v1h-7zM4,11h5v1h-5zM4,12h3v1h-3zM4,13h1v1h-1z" />
+</vector>

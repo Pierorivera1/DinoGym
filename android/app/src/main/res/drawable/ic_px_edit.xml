@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 16x16 pixel icon "edit", redrawn from Main.dc.html. Tinted in code; the fill is a placeholder. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M10,1h2v1h-2zM9,2h4v1h-4zM8,3h4v1h-4zM7,4h4v1h-4zM6,5h4v1h-4zM5,6h4v1h-4zM4,7h4v1h-4zM3,8h4v1h-4zM3,9h3v1h-3zM3,10h2v1h-2z" />
+</vector>

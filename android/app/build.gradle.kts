@@ -45,6 +45,18 @@ android {
         localeFilters += listOf("en", "es")
     }
 
+    testOptions {
+        unitTests {
+            // Robolectric needs the merged resources (fonts, strings, drawables) to render Compose.
+            isIncludeAndroidResources = true
+            all {
+                // Roborazzi writes screenshots only in "record" mode. Nothing compares them yet;
+                // they are for looking at (app/build/outputs/roborazzi/).
+                it.systemProperty("roborazzi.test.record", "true")
+            }
+        }
+    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -91,6 +103,11 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    // JVM screenshots of Compose UI, without an emulator (Robolectric renders, Roborazzi saves PNGs).
+    testImplementation(composeBom)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.roborazzi)
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinx.coroutines.test)

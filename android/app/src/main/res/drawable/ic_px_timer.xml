@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 16x16 pixel icon "timer", redrawn from Main.dc.html. Tinted in code; the fill is a placeholder. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M6,1h4v1h-4zM5,2h6v1h-6zM4,3h2v1h-2zM10,3h2v1h-2zM3,4h1v1h-1zM7,4h2v1h-2zM12,4h1v1h-1zM2,5h1v1h-1zM7,5h2v1h-2zM13,5h1v1h-1zM2,6h1v1h-1zM7,6h2v1h-2zM13,6h1v1h-1zM2,7h1v1h-1zM7,7h4v1h-4zM13,7h1v1h-1zM2,8h1v1h-1zM13,8h1v1h-1zM2,9h1v1h-1zM13,9h1v1h-1zM3,10h1v1h-1zM12,10h1v1h-1zM4,11h2v1h-2zM10,11h2v1h-2zM5,12h6v1h-6z" />
+</vector>
