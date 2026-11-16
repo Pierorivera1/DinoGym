@@ -225,3 +225,13 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Decision:** Go on the laptop comes from mise (1.27.4), like Terraform (decision 18).
 - **Why:** That is how it is installed. One version manager for both tools, and versions can be pinned per project.
 - **Rejected:** pacman, which was the earlier plan.
+
+## 38. Scaffold versions: compileSdk 37, Room 3, JDK 21 for Gradle (2026-11-16)
+
+- **Decision:** The version catalog pins the latest stable releases on 2026-11-16: Gradle 9.9.1, Android Gradle Plugin 9.5.1, Kotlin 2.4.21, KSP 2.3.14, Hilt 2.60.1, Navigation 3 1.2.1, Compose BOM 2026.09.00. Three choices go beyond "take the latest":
+  - **compileSdk 37, targetSdk 36.** The current AndroidX libraries refuse to build against API 36. compileSdk only decides which APIs the code can see; targetSdk, which decides runtime behaviour, stays at 36 as planned.
+  - **Room 3 (`androidx.room3` 3.0.3) with the bundled SQLite driver.** Room 3 is the current line: Kotlin-first, coroutine-only DAOs, generated with KSP. The bundled driver ships the same SQLite version on every phone instead of whatever the Android version has.
+  - **Gradle runs on JDK 21**, named in `android/gradle/gradle-daemon-jvm.properties`. Gradle downloads it if it is missing, so the laptop (which has JDK 27 on the path), Android Studio and GitHub Actions all build with the same JDK.
+- **Why:** A new project should not start on a line that is already superseded, and the build should not depend on which JDK a machine happens to have.
+- **Rejected:** Room 2.8, which works but would need a migration to Room 3 later; holding AndroidX back to versions that accept compileSdk 36; relying on the JDK on the path (JDK 27 is newer than the Android tools are tested with).
+- **Cost of the choice:** Room 3 is newer, so there are fewer examples online than for Room 2.

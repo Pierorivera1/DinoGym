@@ -35,6 +35,6 @@ As of 2026-11-16. Remove an item when it is done or decided, and record decision
 
 - [ ] Google sign-in on the web dashboard accepts a `*.cloudfront.net` origin, since there is no custom domain
 
-## Not started
+## State of the build
 
-- No app code exists yet. The repository ([Pierorivera1/DinoGym](https://github.com/Pierorivera1/DinoGym)) holds documentation and `android/gradle.properties`. The next step is task 1 in [TASKS.md](TASKS.md). `docs/design/references/` (third-party art) is git-ignored and stays local.
+- Task 1 (project setup) is done: `android/` builds an empty app with Compose, Navigation 3, Hilt and Room wired in. Progress is tracked in [TASKS.md](TASKS.md). `docs/design/references/` (third-party art) is git-ignored and stays local.
