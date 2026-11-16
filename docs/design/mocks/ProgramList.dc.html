@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Programs list</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 900px; height: 960px; box-sizing: border-box; background: #E4E0EA; padding: 40px; display: flex; gap: 40px; font-family: Inter, sans-serif">
+  <sc-for list="{{vs}}" as="v" hint-placeholder-count="2">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">{{v.label}}</div>
+      <div style="width: 390px; height: 844px; box-sizing: border-box; background: {{v.t.bg}}; color: {{v.t.outline}}; display: flex; flex-direction: column; overflow: hidden">
+        <div style="flex-grow: 1; min-height: 0; overflow: hidden; padding: 0 16px; display: flex; flex-direction: column; gap: 12px">
+          <header style="height: 56px; flex-shrink: 0; display: flex; align-items: center">
+            <h1 style="margin: 0; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 26px">{{v.s.title}}</h1>
+          </header>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="height: 48px; display: flex; align-items: center; justify-content: space-between">
+              <h2 style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">{{v.s.programsLabel}}</h2>
+              <a href="ProgramEdit.dc.html" aria-label="{{v.s.newProgramAria}}" style="height: 48px; box-sizing: border-box; padding: 0 14px 0 8px; display: flex; align-items: center; gap: 6px; text-decoration: none; background: {{v.t.surface}}; color: {{v.t.outline}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 16px">
+                <svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.plus}}" fill="{{v.t.action}}"></path></svg>{{v.s.newBtn}}
+              </a>
+            </div>
+            <sc-for list="{{v.programs}}" as="p" hint-placeholder-count="2">
+              <a href="ProgramEdit.dc.html" aria-label="{{p.aria}}" style="text-decoration: none; display: flex; flex-direction: column; gap: 10px; padding: 12px 12px 16px 14px; background: {{p.bg}}; color: {{p.fg}}; border: 2px solid {{p.border}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}">
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <sc-if value="{{p.active}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 8 8" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{cur.y}}" fill="#F5D23A"></path><path d="{{cur.o}}" fill="#33213F"></path></svg></sc-if>
+                  <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+                    <div style="display: flex; align-items: center; gap: 8px">
+                      <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 22px; line-height: 1">{{p.name}}</span>
+                      <sc-if value="{{p.active}}" hint-placeholder-val="{{false}}"><span style="padding: 2px 6px; border: 2px solid {{p.fg}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 12px">{{v.s.active}}</span></sc-if>
+                    </div>
+                    <span style="font-size: 13px; color: {{p.metaColor}}">{{p.meta}}</span>
+                  </div>
+                  <span aria-hidden="true" style="width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: {{v.t.surface2}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges"><path d="{{ic.edit}}" fill="{{v.t.outline}}"></path></svg></span>
+                </div>
+                <ol style="margin: 0; padding: 0; list-style: none; display: flex; gap: 4px">
+                  <sc-for list="{{p.cycle}}" as="c" hint-placeholder-count="6">
+                    <li style="flex: 1 1 0; height: 32px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 2px; background: {{v.t.surface}}; color: {{c.fg}}; border: 2px solid {{c.border}}; clip-path: {{n}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 11px">
+                      <sc-if value="{{c.cur}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 8 8" width="12" height="12" shape-rendering="crispEdges" aria-hidden="true"><path d="{{cur.y}}" fill="#F5D23A"></path><path d="{{cur.o}}" fill="#33213F"></path></svg></sc-if>
+                      <span>{{c.label}}</span>
+                    </li>
+                  </sc-for>
+                </ol>
+              </a>
+            </sc-for>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="height: 48px; display: flex; align-items: center; justify-content: space-between">
+              <h2 style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">{{v.s.routinesLabel}}</h2>
+              <a href="RoutineEdit.dc.html" aria-label="{{v.s.newRoutineAria}}" style="height: 48px; box-sizing: border-box; padding: 0 14px 0 8px; display: flex; align-items: center; gap: 6px; text-decoration: none; background: {{v.t.surface}}; color: {{v.t.outline}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 16px">
+                <svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.plus}}" fill="{{v.t.action}}"></path></svg>{{v.s.newBtnF}}
+              </a>
+            </div>
+            <ul style="margin: 0; padding: 0; list-style: none; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}">
+              <sc-for list="{{v.routines}}" as="r" hint-placeholder-count="5">
+                <li style="border-bottom: 2px dotted {{v.t.surface2}}">
+                  <a href="RoutineEdit.dc.html" aria-label="{{r.aria}}" style="height: 52px; padding: 0 8px 0 14px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: {{v.t.outline}}">
+                    <span style="width: 72px; flex-shrink: 0; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px">{{r.name}}</span>
+                    <span style="flex-grow: 1; font-size: 14px; color: {{v.t.muted}}">{{r.meta}}</span>
+                    <svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.chevR}}" fill="{{v.t.muted}}"></path></svg>
+                  </a>
+                </li>
+              </sc-for>
+            </ul>
+          </div>
+        </div>
+
+        <nav aria-label="Main" style="background: {{v.t.surface}}; border-top: 2px solid {{v.t.outline}}; padding: 8px 6px 12px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; align-items: end">
+          <sc-for list="{{v.tabs}}" as="tab" hint-placeholder-count="5">
+            <a href="#" aria-current="{{tab.current}}" style="height: {{tab.h}}; margin-top: {{tab.mt}}; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; background: {{tab.bg}}; color: {{tab.fg}}; border: 2px solid {{tab.border}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}">
+              <sc-if value="{{tab.sel}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 8 8" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{cur.y}}" fill="#F5D23A"></path><path d="{{cur.o}}" fill="#33213F"></path></svg></sc-if>
+              <sc-if value="{{tab.notSel}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{tab.icon}}" fill="{{tab.fg}}"></path></svg></sc-if>
+              <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 11px; line-height: 1; white-space: nowrap">{{tab.label}}</span>
+            </a>
+          </sc-for>
+        </nav>
+      </div>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["EN + ES","EN","ES"],"default":"EN + ES"},"$preview":{"width":900,"height":960}}'>
+const T = {
+  night: { name: 'NIGHT', bg: '#0C0915', surface: '#1C1430', surface2: '#2A1F45', outline: '#F4F2F7', muted: '#A39BB6', primary: '#A98BFF', onPrimary: '#0C0915', select: '#F5D23A', onSelect: '#0C0915', action: '#F0A030', hi: 'rgba(255,255,255,0.22)', lo: 'rgba(0,0,0,0.45)', selBg: '#1C1430', selBorder: '#F5D23A', selText: '#F5D23A', navBorder: '#F0A030', activeMuted: '#A39BB6' },
+  day: { name: 'DAY', bg: '#FBF3E8', surface: '#FFFDF8', surface2: '#F3E6D6', outline: '#33213F', muted: '#7A6684', primary: '#6B4FC8', onPrimary: '#FBF3E8', select: '#FBDA61', onSelect: '#33213F', action: '#33213F', hi: 'rgba(255,255,255,0.6)', lo: 'rgba(51,33,63,0.25)', selBg: '#FBDA61', selBorder: '#33213F', selText: '#33213F', navBorder: '#33213F', activeMuted: '#5A4466' }
+};
+const N = 'polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px)';
+function px(rows) { let d = ''; rows.forEach(function (r, y) { for (let x = 0; x < r.length; x++) { if (r[x] === '#') d += 'M' + x + ' ' + y + 'h1v1h-1z'; } }); return d; }
+const I = {
+  home: px(['','.......##','......####','.....##..##','....##....##','...##......##','..##........##','.##..........##','...#........#','...#..####..#','...#..#..#..#','...#..#..#..#','...#..#..#..#','...####..####']),
+  programs: px(['','.....######','..####....####','..#..######..#','..#..........#','..#.##.#####.#','..#..........#','..#.##.#####.#','..#..........#','..#.##.#####.#','..#..........#','..#.##.###...#','..#..........#','..############']),
+  start: px(['','','....#','....###','....#####','....#######','....#########','....##########','....##########','....#########','....#######','....#####','....###','....#']),
+  stats: px(['','','...........##','...........##','.......##..##','.......##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','.##############']),
+  exercises: px(['','','','..##........##','.###........###','.###........###','.##############','.##############','.###........###','.###........###','..##........##']),
+  plus: px(['','','','','.......##','.......##','.......##','...##########','...##########','.......##','.......##','.......##']),
+  edit: px(['','..........##','.........####','........####','.......####','......####','.....####','....####','...####','...###','...##']),
+  chevR: px(['','','.....##','.....###','......###','.......###','........###','........###','.......###','......###','.....###','.....##'])
+};
+const CUR_O = px(['..####..', '.#....#.', '#......#', '#.#..#.#', '#......#', '#..##..#', '.#....#.', '..####..']);
+const CUR_Y = px(['........', '..####..', '.######.', '.#.##.#.', '.######.', '.##..##.', '..####..', '........']);
+const S = {
+  en: {
+    title: 'PROGRAMS', programsLabel: 'YOUR PROGRAMS', newBtn: 'NEW', newBtnF: 'NEW', newProgramAria: 'New program', routinesLabel: 'ROUTINES', newRoutineAria: 'New routine', active: 'ACTIVE',
+    programs: [['MY PROGRAM', 'Calisthenics · 6 steps · next: Pull', 'Edit My program, active'], ['SHORT WEEK', 'Calisthenics · 5 steps', 'Edit Short week']],
+    routines: [['PULL', '6 exercises · 14 sets'], ['PUSH', '5 exercises · 11 sets'], ['LEGS', '3 exercises · 5 sets'], ['UPPER', '7 exercises · 15 sets'], ['LOWER', '3 exercises · 5 sets']],
+    editRoutine: 'Edit routine ',
+    tabs: ['HOME', 'PROGRAMS', 'START', 'STATS', 'EXERCISES']
+  },
+  es: {
+    title: 'PROGRAMAS', programsLabel: 'TUS PROGRAMAS', newBtn: 'NUEVO', newBtnF: 'NUEVA', newProgramAria: 'Nuevo programa', routinesLabel: 'RUTINAS', newRoutineAria: 'Nueva rutina', active: 'ACTIVO',
+    programs: [['MI PROGRAMA', 'Calistenia · 6 pasos · sigue: Pull', 'Editar Mi programa, activo'], ['SEMANA CORTA', 'Calistenia · 5 pasos', 'Editar Semana corta']],
+    routines: [['PULL', '6 ejercicios · 14 series'], ['PUSH', '5 ejercicios · 11 series'], ['LEGS', '3 ejercicios · 5 series'], ['UPPER', '7 ejercicios · 15 series'], ['LOWER', '3 ejercicios · 5 series']],
+    editRoutine: 'Editar rutina ',
+    tabs: ['INICIO', 'PROGRAMAS', 'EMPEZAR', 'STATS', 'EJERCICIOS']
+  }
+};
+const CYCLES = [['PULL', 'PUSH', 'LEGS', 'ZZZ', 'UPPER', 'LOWER'], ['UPPER', 'LOWER', 'ZZZ', 'UPPER', 'LOWER']];
+class Component extends DCLogic {
+  renderVals() {
+    const L = this.props.lang ?? 'EN + ES';
+    const pairs = L === 'EN' ? [['night', 'en'], ['day', 'en']] : L === 'ES' ? [['night', 'es'], ['day', 'es']] : [['night', 'en'], ['day', 'es']];
+    const navIcons = [I.home, I.programs, I.start, I.stats, I.exercises];
+    const vs = pairs.map(function (p) {
+      const t = T[p[0]], s = S[p[1]];
+      return {
+        t: t,
+        label: t.name + ' · ' + (p[1] === 'en' ? 'ENGLISH' : 'ESPAÑOL'),
+        s: s,
+        programs: s.programs.map(function (pr, i) {
+          const active = i === 0;
+          return {
+            name: pr[0], meta: pr[1], aria: pr[2], active: active,
+            bg: active ? t.selBg : t.surface, fg: active ? t.selText : t.outline, border: active ? t.selBorder : t.outline, metaColor: active ? t.activeMuted : t.muted,
+            cycle: CYCLES[i].map(function (c, j) { const cur = active && j === 0; return { label: c, cur: cur, fg: cur ? t.selText : (c === 'ZZZ' ? t.muted : t.outline), border: cur ? t.selBorder : t.surface2 }; })
+          };
+        }),
+        routines: s.routines.map(function (r) { return { name: r[0], meta: r[1], aria: s.editRoutine + r[0] }; }),
+        tabs: s.tabs.map(function (l, i) {
+          const sel = i === 1, start = i === 2;
+          return { label: l, icon: navIcons[i], sel: sel, notSel: !sel, current: sel ? 'page' : 'false', h: start ? '76px' : '64px', mt: start ? '-20px' : '0', bg: start ? t.primary : (sel ? t.selBg : t.surface), fg: start ? t.onPrimary : (sel ? t.selText : t.outline), border: start ? t.outline : (sel ? t.selBorder : t.navBorder) };
+        })
+      };
+    });
+    return { vs: vs, n: N, ic: I, cur: { o: CUR_O, y: CUR_Y } };
+  }
+}
+</script>
+</body>
+</html>

@@ -21,7 +21,10 @@ body{margin:0}
         <div style="flex-grow: 1; padding: 0 16px; display: flex; flex-direction: column; gap: 16px">
           <header style="height: 56px; display: flex; align-items: center; justify-content: space-between">
             <h1 style="margin: 0; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 26px">DINOGYM</h1>
-            <span style="font-size: 14px; color: {{v.t.muted}}">{{v.s.date}}</span>
+            <div style="display: flex; align-items: center; gap: 12px">
+              <span style="font-size: 14px; color: {{v.t.muted}}">{{v.s.date}}</span>
+              <a href="Settings.dc.html" aria-label="{{v.s.settingsAria}}" style="width: 48px; height: 48px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.gear}}" fill="{{v.t.action}}"></path></svg></a>
+            </div>
           </header>
 
           <div style="filter: drop-shadow(4px 4px 0 {{v.t.shadow}})">
@@ -104,18 +107,19 @@ const I = {
   start: px(['','','....#','....###','....#####','....#######','....#########','....##########','....##########','....#########','....#######','....#####','....###','....#']),
   stats: px(['','','...........##','...........##','.......##..##','.......##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','.##############']),
   exercises: px(['','','','..##........##','.###........###','.###........###','.##############','.##############','.###........###','.###........###','..##........##']),
-  edit: px(['','..........##','.........####','........####','.......####','......####','.....####','....####','...####','...###','...##'])
+  edit: px(['','..........##','.........####','........####','.......####','......####','.....####','....####','...####','...###','...##']),
+  gear: px(['','......####','..##..####..##','..############','...##########','..####....####','.####......####','#####......#####','#####......#####','.####......####','..####....####','...##########','..############','..##..####..##','......####'])
 };
 const CUR_O = px(['..####..', '.#....#.', '#......#', '#.#..#.#', '#......#', '#..##..#', '.#....#.', '..####..']);
 const CUR_Y = px(['........', '..####..', '.######.', '.#.##.#.', '.######.', '.##..##.', '..####..', '........']);
 const S = {
   en: {
-    date: 'Mon 16 Nov', bubble: '* Pull day is up next. Last time you did 6 pull-ups on set 1.', upNext: 'UP NEXT', program: 'MY PROGRAM · 1 OF 6', meta: '6 exercises · 14 sets', editAria: 'Edit the Pull routine', startBtn: 'START PULL', skip: 'SKIP', cycle: 'CYCLE', lastLabel: 'Last workout:', last: 'Lower · Sat 14 Nov',
+    date: 'Mon 16 Nov', settingsAria: 'Settings', bubble: '* Pull day is up next. Last time you did 6 pull-ups on set 1.', upNext: 'UP NEXT', program: 'MY PROGRAM · 1 OF 6', meta: '6 exercises · 14 sets', editAria: 'Edit the Pull routine', startBtn: 'START PULL', skip: 'SKIP', cycle: 'CYCLE', lastLabel: 'Last workout:', last: 'Lower · Sat 14 Nov',
     rows: [['Front lever + pulls', '2 × 4'], ['Forearm curl', '3 × 13'], ['Pull-ups', '2 × 6'], ['Reverse curl', '2 × 25'], ['Rows', '3 × 12'], ['Bicep curl', '2 × 12']],
     tabs: ['HOME', 'PROGRAMS', 'START', 'STATS', 'EXERCISES']
   },
   es: {
-    date: 'lun 16 nov', bubble: '* Hoy toca Pull. La última vez hiciste 6 dominadas en la serie 1.', upNext: 'SIGUIENTE', program: 'MI PROGRAMA · 1 DE 6', meta: '6 ejercicios · 14 series', editAria: 'Editar la rutina Pull', startBtn: 'EMPEZAR PULL', skip: 'SALTAR', cycle: 'CICLO', lastLabel: 'Último entreno:', last: 'Lower · sáb 14 nov',
+    date: 'lun 16 nov', settingsAria: 'Ajustes', bubble: '* Hoy toca Pull. La última vez hiciste 6 dominadas en la serie 1.', upNext: 'SIGUIENTE', program: 'MI PROGRAMA · 1 DE 6', meta: '6 ejercicios · 14 series', editAria: 'Editar la rutina Pull', startBtn: 'EMPEZAR PULL', skip: 'SALTAR', cycle: 'CICLO', lastLabel: 'Último entreno:', last: 'Lower · sáb 14 nov',
     rows: [['Front lever + dominadas', '2 × 4'], ['Curl de antebrazo', '3 × 13'], ['Dominadas', '2 × 6'], ['Curl inverso', '2 × 25'], ['Remo', '3 × 12'], ['Curl de bíceps', '2 × 12']],
     tabs: ['INICIO', 'PROGRAMAS', 'EMPEZAR', 'STATS', 'EJERCICIOS']
   }
@@ -131,7 +135,7 @@ class Component extends DCLogic {
       return {
         t: t,
         label: t.name + ' · ' + (p[1] === 'en' ? 'ENGLISH' : 'ESPAÑOL'),
-        s: { date: s.date, bubble: s.bubble, upNext: s.upNext, program: s.program, meta: s.meta, editAria: s.editAria, startBtn: s.startBtn, skip: s.skip, cycle: s.cycle, lastLabel: s.lastLabel, last: s.last, rows: s.rows.map(function (r) { return { name: r[0], target: r[1] }; }) },
+        s: { date: s.date, settingsAria: s.settingsAria, bubble: s.bubble, upNext: s.upNext, program: s.program, meta: s.meta, editAria: s.editAria, startBtn: s.startBtn, skip: s.skip, cycle: s.cycle, lastLabel: s.lastLabel, last: s.last, rows: s.rows.map(function (r) { return { name: r[0], target: r[1] }; }) },
         cycle: CYCLE.map(function (c, i) { const cur = i === 0; return { label: c, cur: cur, bg: cur ? t.selBg : t.surface, fg: cur ? t.selText : (c === 'ZZZ' ? t.muted : t.outline), border: cur ? t.selBorder : t.surface2 }; }),
         tabs: s.tabs.map(function (l, i) {
           const sel = i === 0, start = i === 2;
