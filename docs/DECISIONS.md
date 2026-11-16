@@ -151,3 +151,46 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Why:** Piero's answers to the first style questions. Readability while training matters more than an all-pixel look. Game mechanics would add features without helping someone log a workout.
 - **Rejected:** A pixel font for all text, which tires the eyes in long text. Streaks and `LV`/`HP` stats. Material Symbols mixed with pixel icons. A dino mascot.
 - **Note:** Piero confirmed that the original mascot drawing can be used without permission.
+
+## 26. Training scope: Gym and Calisthenics (2026-11-16)
+
+- **Decision:** Programs have a type, Gym or Calisthenics. Gym shows a weight field; Calisthenics hides it, with a per-exercise switch to turn it on (for example weighted dips).
+- **Why:** The owner wants the app to serve people who train in a gym too, while he trains with calisthenics.
+- **Rejected:** Keeping version 1's bodyweight-only scope.
+
+## 27. Starter programs based on Jeff Nippard's free advice (2026-11-16)
+
+- **Decision:** The app ships a Gym UL/PPL and a Calisthenics UL/PPL program, built from five routines (Upper, Lower, Push, Pull, Legs), plus a 4-day Upper/Lower layout for people with less time. The principles and exercise picks come from Nippard's free videos, blog and public program layouts, with sources in [research/](research/). The owner's own program ships as his first data. Details in [TRAINING.md](TRAINING.md).
+- **Why:** The owner follows Nippard and wants evidence-based defaults. Using only free public content keeps the open-source repository clear of paid material.
+- **Rejected:** Copying exercises or set tables from Nippard's paid programs; shipping no starter content; a large exercise library (the owner wants only what the programs use).
+- **Honesty note:** No Nippard calisthenics video was found, so the calisthenics program applies his principles to bodyweight exercises; it is not presented as his exercise picks.
+
+## 28. Progression: owner-driven, measured on set 1 (2026-11-16)
+
+- **Decision:** Sets stay fixed. Gym exercises use double progression in 6–10 reps: add reps until 10, then add weight and restart at 6. Calisthenics adds reps when the user is ready. The app makes no progression suggestions; it pre-fills the last session's numbers. Progress counts only set 1, and the progress record keeps only the days set 1 beat the previous best. Weekly set volume is not tracked.
+- **Why:** This is how the owner trains, and it matches Nippard's double progression. Set 1 is the freshest set, so it is the fairest comparison between sessions.
+- **Rejected:** Automatic "try 13 next time" suggestions; tracking the best set of any position; weekly volume targets; built-in deloads.
+
+## 29. Program cycle advances by completed workout (2026-11-16)
+
+- **Decision:** A program is an ordered cycle of routines and rest days. The next routine is shown on the home screen; completing, marking a rest day done, or skipping moves the cycle on. It is not tied to weekdays.
+- **Why:** The owner's 6-day cycle (Pull, Push, Legs, Rest, Upper, Lower) does not fit a 7-day week, and he sometimes skips Legs.
+- **Rejected:** Weekday-based schedules.
+
+## 30. Exercise icons, not photos (2026-11-16)
+
+- **Decision:** Each exercise shows a small pixel icon for its type, drawn by us in the style of [design/PIXEL-STYLE.md](design/PIXEL-STYLE.md). No photos.
+- **Why:** Matches the pixel-art style (decision 21), works offline, and avoids image licensing.
+- **Rejected:** Photos from the public-domain free-exercise-db (wrong style, gaps for calisthenics skills); user-added photos (needs storage and permissions for little gain).
+
+## 31. First daily-usable version (2026-11-16)
+
+- **Decision:** The first version the owner switches to has: his program ready to log; adding and editing routines and programs; the rest timer with a scroll picker for minutes and seconds; editable history; the progress view; exercise icons. English and Spanish strings from the start. Then, in order: body weight, sign-in and sync, starter programs and a program builder, shareable routines, reminders, web dashboard.
+- **Why:** These replace version 1 for daily use. The two version 1 complaints (hard to find how to add or edit a workout, no scroll picker for rest) are fixed in the first version. Cloud features come after the app is useful offline.
+- **Rejected:** Building sign-in and sync first.
+
+## 32. Body weight chart: 7-day average, inferred goal direction (2026-11-16)
+
+- **Decision:** The body weight chart draws a 7-day trailing average as its main line with raw weigh-ins as small points. The goal direction (lose or gain) is inferred from the goal against the weigh-ins, with no separate setting.
+- **Why:** Daily weight moves by about 0.5–1 kg from water and food, so the average shows the trend. Inferring the direction saves a setting. The owner left both choices to the AI.
+- **Rejected:** Raw points only; a lose/gain/maintain setting.

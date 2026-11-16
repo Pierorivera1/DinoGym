@@ -2,7 +2,7 @@
 
 What DinoGym v2 does for its owner, agreed in the wishlist thread starting 2026-11-16. Training content (rules, research, starter programs) lives in [TRAINING.md](TRAINING.md). Decisions are recorded in [DECISIONS.md](DECISIONS.md).
 
-**Status:** in progress. Sections marked _open_ are still being discussed.
+**Status:** agreed 2026-11-16.
 
 ## How the owner trains today
 
@@ -88,8 +88,8 @@ Set volume is not tracked or targeted. The number of sets in a routine stays as 
 - **Goal:** an optional target weight, shown in the header next to a target icon and drawn as a dashed line across the chart in a contrasting colour.
 - Works offline and syncs like workouts. The web dashboard shows the same chart.
 - Applies to both Gym and Calisthenics programs.
-- _open_ Whether to also show a 7-day average line, since daily weigh-ins are noisy.
-- _open_ Whether the goal is lose, gain or maintain (for the colour of progress), or just a line.
+- **7-day average:** the chart draws a 7-day trailing average as the main line, with the raw weigh-ins as small points. Daily weight swings by about 0.5–1 kg from water and food, so the average shows the real trend.
+- **Goal direction** is inferred, not chosen: a goal below the first weigh-in in range means losing, above means gaining. Moving toward the goal is coloured as progress. No separate lose/gain/maintain setting.
 
 ## Exercise images
 
@@ -114,8 +114,24 @@ The owner switches from v1 when these exist:
 
 English and Spanish strings apply from the start (product rule), even though it is not a feature to switch for.
 
-**Later**, roughly in this order: sign-in and sync, the starter UL/PPL programs and a program builder for other users, body weight, shareable routines, reminders, web dashboard.
+**Later**, roughly in this order: body weight (local only, small), sign-in and sync, the starter UL/PPL programs and a program builder for other users, shareable routines, reminders, web dashboard.
 
-## Open
+## What each feature needs
 
-- _open_ Feature needs: data, backend, AWS services, permissions, cost.
+Estimated 2026-11-16. "Free tier" means the always-free allowances (Lambda 1M requests a month, DynamoDB 25 GB, CloudFront 1 TB out, EventBridge Scheduler 14M invocations). At a handful of users, every feature is expected to cost close to $0 a month, well under the $10 cap (decision 6). Verify the free-tier terms when the AWS account is created, since AWS changed them for new accounts in 2025.
+
+| Feature | Data (on the phone) | Backend and AWS | Android permissions | Cost | Outside STACK.md |
+|---|---|---|---|---|---|
+| Programs, routines, logging, history | Room: programs, routines, exercises, sessions, sets | None until sync | None | $0 | No |
+| Rest timer | Rest per exercise | None | `POST_NOTIFICATIONS`, `FOREGROUND_SERVICE` plus a service type (decide at build time; `shortService` is capped at 3 min, too short for a 9-minute rest) | $0 | No |
+| Progress view | Computed from sets (set 1 per session) | None. The web computes it from synced data | None | $0 | No |
+| Exercise icons | Bundled pixel drawables | None | None | $0 | No (drawn by us) |
+| Starter programs | Bundled data, copied into Room on first run | None | None | $0 | No |
+| Body weight | Room: one weigh-in per day, optional goal | Syncs like workouts | None | $0 | No |
+| Sign-in | Session token, kept encrypted on the phone | Lambda verifies the Google ID token and issues sessions; signing key in a secret store | `INTERNET` | $0 | Secret store: likely SSM Parameter Store (already in OPEN-ITEMS) |
+| Sync | Change tracking per row (sync design still open) | API Gateway HTTP API, Lambda, DynamoDB; WorkManager on the phone | `INTERNET`, `ACCESS_NETWORK_STATE` | Free tier | No |
+| Shareable routines | Import from a link | Public read-only page on S3 + CloudFront, plus an API call to publish | None (App Links need `assetlinks.json` served from the CloudFront domain) | Free tier | No. Links change if the CloudFront distribution is recreated (decision 23) |
+| Reminders | Reminder settings | EventBridge Scheduler → Lambda → Firebase Cloud Messaging | `POST_NOTIFICATIONS` | Free tier | Keyless auth to FCM is still open (OPEN-ITEMS) |
+| Web dashboard | – | React on S3 + CloudFront, same API, Google sign-in on the web | – | Free tier | Google Identity Services for web sign-in (part of Google sign-in; the `*.cloudfront.net` origin check is in OPEN-ITEMS) |
+
+Nothing on this list needs a new AWS service beyond STACK.md. SQS has no user yet. It stays in STACK.md for jobs that need retries, such as sending reminders in bulk.

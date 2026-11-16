@@ -26,11 +26,14 @@ As of 2026-11-16. Remove an item when it is done or decided, and record decision
 - [ ] The DynamoDB data model
 - [ ] The Android package name (it must differ from version 1's so both can be installed)
 - [ ] The AWS region
-- [ ] The wishlist, and whether the training scope stays bodyweight-only or widens: programs, exercise library, rep ranges (in progress in the Wishlist & Training Content thread)
 - [ ] Where secrets live (session signing key, Grafana token). Likely SSM Parameter Store, which is not in STACK.md yet
 - [ ] How the backend authenticates to FCM without a long-lived service account key (Google workload identity federation from AWS)
 
 ## To verify later
+
+- [ ] The AWS free-tier terms for a new account (AWS changed them in 2025); [WISHLIST.md](WISHLIST.md) assumes the always-free allowances
+- [ ] The foreground service type for the rest timer (`shortService` is capped at 3 minutes)
+- [ ] The r/bodyweightfitness Recommended Routine wiki against the mirror used in [research/exercise-selection.md](research/exercise-selection.md)
 
 - [ ] Google sign-in on the web dashboard accepts a `*.cloudfront.net` origin, since there is no custom domain
 

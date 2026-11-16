@@ -13,7 +13,7 @@ The owner has separate learning projects for Terraform, GitHub Actions, Docker a
 
 ## What DinoGym is
 
-A native Android workout tracker for bodyweight training. Version 1 already exists (now `Pierorivera1/Old-DinoGym` on GitHub): Kotlin, Jetpack Compose, Material 3, Navigation 3, with all data in a local JSON file and no backend.
+A native Android workout tracker for gym and calisthenics training (decision 26). Version 1 already exists (now `Pierorivera1/Old-DinoGym` on GitHub): a bodyweight-only tracker in Kotlin, Jetpack Compose, Material 3 and Navigation 3, with all data in a local JSON file and no backend.
 
 This project is a full rebuild. The owner does not like version 1's UI or its overall structure.
 
