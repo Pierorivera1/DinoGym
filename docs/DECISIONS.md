@@ -361,3 +361,10 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
   - Deleting a weigh-in offers UNDO; clearing the goal soft-deletes its row.
 - **Rejected:** A separate Body weight screen off Home (one more place to look); last-weigh-in-of-the-day only (throws data away); storing the goal in the device-only settings file (it would not sync); a destructive migration (the first release ships version 1 and its data must survive).
 - **Known gap:** the sheet's scrim covers the Stats screen but not the bottom bar, which belongs to the app shell.
+
+## 50. Spanish copy: Latin American, one term per concept (2026-11-16)
+
+- **Decision:** Every Spanish string was reviewed before the first release. The app speaks Latin American Spanish with tú, as the mocks do, and uses one term per concept: entreno (workout), rutina, programa, serie, REPS, descanso, ejercicio, récord, peso, pesaje (weigh-in), objetivo (goal), promedio (average), agregar / quitar / borrar, empezar / seguir, ajustes, celular. Spain-only words were replaced (añadir → agregar, cuenta atrás → cuenta regresiva, media → promedio).
+- **Why:** The owner and his likely users are Latin American, and one word per idea keeps the app predictable.
+- **Rejected:** Neutral Spanish that avoids regional words (it reads stiff); mixing entreno, entrenamiento and sesión.
+- **Left open:** `EMPEZAR %1$s` has no shorter natural verb, so the cut-off label at 130% font size needs a layout fix (OPEN-ITEMS).

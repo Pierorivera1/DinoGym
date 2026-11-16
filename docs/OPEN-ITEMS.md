@@ -21,7 +21,7 @@ As of 2026-11-16. Remove an item when it is done or decided, and record decision
 
 ## Still to decide
 
-- [ ] The owner reviews the second mock batch (Programs, Exercises, Stats, Settings): they are on the canvas and were built from without approval (decision 41)
+- [ ] The owner reviews the second mock batch (Programs, Exercises, Stats, Settings) and the body weight mock: they are on the canvas and were built from without approval (decisions 41 and 49). Also not drawn at all: the Stats PROGRESS list (decision 47) and the licences screen (decision 46)
 - [ ] The sync design: how conflicts between devices are resolved
 - [ ] The DynamoDB data model
 - [ ] The AWS region
@@ -32,7 +32,9 @@ As of 2026-11-16. Remove an item when it is done or decided, and record decision
 
 - [ ] On a phone: Back handling in a workout, the notification permission prompt, the rest alarm and its sound with the screen off, resume after the app is killed, the scroll picker. None of these can be checked on the laptop
 - [ ] On a phone, for the Exercises screens: drag to reorder, keyboard and focus, and that edits reach the database
-- [ ] With the system font at 130%, long button labels are cut off (`EMPEZAR PULL` shows as `EMPEZAR`)
+- [ ] With the system font at 130%, long button labels are cut off (`EMPEZAR PULL` shows as `EMPEZAR`). No shorter Spanish verb exists, so this needs a layout fix
+- [ ] On a phone, for tasks 7–11: drag to reorder in the cycle and routine editors, the exercise picker → exercise editor round trip, editing a past set, the theme switch, the kg keyboard on a weigh-in, Back closing sheets, TalkBack on the new screens
+- [ ] When Night or Day is forced against the phone's dark mode, the window background shows the phone's mode for a moment at launch (decision 46)
 
 - [ ] The AWS free-tier terms for a new account (AWS changed them in 2025); [WISHLIST.md](WISHLIST.md) assumes the always-free allowances
 - [ ] The r/bodyweightfitness Recommended Routine wiki against the mirror used in [research/exercise-selection.md](research/exercise-selection.md)
@@ -41,4 +43,4 @@ As of 2026-11-16. Remove an item when it is done or decided, and record decision
 
 ## State of the build
 
-- Task 1 (project setup) is done: `android/` builds an empty app with Compose, Navigation 3, Hilt and Room wired in. Progress is tracked in [TASKS.md](TASKS.md). `docs/design/references/` (third-party art) is git-ignored and stays local.
+- Part 1 (tasks 1–10) and Part 2 (task 11) are done; progress is tracked in [TASKS.md](TASKS.md). The first release is tagged from `main` as described in [RELEASE.md](RELEASE.md). `docs/design/references/` (third-party art) is git-ignored and stays local.
