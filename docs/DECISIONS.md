@@ -117,7 +117,6 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Note:** GitHub redirects the old URL to `Old-DinoGym` only until a new repository takes the `DinoGym` name. After that, old links lead to the new project.
 - **License:** MIT (decision 24).
 
-
 ## 21. Visual style: pixel art, readability first (2026-11-16)
 
 - **Decision:** The app and web pages use a pixel-art style inspired by Undertale / Deltarune (dark theme) and pastel pixel-art game UI (light theme). The style is extracted into [design/PIXEL-STYLE.md](design/PIXEL-STYLE.md). No art, fonts or characters from the references are used; all sprites and icons are our own, fonts are open-licensed, and the dino is the mascot.
@@ -143,7 +142,6 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Decision:** The repository is released under the MIT license.
 - **Why:** The shortest and most widely recognized permissive license. Anyone can read, reuse and learn from the code, which suits a public resume project.
 - **Rejected:** Apache-2.0. Its explicit patent grant matters little for a personal app, and it is longer.
-
 
 ## 25. Style details: themes, fonts, navigation, mascot (2026-11-16)
 
@@ -314,6 +312,15 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Rejected:** Signing on the laptop and uploading by hand (no record of what was built); Play App Signing (no Play Store, decision 8); a keystore committed in encrypted form (one leaked password away from public).
 - **Risk:** The key cannot be replaced without uninstalling the app. The owner must back up `~/.config/dinogym/`.
 
+## 46. Settings: theme storage and the licences screen (2026-11-16)
+
+- **Decision:** The theme choice (System / Night / Day) is stored in its own Preferences DataStore file, `settings`, on the phone only. The activity draws nothing until it has been read, so the window background shows for those few milliseconds instead of a frame in the wrong theme. The open-source licences screen lists the bundled fonts (OFL 1.1, full text from `assets/licenses/`), the libraries in the APK (Apache 2.0, linked to the licence page) and SQLite (public domain, compiled into the APK by `sqlite-bundled`).
+- **Why:** A theme belongs to a device, so it is not in Room, which is what syncs later (decision 36). Linking to the Apache 2.0 text avoids an asset per library.
+- **Strings per feature:** new screens put their strings in their own file (`strings_settings.xml`), which keeps parallel work from conflicting in `strings.xml`.
+- **Rejected:** Room for the theme (it would sync); `runBlocking` on the main thread to read the theme before the first frame; the AndroidX splash screen library or AppCompat just for this; the Google OSS licences plugin (a new dependency and Play-services tooling for one list).
+- **Known gap:** When Night or Day is forced against the phone's dark mode, the window background matches the phone's mode until the first frame. Fixing that needs `UiModeManager.setApplicationNightMode` (Android 12+) and is left for later.
+- **Mock:** The licences screen has no mock of its own; it reuses the Settings list style. It is a plain list, so it was built without one.
+
 ## 47. Stats screens: what counts as progress (2026-11-16)
 
 - **Decision:** Task 9 built the Stats tab (HISTORY / PROGRESS), the past session and the progress view from the mocks. Behaviour the mocks do not show:
@@ -326,6 +333,20 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
   - **Deleting a session** removes it and any summary of it from the back stack. Rejected: returning to a summary of a deleted session.
 - **Not drawn:** the PROGRESS list (exercise tile, name, best set 1) follows the history rows' style. It needs the owner's review with the rest of the second batch.
 - **Why:** Records should mean real improvement, and a correction to a past set should show everywhere at once.
+
+## 48. Programs screens: editing a cycle safely (2026-11-16)
+
+- **Decision:** Task 7 built the Programs list, program editor, routine editor and exercise picker from the mocks. Behaviour the mocks do not show:
+  - **Removing the step the cycle is on makes the next step current** (the first if it was the last), and UNDO restores it. Rejected: going back a step.
+  - **UNDO clears `deletedAt` on the same row** instead of inserting a new one, so sync later sees one row, not a delete plus an insert.
+  - **Deleting the active program leaves no program active**, and the dialog says so. Rejected: silently activating another one.
+  - **A new program starts as Calisthenics** and becomes active only when no program is active, so a first program works on Home at once.
+  - **Deleting a routine used by several programs** names them in the dialog, then removes its steps from every cycle. Rejected: blocking the delete. A routine with a workout in progress cannot be deleted; the sheet asks to finish or discard the workout first.
+  - **Exercises added from the picker start at 2 × 10**, rest 1:30 for isolation (curls, raises) and 2:30 otherwise (TRAINING.md). Show-only exercises get 1 × 0 and no rest, as in the seed.
+  - **Reps:** RANGE opens two reps above the fixed number and can never collapse to equal ends; sets 1–20, reps 1–999.
+  - **The picker** searches ignoring case and accents, keeps ticked rows visible while searching, and allows adding an exercise that is already in the routine (some routines repeat one).
+- **Not blocked:** editing a routine's exercises while a workout of it is open. The workout reads its exercises when it starts.
+- **Why:** No edit can leave the cycle pointing at nothing, and every removal can be undone except whole-item deletes, which ask first (decision 41).
 
 ## 49. Body weight: storage, chart and entry (2026-11-16)
 

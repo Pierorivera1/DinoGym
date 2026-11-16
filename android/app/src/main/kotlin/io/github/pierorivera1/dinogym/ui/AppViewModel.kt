@@ -5,21 +5,34 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation3.runtime.NavKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pierorivera1.dinogym.data.repository.WorkoutRepository
+import io.github.pierorivera1.dinogym.data.settings.SettingsRepository
 import io.github.pierorivera1.dinogym.timer.RestTimer
 import io.github.pierorivera1.dinogym.ui.navigation.resumeScreens
+import io.github.pierorivera1.dinogym.ui.theme.ThemeMode
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * The app shell's ViewModel (scoped to the activity): what to reopen at launch, and the
- * bottom bar's START, which works from any tab.
+ * The app shell's ViewModel (scoped to the activity): the theme, what to reopen at launch,
+ * and the bottom bar's START, which works from any tab.
  */
 @HiltViewModel
 class AppViewModel @Inject constructor(
     private val workoutRepository: WorkoutRepository,
     private val restTimer: RestTimer,
+    settingsRepository: SettingsRepository,
 ) : ViewModel() {
+
+    /**
+     * The theme chosen in Settings. Null until it has been read, so the activity can draw
+     * nothing (the window background) instead of a frame in the wrong theme.
+     */
+    val themeMode: StateFlow<ThemeMode?> = settingsRepository.themeMode
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     /** The launch check runs once per activity, not again after a rotation. */
     private var resumeChecked = false

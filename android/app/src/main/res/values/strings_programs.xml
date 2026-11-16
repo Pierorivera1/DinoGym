@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Programs (task 7): the Programs list, program editor, routine editor and exercise picker (ui/programs).
+     Program, routine and exercise names are user data and are passed in as %s. -->
+<resources>
+    <!-- Programs list. -->
+    <string name="programs_title">PROGRAMS</string>
+    <string name="programs_section">YOUR PROGRAMS</string>
+    <string name="programs_new_cd">New program</string>
+    <string name="programs_routines_section">ROUTINES</string>
+    <string name="programs_new_routine_cd">New routine</string>
+    <!-- The NEW button of the ROUTINES header ("rutina" is feminine in Spanish). -->
+    <string name="programs_new_routine_button">NEW</string>
+    <string name="programs_active">ACTIVE</string>
+    <string name="programs_type_gym">Gym</string>
+    <string name="programs_type_calisthenics">Calisthenics</string>
+    <plurals name="programs_steps">
+        <item quantity="one">%d step</item>
+        <item quantity="other">%d steps</item>
+    </plurals>
+    <!-- "Calisthenics · 6 steps · next: Pull". %1$s is the type, %2$s the steps, %3$s the next step. -->
+    <string name="programs_meta_next">%1$s · %2$s · next: %3$s</string>
+    <string name="programs_meta">%1$s · %2$s</string>
+    <string name="programs_next_rest">rest day</string>
+    <string name="programs_cd_edit_program">Edit %1$s</string>
+    <string name="programs_cd_edit_program_active">Edit %1$s, active</string>
+    <string name="programs_cd_edit_routine">Edit routine %1$s</string>
+    <string name="programs_empty">No programs yet. Tap NEW to make one.</string>
+    <string name="routines_empty">No routines yet. Tap NEW to make one.</string>
+    <!-- The names new rows get. They are user data afterwards. -->
+    <string name="programs_new_name">New program</string>
+    <string name="routines_new_name">New routine</string>
+
+    <!-- Program editor. -->
+    <string name="program_edit_title">EDIT PROGRAM</string>
+    <string name="program_edit_back_cd">Back to programs</string>
+    <string name="program_delete_cd">Delete program</string>
+    <string name="program_missing">This program no longer exists.</string>
+    <string name="program_saves">Changes save as you go.</string>
+    <string name="program_name_label">NAME</string>
+    <string name="program_name_error">Give it a name. The old name stays until then.</string>
+    <string name="program_type_label">TYPE</string>
+    <string name="program_type_gym">GYM</string>
+    <string name="program_type_calisthenics">CALISTHENICS</string>
+    <string name="program_type_help">Calisthenics hides the weight field unless an exercise turns it on.</string>
+    <string name="program_cycle_label">CYCLE</string>
+    <plurals name="program_cycle_meta">
+        <item quantity="one">%d STEP, THEN REPEATS</item>
+        <item quantity="other">%d STEPS, THEN REPEATS</item>
+    </plurals>
+    <string name="program_cycle_empty">No steps yet. Add a routine or a rest day.</string>
+    <string name="program_rest_day">Rest day</string>
+    <string name="program_add_routine">ROUTINE</string>
+    <string name="program_add_rest">REST DAY</string>
+    <string name="program_drag_help">Hold the dots and drag to reorder. Tap a routine to edit it. ✕ removes the step from the cycle, not the routine.</string>
+    <string name="program_use">USE THIS PROGRAM</string>
+    <plurals name="program_step_exercises">
+        <item quantity="one">%d exercise</item>
+        <item quantity="other">%d exercises</item>
+    </plurals>
+    <!-- Screen reader labels of a cycle step. %1$d is the step number, %2$s the routine or "Rest day". -->
+    <string name="program_cd_drag_step">Move step %1$d, %2$s. Drag, or use actions to move up or down</string>
+    <string name="program_cd_remove_step">Remove step %1$d, %2$s</string>
+    <string name="program_undo_step">Removed step: %1$s</string>
+    <!-- The + ROUTINE sheet. -->
+    <string name="program_pick_routine_title">ADD ROUTINE</string>
+    <string name="program_pick_routine_help">Adds a step at the end of the cycle.</string>
+    <string name="program_pick_new_routine">NEW ROUTINE</string>
+    <!-- Delete dialog. -->
+    <string name="program_delete_title">DELETE PROGRAM?</string>
+    <string name="program_delete_body">%1$s and its cycle go away. Routines and workout history stay.</string>
+    <string name="program_delete_body_active">%1$s and its cycle go away. Routines and workout history stay. No program is active until you choose one.</string>
+
+    <!-- Routine editor. -->
+    <string name="routine_edit_title">EDIT ROUTINE</string>
+    <string name="routine_delete_cd">Delete routine</string>
+    <string name="routine_missing">This routine no longer exists.</string>
+    <string name="routine_name_label">NAME</string>
+    <string name="routine_name_error">Give it a name. The old name stays until then.</string>
+    <string name="routine_exercises_label">EXERCISES · %1$d</string>
+    <plurals name="routine_sets_meta">
+        <item quantity="one">%d SET</item>
+        <item quantity="other">%d SETS</item>
+    </plurals>
+    <string name="routine_empty">No exercises yet. Tap ADD EXERCISE.</string>
+    <!-- "2 × 4 · rest 2:30" -->
+    <string name="routine_item_meta">%1$s · rest %2$s</string>
+    <string name="routine_item_show_only">Shown only, never logged</string>
+    <string name="routine_show_only_help">This exercise is shown in the routine but never logged, so it has no sets or rest.</string>
+    <string name="routine_cd_drag">Move %1$s. Drag, or use actions to move up or down</string>
+    <string name="routine_cd_open">Open settings for %1$s</string>
+    <string name="routine_cd_close">Close %1$s settings</string>
+    <string name="routine_cd_remove">Remove %1$s from this routine</string>
+    <string name="routine_sets">SETS</string>
+    <string name="routine_cd_less_set">One less set</string>
+    <string name="routine_cd_more_set">One more set</string>
+    <string name="routine_reps">REPS</string>
+    <string name="routine_reps_fixed">FIXED</string>
+    <string name="routine_reps_range">RANGE</string>
+    <string name="routine_reps_target">Target</string>
+    <string name="routine_reps_from">From</string>
+    <string name="routine_reps_to">To</string>
+    <string name="routine_cd_less_from">One less rep at the bottom of the range</string>
+    <string name="routine_cd_more_from">One more rep at the bottom of the range</string>
+    <string name="routine_cd_less_to">One less rep at the top of the range</string>
+    <string name="routine_cd_more_to">One more rep at the top of the range</string>
+    <string name="routine_rest">REST</string>
+    <string name="routine_add_exercise">ADD EXERCISE</string>
+    <string name="routine_undo_exercise">Removed %1$s</string>
+    <!-- Delete dialog. %1$s is the routine, %2$s a list of program names such as "My program and Short week". -->
+    <string name="routine_delete_title">DELETE ROUTINE?</string>
+    <string name="routine_delete_body">%1$s goes away. Its workout history stays.</string>
+    <string name="routine_delete_body_used">%1$s goes away, and its steps leave the cycle of %2$s. Its workout history stays.</string>
+    <string name="routine_delete_blocked_title">WORKOUT OPEN</string>
+    <string name="routine_delete_blocked_body">A %1$s workout is still open. Finish or discard it on Home, then delete the routine.</string>
+    <string name="action_ok">OK</string>
+    <!-- Joins the last two names of a list: "My program and Short week". -->
+    <string name="programs_list_and">%1$s and %2$s</string>
+
+    <!-- Exercise picker. -->
+    <string name="picker_add_title">ADD EXERCISE</string>
+    <string name="picker_add_scope">Adding to the %1$s routine</string>
+    <string name="picker_search_cd">Search exercises</string>
+    <string name="picker_clear_cd">Clear search</string>
+    <plurals name="picker_results">
+        <item quantity="one">%d RESULT</item>
+        <item quantity="other">%d RESULTS</item>
+    </plurals>
+    <string name="picker_in_routine">IN ROUTINE</string>
+    <string name="picker_kind_reps">Reps</string>
+    <string name="picker_kind_pattern">Pattern: %1$s</string>
+    <string name="picker_kind_show_only">Show only</string>
+    <string name="picker_new_exercise_named">NEW EXERCISE “%1$s”</string>
+    <string name="picker_new_exercise">NEW EXERCISE</string>
+    <string name="picker_new_help">Not in your library? Create it here. It comes back ticked.</string>
+    <string name="picker_no_results">No exercise matches. Create it below.</string>
+    <plurals name="picker_add">
+        <item quantity="one">ADD %d EXERCISE</item>
+        <item quantity="other">ADD %d EXERCISES</item>
+    </plurals>
+    <string name="picker_tick_some">Tick the exercises to add.</string>
+</resources>

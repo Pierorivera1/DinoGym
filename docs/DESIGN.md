@@ -19,13 +19,13 @@ Decision 16 still applies: a screen is built only after its mock is approved.
 | Rest time picker (sheet) | `RestPicker.dc.html` | Approved |
 | Rest timer | `Rest.dc.html` | Approved |
 | Workout summary | `Summary.dc.html` | Approved |
-| Programs list (programs and routines) | `ProgramList.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
-| Program editor (name, type, cycle) | `ProgramEdit.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
-| Routine editor | `RoutineEdit.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
-| Exercise picker (sheet) | `ExercisePicker.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
+| Programs list (programs and routines) | `ProgramList.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 7) |
+| Program editor (name, type, cycle) | `ProgramEdit.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 7) |
+| Routine editor | `RoutineEdit.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 7) |
+| Exercise picker (sheet) | `ExercisePicker.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 7) |
 | Exercise library (active / archived) | `ExerciseLibrary.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
 | Exercise editor (archive and restore) | `ExerciseEdit.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
-| Settings | `Settings.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
+| Settings | `Settings.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 10) |
 | Stats: history by date | `StatsHistory.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
 | Stats: past session (edit, delete) | `SessionDetail.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
 | Stats: progress for one exercise | `Progress.dc.html` | Mocked 2026-11-16, awaiting the owner's review |

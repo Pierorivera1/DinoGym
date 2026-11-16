@@ -1,13 +1,9 @@
 package io.github.pierorivera1.dinogym.ui
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -15,8 +11,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
@@ -25,7 +19,6 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import io.github.pierorivera1.dinogym.R
 import io.github.pierorivera1.dinogym.ui.components.BottomBar
 import io.github.pierorivera1.dinogym.ui.components.BottomTab
 import io.github.pierorivera1.dinogym.ui.exercises.ExerciseEditEntry
@@ -41,11 +34,20 @@ import io.github.pierorivera1.dinogym.ui.navigation.SummaryRoute
 import io.github.pierorivera1.dinogym.ui.navigation.WorkoutRoute
 import io.github.pierorivera1.dinogym.ui.navigation.route
 import io.github.pierorivera1.dinogym.ui.navigation.tabFor
+import io.github.pierorivera1.dinogym.ui.programs.ProgramEditEntry
+import io.github.pierorivera1.dinogym.ui.programs.ProgramEditRoute
+import io.github.pierorivera1.dinogym.ui.programs.ProgramListEntry
+import io.github.pierorivera1.dinogym.ui.programs.RoutineEditEntry
+import io.github.pierorivera1.dinogym.ui.programs.RoutineEditRoute
 import io.github.pierorivera1.dinogym.ui.stats.ProgressEntry
 import io.github.pierorivera1.dinogym.ui.stats.ProgressRoute
 import io.github.pierorivera1.dinogym.ui.stats.SessionDetailEntry
 import io.github.pierorivera1.dinogym.ui.stats.SessionRoute
 import io.github.pierorivera1.dinogym.ui.stats.StatsEntry
+import io.github.pierorivera1.dinogym.ui.settings.LicencesEntry
+import io.github.pierorivera1.dinogym.ui.settings.LicencesRoute
+import io.github.pierorivera1.dinogym.ui.settings.SettingsEntry
+import io.github.pierorivera1.dinogym.ui.settings.SettingsRoute
 import io.github.pierorivera1.dinogym.ui.theme.DinoTheme
 import io.github.pierorivera1.dinogym.ui.workout.RestEntry
 import io.github.pierorivera1.dinogym.ui.workout.SummaryEntry
@@ -88,12 +90,33 @@ fun DinoGymNavigation(appViewModel: AppViewModel = hiltViewModel()) {
                 entry<HomeRoute> {
                     HomeEntry(
                         onWorkoutStarted = { backStack.openWorkout() },
-                        onEditRoutine = { /* The routine editor arrives with the Programs task. */ },
-                        onOpenSettings = { /* The Settings screen arrives in a later task. */ },
+                        onEditRoutine = { backStack.add(RoutineEditRoute(it)) },
+                        onOpenSettings = { if (backStack.last() == HomeRoute) backStack.add(SettingsRoute) },
                         onOpenHistory = { backStack.openTab(BottomTab.STATS) },
                     )
                 }
-                entry<ProgramsRoute> { PlaceholderScreen(R.string.nav_programs) }
+                entry<ProgramsRoute> {
+                    ProgramListEntry(
+                        onOpenProgram = { id, isNew -> backStack.add(ProgramEditRoute(id, isNew)) },
+                        onOpenRoutine = { id, isNew -> backStack.add(RoutineEditRoute(id, isNew)) },
+                    )
+                }
+                entry<ProgramEditRoute> { key ->
+                    ProgramEditEntry(
+                        programId = key.programId,
+                        isNew = key.isNew,
+                        onBack = { if (backStack.last() == key) backStack.removeLastOrNull() },
+                        onOpenRoutine = { id, isNew -> backStack.add(RoutineEditRoute(id, isNew)) },
+                    )
+                }
+                entry<RoutineEditRoute> { key ->
+                    RoutineEditEntry(
+                        routineId = key.routineId,
+                        isNew = key.isNew,
+                        onBack = { if (backStack.last() == key) backStack.removeLastOrNull() },
+                        onOpenExercise = { backStack.add(ExerciseEditRoute(it, isNew = true)) },
+                    )
+                }
                 entry<StatsRoute> {
                     StatsEntry(
                         onOpenSession = { backStack.add(SessionRoute(it)) },
@@ -116,6 +139,15 @@ fun DinoGymNavigation(appViewModel: AppViewModel = hiltViewModel()) {
                 }
                 entry<ExerciseEditRoute> { key ->
                     ExerciseEditEntry(key.exerciseId, key.isNew, onBack = { if (backStack.last() == key) backStack.removeLastOrNull() })
+                }
+                entry<SettingsRoute> {
+                    SettingsEntry(
+                        onBack = { if (backStack.last() == SettingsRoute) backStack.removeLastOrNull() },
+                        onOpenLicences = { if (backStack.last() == SettingsRoute) backStack.add(LicencesRoute) },
+                    )
+                }
+                entry<LicencesRoute> {
+                    LicencesEntry(onBack = { if (backStack.last() == LicencesRoute) backStack.removeLastOrNull() })
                 }
                 entry<WorkoutRoute> {
                     WorkoutEntry(
@@ -196,16 +228,3 @@ private fun NavBackStack<NavKey>.leaveDeletedSession(sessionId: String) {
     if (isEmpty()) add(HomeRoute)
 }
 
-/** Stand-in for a screen that is not built yet: its title on the background. */
-@Composable
-private fun PlaceholderScreen(@StringRes title: Int) {
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(DinoTheme.colors.bg)
-            .statusBarsPadding()
-            .padding(16.dp),
-    ) {
-        Text(stringResource(title), style = DinoTheme.type.title, color = DinoTheme.colors.outline)
-    }
-}
