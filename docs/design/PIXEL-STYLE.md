@@ -193,7 +193,7 @@ Piero's direction (2026-11-16): the bottom bar uses the battle-button style for 
 | 1 | HOME | INICIO |
 | 2 | PROGRAMS | PROGRAMAS |
 | 3 (centre) | START | EMPEZAR |
-| 4 | STATS | to decide (`ESTADÍSTICAS` is too long) |
+| 4 | STATS | STATS (kept in English; `ESTADÍSTICAS` is too long) |
 | 5 | EXERCISES | EJERCICIOS |
 
 - Each tab is its own boxed button with a 2dp outline in `action` orange and stepped corners, with the pixel icon on top and the pixel label underneath. Five side-by-side boxes do not fit icon-left-of-label at 360dp, so the icon goes on top.
@@ -231,7 +231,7 @@ This spec comes from [WISHLIST.md](../WISHLIST.md), section "Body weight". Piero
 | Goal line and goal value | `select` `#F5D23A` (11.9:1) | Dark gold `#B07A00` (3.4:1, enough for a line; the goal value text uses `outline`). The pale yellow `#FBDA61` is only 1.25:1 on cream, so it is not used here |
 
 - **Header:** `BODY WEIGHT` in the display font. The goal shows as a pixel target icon plus the value (`77 kg`). `+ LOG` is a small secondary action button.
-- **Range control:** four boxed segments in one row. The selected segment is filled `select` with `outline` text, like a selected battle button. The labels are `1M / 3M / 1Y / ALL` and in Spanish `1M / 3M / 1A / TODO` (Spanish for "all"; `1A` = one year), which still needs Piero's confirmation.
+- **Range control:** four boxed segments in one row. The selected segment is filled `select` with `outline` text, like a selected battle button. The labels are `1M / 3M / 1Y / ALL` and in Spanish `1M / 3M / 1A / TODO` (Spanish for "all"; `1A` = one year), confirmed by Piero.
 - **Line:** each weigh-in is joined to the next with pixel steps (Bresenham), not an anti-aliased stroke. The latest weigh-in is a 4×4 art-pixel square with a 1 art-pixel `outline` border, and when the chart first appears it blinks once, in steps.
 - **Goal line:** dashes 3 art pixels long with 2-pixel gaps, drawn above the fill and below the line. The goal value sits at its right end, in the display font.
 - **Tapping a point:** the mascot cursor jumps to it and a small window shows `12 Nov · 78.3 kg` (`12 nov · 78,3 kg` in Spanish: dates and decimals follow the phone's locale).
@@ -294,7 +294,7 @@ It never makes the app slower or less clear:
 
 ## Mascot
 
-Piero chose a round yellow blob with big glossy eyes, a lopsided smirk and small orange arms. The pixel version is drawn on a 32×32 grid in the style rules above: plum outline, three yellow tones with light from the top left, orange arms and black eyes with a two-part highlight.
+The mascot is **Dinocito**. Piero chose a round yellow blob with big glossy eyes, a lopsided smirk and small orange arms. The pixel version is drawn on a 32×32 grid in the style rules above: plum outline, three yellow tones with light from the top left, orange arms and black eyes with a two-part highlight.
 
 - Sprite: [mascot/mascot-32.png](mascot/mascot-32.png) at 1× and [mascot/mascot-384.png](mascot/mascot-384.png) at 12× for viewing.
 - Source: [mascot/draw_mascot.py](mascot/draw_mascot.py) draws it pixel by pixel from shapes, so it can be changed and redrawn instead of edited by hand.
@@ -306,11 +306,9 @@ Piero chose a round yellow blob with big glossy eyes, a lopsided smirk and small
 
 Answered on 2026-11-16: Night follows Undertale and Day follows pastel; game look only, with no streaks or stats; pixel font only for short, big text; the yellow blob is the mascot; `references/` is git-ignored.
 
-Still open:
+Second round, also 2026-11-16: the Spanish tab label stays `STATS`; the mascot is named **Dinocito**; the original drawing needs no permission to use; the Spanish range labels `1M / 3M / 1A / TODO` are fine.
 
-1. **The Spanish label for STATS.** Options: `PROGRESO`, `DATOS` or `STATS` untranslated.
-2. **The mascot's name.** It shows up in the mascot's text-box lines and on the web pages.
-3. **Where the mascot comes from.** If the original drawing is someone else's character, the public repository needs their permission or a clearly different design.
+No questions are open right now.
 
 ## Next steps
 
