@@ -248,6 +248,22 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Why:** These keep the look exact to DESIGN.md while staying inside the CPU limits.
 - **Icon source:** `docs/design/icons/gen_icons.py` generates the vector drawables from the 16×16 bitmaps.
 
+## 40. Database and training rules: details (2026-11-16)
+
+- **Decision:** Task 4 built `domain/` (models and rules) and `data/` (Room, repositories, first-run seed). The choices behind it:
+  - **The seed runs once, guarded by a row in a `local_flag` table** written in the same transaction as the seed. A crash halfway retries on the next launch; deleting everything later does not bring the program back. The table is local-only and never synced, so it has no UUID or timestamps. Rejected: a DataStore flag (two stores cannot be updated atomically); Room's `onCreate` callback (raw SQL only).
+  - **`session.currentPosition`** holds which exercise a workout in progress is on, so a workout resumes after the app is killed and a skipped exercise stays skipped.
+  - **Pre-fill reads the last session of the same routine; bests read every session of the exercise.** Dips have different targets in Push and Upper, so pre-fill is per routine, while a best is a best wherever it was done. With no history, pre-fill uses the routine target.
+  - **The first session of an exercise is not tagged NEW BEST**, but it is the first entry of the progress list.
+  - **Enums are stored as text names**, and unknown values fall back to a default. Rejected: type converters.
+  - **Foreign keys use NO ACTION**, because rows are only soft-deleted (decision 36). Rejected: CASCADE, which would hard-delete history.
+  - **Repositories are concrete classes without interfaces.** Tests use an in-memory database. Rejected: an interface per repository, which adds files and no behaviour.
+  - **A cycle shortened below the current step restarts at step 0.** Rejected: clamping to the last step.
+  - **At most one workout in progress:** starting a session while one is open returns the open one.
+  - **Seed names are in the phone's language at first launch** (English or Spanish) and are user data afterwards. Rest defaults: 150 s for compound moves, 90 s for curls and raises (TRAINING.md).
+- **Not modelled:** "each leg" is not stored; unilateral work is logged as one number, as the owner does (WISHLIST.md).
+- **CI:** DAO and repository tests run on an emulator in GitHub Actions (API 34), never on the laptop.
+
 ## 41. Second mock batch, built before the owner's review (2026-11-16)
 
 - **Decision:** The mocks for Programs, Exercises, Stats and Settings were added to the design canvas and `docs/design/mocks/`, and tasks 7–10 are built from them without waiting for the owner's approval. This is a one-time exception to decision 16: the owner asked for tasks 1–10 in one run and told the AI to make the open decisions. DESIGN.md marks these mocks "awaiting the owner's review"; anything the owner changes later is a follow-up task.
