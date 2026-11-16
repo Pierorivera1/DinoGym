@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Body weight</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1760px; height: 960px; box-sizing: border-box; background: #E4E0EA; padding: 40px; display: flex; gap: 40px; font-family: Inter, sans-serif">
+  <sc-for list="{{vs}}" as="v" hint-placeholder-count="4">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">{{v.label}}</div>
+      <div style="width: 390px; height: 844px; box-sizing: border-box; background: {{v.t.bg}}; color: {{v.t.outline}}; display: flex; flex-direction: column; position: relative; overflow: hidden">
+
+        <sc-if value="{{v.isScreen}}" hint-placeholder-val="{{true}}">
+        <div style="flex-grow: 1; min-height: 0; overflow: hidden; padding: 0 16px; display: flex; flex-direction: column; gap: 12px">
+          <header style="height: 56px; flex-shrink: 0; display: flex; align-items: center">
+            <h1 style="margin: 0; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 26px">STATS</h1>
+          </header>
+
+          <div role="tablist" aria-label="Stats" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px">
+            <sc-for list="{{v.seg}}" as="sg" hint-placeholder-count="3">
+              <button type="button" role="tab" aria-selected="{{sg.on}}" style="height: 48px; background: {{sg.bg}}; color: {{sg.fg}}; border: 2px solid {{sg.border}}; clip-path: {{n}}; box-shadow: {{sg.shadow}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer">{{sg.label}}</button>
+            </sc-for>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+            <sc-for list="{{v.panels}}" as="p" hint-placeholder-count="3">
+              <button type="button" aria-label="{{p.aria}}" style="text-align: left; background: {{v.t.surface}}; color: {{v.t.outline}}; border: 2px solid {{p.border}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; padding: 8px 10px 12px; display: flex; flex-direction: column; gap: 4px; font-family: Inter, sans-serif; cursor: {{p.cursor}}">
+                <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">{{p.k}}</span>
+                <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 26px; line-height: 1; color: {{p.c}}">{{p.v}}</span>
+                <span style="font-size: 12px; color: {{v.t.muted}}; white-space: nowrap">{{p.sub}}</span>
+              </button>
+            </sc-for>
+          </div>
+
+          <div role="radiogroup" aria-label="{{v.s.rangeAria}}" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px">
+            <sc-for list="{{v.ranges}}" as="rg" hint-placeholder-count="3">
+              <button type="button" role="radio" aria-checked="{{rg.on}}" style="height: 48px; background: {{rg.bg}}; color: {{rg.fg}}; border: 2px solid {{rg.border}}; clip-path: {{n}}; box-shadow: {{rg.shadow}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer">{{rg.label}}</button>
+            </sc-for>
+          </div>
+
+          <figure style="margin: 0; padding: 10px 14px 8px; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; display: flex; flex-direction: column; gap: 6px">
+            <figcaption style="display: flex; gap: 12px; align-items: center; font-size: 12px; color: {{v.t.muted}}">
+              <span style="display: flex; align-items: center; gap: 4px"><span style="width: 14px; height: 2px; background: {{v.t.primary}}"></span>{{v.s.legendAvg}}</span>
+              <span style="display: flex; align-items: center; gap: 4px"><span style="width: 4px; height: 4px; background: {{v.t.muted}}"></span>{{v.s.legendRaw}}</span>
+              <span style="display: flex; align-items: center; gap: 4px"><span style="width: 14px; height: 2px; background: repeating-linear-gradient(90deg, {{v.t.goal}} 0 6px, transparent 6px 10px)"></span>{{v.s.legendGoal}}</span>
+            </figcaption>
+            <div role="img" aria-label="{{v.chartAria}}" style="position: relative; width: 326px; height: 196px">
+              <sc-for list="{{chart.ylabels}}" as="yl" hint-placeholder-count="6">
+                <span style="position: absolute; left: 0; top: {{yl.top}}; width: 20px; text-align: right; font-size: 11px; line-height: 16px; color: {{v.t.muted}}">{{yl.label}}</span>
+              </sc-for>
+              <svg viewBox="0 0 298 168" width="298" height="168" shape-rendering="crispEdges" aria-hidden="true" style="position: absolute; left: 28px; top: 4px">
+                <sc-for list="{{chart.grid}}" as="g" hint-placeholder-count="6">
+                  <line x1="0" y1="{{g}}" x2="298" y2="{{g}}" stroke="{{v.t.muted}}" stroke-opacity="0.4" stroke-width="2" stroke-dasharray="2 4"></line>
+                </sc-for>
+                <path d="{{chart.fill}}" fill="{{v.t.tint}}"></path>
+                <line x1="0" y1="{{chart.goalY}}" x2="298" y2="{{chart.goalY}}" stroke="{{v.t.goal}}" stroke-width="2" stroke-dasharray="6 4"></line>
+                <sc-for list="{{chart.raw}}" as="r" hint-placeholder-count="40">
+                  <rect x="{{r.x}}" y="{{r.y}}" width="4" height="4" fill="{{v.t.muted}}"></rect>
+                </sc-for>
+                <path d="{{chart.line}}" fill="none" stroke="{{v.t.primary}}" stroke-width="2"></path>
+                <line x1="0" y1="167" x2="298" y2="167" stroke="{{v.t.muted}}" stroke-width="2"></line>
+                <rect x="{{chart.lastX}}" y="{{chart.lastY}}" width="8" height="8" fill="{{v.t.select}}" stroke="{{v.t.outline}}" stroke-width="2"></rect>
+              </svg>
+              <span style="position: absolute; right: 2px; top: {{chart.goalLabelTop}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 13px; line-height: 16px; color: {{v.t.goalText}}">{{v.goalLabel}}</span>
+              <sc-for list="{{v.months}}" as="m" hint-placeholder-count="3">
+                <span style="position: absolute; top: 178px; left: {{m.left}}; width: 40px; text-align: center; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: {{v.t.muted}}">{{m.label}}</span>
+              </sc-for>
+            </div>
+          </figure>
+
+          <button type="button" style="height: 56px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 10px; background: {{v.t.primary}}; color: {{v.t.onPrimary}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px; cursor: pointer">
+            <svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.plus}}" fill="{{v.t.onPrimary}}"></path></svg>{{v.s.log}}
+          </button>
+
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">
+              <span>{{v.s.listLabel}}</span><span>{{v.s.newest}}</span>
+            </div>
+            <ul style="margin: 0; padding: 0; list-style: none; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}">
+              <sc-for list="{{v.rows}}" as="w" hint-placeholder-count="3">
+                <li style="height: 56px; padding: 0 4px 0 12px; display: flex; align-items: center; gap: 10px; border-bottom: 2px dotted {{v.t.surface2}}">
+                  <span style="flex-grow: 1; font-size: 15px">{{w.date}}</span>
+                  <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px">{{w.kg}}</span>
+                  <button type="button" aria-label="{{w.aria}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: transparent; border: 2px solid {{v.t.danger}}; clip-path: {{n}}; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.trash}}" fill="{{v.t.danger}}"></path></svg></button>
+                </li>
+              </sc-for>
+            </ul>
+          </div>
+        </div>
+
+        <nav aria-label="Main" style="background: {{v.t.surface}}; border-top: 2px solid {{v.t.outline}}; padding: 8px 6px 12px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; align-items: end">
+          <sc-for list="{{v.tabs}}" as="tab" hint-placeholder-count="5">
+            <a href="#" aria-current="{{tab.current}}" style="height: {{tab.h}}; margin-top: {{tab.mt}}; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; background: {{tab.bg}}; color: {{tab.fg}}; border: 2px solid {{tab.border}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}">
+              <sc-if value="{{tab.sel}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 8 8" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{cur.y}}" fill="#F5D23A"></path><path d="{{cur.o}}" fill="#33213F"></path></svg></sc-if>
+              <sc-if value="{{tab.notSel}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{tab.icon}}" fill="{{tab.fg}}"></path></svg></sc-if>
+              <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 11px; line-height: 1; white-space: nowrap">{{tab.label}}</span>
+            </a>
+          </sc-for>
+        </nav>
+        </sc-if>
+
+        <sc-if value="{{v.isSheet}}" hint-placeholder-val="{{false}}">
+        <div aria-hidden="true" style="padding: 0 16px; display: flex; flex-direction: column; gap: 12px">
+          <div style="height: 56px; display: flex; align-items: center; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 26px">STATS</div>
+          <div style="height: 48px; background: {{v.t.surface}}; border: 2px solid {{v.t.surface2}}"></div>
+          <div style="height: 76px; background: {{v.t.surface}}; border: 2px solid {{v.t.surface2}}"></div>
+          <div style="height: 48px; background: {{v.t.surface}}; border: 2px solid {{v.t.surface2}}"></div>
+          <div style="height: 230px; background: {{v.t.surface}}; border: 2px solid {{v.t.surface2}}"></div>
+        </div>
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: {{v.t.scrim}}"></div>
+
+        <section role="dialog" aria-label="{{v.sh.title}}" style="position: absolute; left: 0; right: 0; bottom: 0; background: {{v.t.surface}}; border-top: 2px solid {{v.t.outline}}; display: flex; flex-direction: column">
+          <div style="height: 56px; padding: 0 8px 0 16px; display: flex; align-items: center; justify-content: space-between; background: {{v.t.titleBar}}; color: {{v.t.titleText}}; border-bottom: 2px solid {{v.t.outline}}">
+            <h2 style="margin: 0; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px">{{v.sh.title}}</h2>
+            <button type="button" aria-label="{{v.s.closeAria}}" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.close}}" fill="{{v.t.outline}}"></path></svg></button>
+          </div>
+          <div style="padding: 16px; display: flex; flex-direction: column; gap: 16px">
+
+            <sc-if value="{{v.sh.hasDate}}" hint-placeholder-val="{{true}}">
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">{{v.s.dateLabel}}</span>
+              <div style="display: grid; grid-template-columns: 48px 1fr 48px; gap: 8px; align-items: center">
+                <button type="button" aria-label="{{v.s.prevDay}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true" style="transform: rotate(180deg)"><path d="{{ic.chevR}}" fill="{{v.t.action}}"></path></svg></button>
+                <div style="height: 48px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; background: {{v.t.bg}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}">
+                  <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px; line-height: 1">{{v.s.today}}</span>
+                  <span style="font-size: 12px; color: {{v.t.muted}}">{{v.s.todayDate}}</span>
+                </div>
+                <button type="button" aria-label="{{v.s.nextDay}}" aria-disabled="true" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: transparent; border: 2px solid {{v.t.surface2}}; clip-path: {{n}}; cursor: default"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.chevR}}" fill="{{v.t.faint}}"></path></svg></button>
+              </div>
+            </div>
+            </sc-if>
+
+            <div style="display: flex; align-items: center; justify-content: space-between">
+              <span style="font-size: 14px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">KG</span>
+              <div style="display: flex; align-items: center; gap: 12px">
+                <button type="button" aria-label="{{v.s.less}}" style="width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; cursor: pointer"><svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.minus}}" fill="{{v.t.outline}}"></path></svg></button>
+                <label style="width: 132px; height: 72px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: {{v.t.bg}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 48px; line-height: 1">{{v.sh.kg}}<span style="width: 3px; height: 40px; margin-left: 2px; background: {{v.t.outline}}"></span></label>
+                <button type="button" aria-label="{{v.s.more}}" style="width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; cursor: pointer"><svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.plus}}" fill="{{v.t.outline}}"></path></svg></button>
+              </div>
+            </div>
+            <p style="margin: 0; font-size: 14px; line-height: 1.4; color: {{v.t.muted}}">{{v.sh.help}}</p>
+
+            <button type="button" style="height: 60px; background: {{v.t.primary}}; color: {{v.t.onPrimary}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px; cursor: pointer">{{v.sh.save}}</button>
+            <sc-if value="{{v.sh.hasClear}}" hint-placeholder-val="{{false}}">
+            <button type="button" style="height: 56px; background: {{v.t.surface}}; color: {{v.t.danger}}; border: 2px solid {{v.t.danger}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px; cursor: pointer">{{v.s.clearGoal}}</button>
+            </sc-if>
+          </div>
+        </section>
+        </sc-if>
+      </div>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["EN + ES","EN","ES"],"default":"EN + ES"},"$preview":{"width":1760,"height":960}}'>
+const T = {
+  night: { name: 'NIGHT', bg: '#0C0915', surface: '#1C1430', surface2: '#2A1F45', outline: '#F4F2F7', muted: '#A39BB6', faint: '#6E6584', primary: '#A98BFF', onPrimary: '#0C0915', select: '#F5D23A', onSelect: '#0C0915', action: '#F0A030', danger: '#FF4D4D', success: '#5CD27A', hi: 'rgba(255,255,255,0.22)', lo: 'rgba(0,0,0,0.45)', tint: 'rgba(169,139,255,0.20)', goal: '#F5D23A', goalText: '#F5D23A', selBg: '#1C1430', selBorder: '#F5D23A', selText: '#F5D23A', navBorder: '#F0A030', scrim: 'rgba(12,9,21,0.78)', titleBar: '#2A1F45', titleText: '#F4F2F7' },
+  day: { name: 'DAY', bg: '#FBF3E8', surface: '#FFFDF8', surface2: '#F3E6D6', outline: '#33213F', muted: '#7A6684', faint: '#7A6684', primary: '#6B4FC8', onPrimary: '#FBF3E8', select: '#FBDA61', onSelect: '#33213F', action: '#33213F', danger: '#B8326A', success: '#2F7D45', hi: 'rgba(255,255,255,0.6)', lo: 'rgba(51,33,63,0.25)', tint: 'rgba(107,79,200,0.15)', goal: '#B07A00', goalText: '#33213F', selBg: '#FBDA61', selBorder: '#33213F', selText: '#33213F', navBorder: '#33213F', scrim: 'rgba(51,33,63,0.55)', titleBar: '#9FDCD4', titleText: '#33213F' }
+};
+const N = 'polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px)';
+function px(rows) { let d = ''; rows.forEach(function (r, y) { for (let x = 0; x < r.length; x++) { if (r[x] === '#') d += 'M' + x + ' ' + y + 'h1v1h-1z'; } }); return d; }
+const I = {
+  home: px(['','.......##','......####','.....##..##','....##....##','...##......##','..##........##','.##..........##','...#........#','...#..####..#','...#..#..#..#','...#..#..#..#','...#..#..#..#','...####..####']),
+  programs: px(['','.....######','..####....####','..#..######..#','..#..........#','..#.##.#####.#','..#..........#','..#.##.#####.#','..#..........#','..#.##.#####.#','..#..........#','..#.##.###...#','..#..........#','..############']),
+  start: px(['','','....#','....###','....#####','....#######','....#########','....##########','....##########','....#########','....#######','....#####','....###','....#']),
+  stats: px(['','','...........##','...........##','.......##..##','.......##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','.##############']),
+  exercises: px(['','','','..##........##','.###........###','.###........###','.##############','.##############','.###........###','.###........###','..##........##']),
+  chevR: px(['','','.....##','.....###','......###','.......###','........###','........###','.......###','......###','.....###','.....##']),
+  plus: px(['','','','','.......##','.......##','.......##','...##########','...##########','.......##','.......##','.......##']),
+  minus: px(['','','','','','','','...##########','...##########']),
+  close: px(['','','...##......##','....##....##','.....##..##','......####','......####','.....##..##','....##....##','...##......##']),
+  trash: px(['','......####','.....#....#','..############','..############','...#........#','...#.##..##.#','...#.##..##.#','...#.##..##.#','...#.##..##.#','...#........#','...##########'])
+};
+const CUR_O = px(['..####..', '.#....#.', '#......#', '#.#..#.#', '#......#', '#..##..#', '.#....#.', '..####..']);
+const CUR_Y = px(['........', '..####..', '.######.', '.#.##.#.', '.######.', '.##..##.', '..####..', '........']);
+
+/*
+ * Sample data: 3 months of weigh-ins (18 Aug to 16 Nov 2026), not every day, trending down
+ * with daily noise. Day 0 is 18 Aug. A fixed seed keeps the board the same on every render.
+ * The main line is the 7-day trailing average at each weigh-in day: the mean of every
+ * weigh-in in that day and the 6 days before it.
+ */
+const DAYS = 90, GOAL = 76.0, Y_TOP = 81, Y_STEP = 30;
+let seed = 7;
+function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+const WEIGH = [];
+for (let d = 0; d <= DAYS; d++) {
+  // The last week is fixed so the list matches: 13, 14 and 16 Nov, nothing on the 15th.
+  if (d === DAYS - 1) continue;
+  if (d < DAYS - 3 && rnd() < 0.42) continue;
+  const kg = d === DAYS ? 78.3 : 80.6 - 2.1 * (d / DAYS) + (rnd() - 0.5) * 1.1;
+  WEIGH.push({ d: d, kg: Math.round(kg * 10) / 10 });
+}
+function avgAt(d) { const w = WEIGH.filter(function (p) { return p.d <= d && p.d > d - 7; }); return w.reduce(function (a, p) { return a + p.kg; }, 0) / w.length; }
+const AVG = WEIGH.map(function (p) { return { d: p.d, kg: avgAt(p.d) }; });
+function X(d) { return 2 * Math.round((4 + d * 288 / DAYS) / 2); }
+function Y(kg) { return 2 * Math.round((8 + (Y_TOP - kg) * Y_STEP) / 2); }
+let line = '', fill = '';
+AVG.forEach(function (p, i) {
+  if (i === 0) { line = 'M' + X(p.d) + ' ' + Y(p.kg); fill = 'M' + X(p.d) + ' 166 V' + Y(p.kg); }
+  else { line += ' H' + X(p.d) + ' V' + Y(p.kg); fill += ' H' + X(p.d) + ' V' + Y(p.kg); }
+});
+fill += ' V166 Z';
+const last = AVG[AVG.length - 1];
+const CHART = {
+  ylabels: [81, 80, 79, 78, 77, 76].map(function (k, i) { return { label: String(k), top: (4 + i * Y_STEP) + 'px' }; }),
+  grid: [0, 1, 2, 3, 4, 5].map(function (i) { return 8 + i * Y_STEP; }),
+  raw: WEIGH.map(function (p) { return { x: X(p.d) - 2, y: Y(p.kg) - 2 }; }),
+  line: line, fill: fill,
+  lastX: X(last.d) - 4, lastY: Y(last.kg) - 4,
+  goalY: Y(GOAL), goalLabelTop: (4 + Y(GOAL) - 18) + 'px'
+};
+const CURRENT = Math.round(last.kg * 10) / 10;
+const CHANGE = Math.round((last.kg - AVG[0].kg) * 10) / 10;
+const TO_GO = Math.round((CURRENT - GOAL) * 10) / 10;
+// Month starts: 1 Sep is day 14, 1 Oct day 44, 1 Nov day 75. Labels are 40px wide, centred.
+const MONTH_LEFT = [14, 44, 75].map(function (d) { return (28 + X(d) - 20) + 'px'; });
+const RECENT = WEIGH.slice(-3).reverse();
+
+const S = {
+  en: {
+    seg: ['HISTORY', 'PROGRESS', 'WEIGHT'], dec: '.', rangeAria: 'Chart range', ranges: ['1M', '3M', 'ALL'],
+    panels: ['CURRENT', 'CHANGE', 'GOAL'], avgSub: '7-day average', changeSub: 'in 3 months', toGo: ' kg to go',
+    goalAria: 'Goal weight, tap to change',
+    legendAvg: '7-day average', legendRaw: 'weigh-in', legendGoal: 'goal',
+    months: ['SEP', 'OCT', 'NOV'], log: 'LOG WEIGHT', listLabel: 'WEIGH-INS', newest: 'NEWEST FIRST',
+    dates: ['Mon 16 Nov', 'Sat 14 Nov', 'Fri 13 Nov'], delete: 'Delete weigh-in of ',
+    closeAria: 'Close', dateLabel: 'DATE', today: 'TODAY', todayDate: 'Mon 16 Nov', prevDay: 'Previous day', nextDay: 'Next day',
+    less: '0.1 kg less', more: '0.1 kg more', clearGoal: 'CLEAR GOAL',
+    logSheet: { title: 'LOG WEIGHT', help: 'Starts at your last weigh-in. Type the weight or nudge it by 0.1 kg.', save: 'SAVE' },
+    goalSheet: { title: 'GOAL WEIGHT', help: 'Drawn as a dashed line. Losing or gaining is worked out from your current average.', save: 'SAVE GOAL' }
+  },
+  es: {
+    seg: ['HISTORIAL', 'PROGRESO', 'PESO'], dec: ',', rangeAria: 'Rango del gráfico', ranges: ['1M', '3M', 'TODO'],
+    panels: ['ACTUAL', 'CAMBIO', 'OBJETIVO'], avgSub: 'media 7 días', changeSub: 'en 3 meses', toGo: ' kg',
+    goalAria: 'Peso objetivo, toca para cambiarlo',
+    legendAvg: 'media 7 días', legendRaw: 'pesaje', legendGoal: 'objetivo',
+    months: ['SEP', 'OCT', 'NOV'], log: 'REGISTRAR PESO', listLabel: 'PESAJES', newest: 'MÁS RECIENTE PRIMERO',
+    dates: ['lun 16 nov', 'sáb 14 nov', 'vie 13 nov'], delete: 'Borrar pesaje del ',
+    closeAria: 'Cerrar', dateLabel: 'FECHA', today: 'HOY', todayDate: 'lun 16 nov', prevDay: 'Día anterior', nextDay: 'Día siguiente',
+    less: '0,1 kg menos', more: '0,1 kg más', clearGoal: 'QUITAR OBJETIVO',
+    logSheet: { title: 'REGISTRAR PESO', help: 'Empieza en tu último pesaje. Escribe el peso o ajústalo de 0,1 en 0,1 kg.', save: 'GUARDAR' },
+    goalSheet: { title: 'PESO OBJETIVO', help: 'Se dibuja como una línea punteada. Bajar o subir se deduce de tu media actual.', save: 'GUARDAR OBJETIVO' }
+  }
+};
+function kg1(v, s) { return v.toFixed(1).replace('.', s.dec); }
+function segs(t, labels, sel) {
+  return labels.map(function (l, i) {
+    const on = i === sel;
+    return { label: l, on: on ? 'true' : 'false', bg: on ? t.select : t.surface, fg: on ? t.onSelect : t.outline, border: on ? t.outline : t.action, shadow: on ? 'none' : 'inset 0 2px 0 ' + t.hi + ', inset 0 -4px 0 ' + t.lo };
+  });
+}
+class Component extends DCLogic {
+  renderVals() {
+    const L = this.props.lang ?? 'EN + ES';
+    // Each phone: [theme, language, what it shows].
+    const phones = L === 'EN' ? [['night', 'en', 'screen'], ['day', 'en', 'screen'], ['night', 'en', 'log'], ['day', 'en', 'goal']]
+      : L === 'ES' ? [['night', 'es', 'screen'], ['day', 'es', 'screen'], ['night', 'es', 'log'], ['day', 'es', 'goal']]
+      : [['night', 'en', 'screen'], ['day', 'es', 'screen'], ['night', 'en', 'log'], ['day', 'es', 'goal']];
+    const navIcons = [I.home, I.programs, I.start, I.stats, I.exercises];
+    const tabLabels = { en: ['HOME', 'PROGRAMS', 'START', 'STATS', 'EXERCISES'], es: ['INICIO', 'PROGRAMAS', 'EMPEZAR', 'STATS', 'EJERCICIOS'] };
+    const vs = phones.map(function (p) {
+      const t = T[p[0]], s = S[p[1]], kind = p[2];
+      const what = kind === 'screen' ? 'WEIGHT' : (kind === 'log' ? 'LOG SHEET' : 'GOAL SHEET');
+      const sheet = kind === 'log' ? s.logSheet : s.goalSheet;
+      return {
+        t: t, s: s,
+        label: t.name + ' · ' + (p[1] === 'en' ? 'ENGLISH' : 'ESPAÑOL') + ' · ' + what,
+        isScreen: kind === 'screen', isSheet: kind !== 'screen',
+        sh: { title: sheet.title, help: sheet.help, save: sheet.save, hasDate: kind === 'log', hasClear: kind === 'goal', kg: kg1(kind === 'log' ? 78.3 : GOAL, s) },
+        seg: segs(t, s.seg, 2),
+        ranges: segs(t, s.ranges, 1),
+        panels: [
+          { k: s.panels[0], v: kg1(CURRENT, s), sub: s.avgSub, c: t.outline, border: t.outline, cursor: 'default', aria: s.panels[0] + ' ' + kg1(CURRENT, s) + ' kg' },
+          { k: s.panels[1], v: (CHANGE < 0 ? '▼ ' : '▲ ') + kg1(Math.abs(CHANGE), s), sub: s.changeSub, c: t.success, border: t.outline, cursor: 'default', aria: s.panels[1] + ' ' + kg1(CHANGE, s) + ' kg' },
+          { k: s.panels[2], v: kg1(GOAL, s), sub: (p[1] === 'es' ? 'faltan ' : '') + kg1(TO_GO, s) + s.toGo, c: t.outline, border: t.action, cursor: 'pointer', aria: s.goalAria }
+        ],
+        goalLabel: kg1(GOAL, s),
+        chartAria: p[1] === 'en'
+          ? 'Body weight, last 3 months: 7-day average from ' + kg1(AVG[0].kg, s) + ' to ' + kg1(last.kg, s) + ' kg, goal ' + kg1(GOAL, s) + ' kg'
+          : 'Peso corporal, últimos 3 meses: media de 7 días de ' + kg1(AVG[0].kg, s) + ' a ' + kg1(last.kg, s) + ' kg, objetivo ' + kg1(GOAL, s) + ' kg',
+        months: s.months.map(function (m, i) { return { label: m, left: MONTH_LEFT[i] }; }),
+        rows: RECENT.map(function (w, i) { return { date: s.dates[i], kg: kg1(w.kg, s) + ' kg', aria: s.delete + s.dates[i] }; }),
+        tabs: tabLabels[p[1]].map(function (l, i) {
+          const sel = i === 3, start = i === 2;
+          return { label: l, icon: navIcons[i], sel: sel, notSel: !sel, current: sel ? 'page' : 'false', h: start ? '76px' : '64px', mt: start ? '-20px' : '0', bg: start ? t.primary : (sel ? t.selBg : t.surface), fg: start ? t.onPrimary : (sel ? t.selText : t.outline), border: start ? t.outline : (sel ? t.selBorder : t.navBorder) };
+        })
+      };
+    });
+    return { vs: vs, n: N, ic: I, cur: { o: CUR_O, y: CUR_Y }, chart: CHART };
+  }
+}
+</script>
+</body>
+</html>
