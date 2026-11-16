@@ -1,0 +1,90 @@
+# Builds the signed release APK and publishes it on GitHub Releases when a version tag is pushed.
+#   git tag v2.0.0 && git push origin v2.0.0
+# The tag must match versionName in android/app/build.gradle.kts.
+# The keystore comes from repository secrets and exists only for the length of the job.
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+# Never two releases of the same tag at once, and never cancel one halfway through.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write # create the release and upload the APK
+
+jobs:
+  release:
+    name: Signed APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          # A release build should not write to the cache that pull request builds read.
+          cache-read-only: true
+
+      - name: Check the tag matches versionName
+        run: |
+          version=$(sed -n 's/^ *versionName = "\(.*\)"/\1/p' app/build.gradle.kts)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match versionName $version"
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Restore the keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.DINOGYM_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::Secret DINOGYM_KEYSTORE_BASE64 is not set"
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
+          echo "DINOGYM_KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+
+      - name: Build the release APK
+        env:
+          DINOGYM_KEYSTORE_PASSWORD: ${{ secrets.DINOGYM_KEYSTORE_PASSWORD }}
+          DINOGYM_KEY_ALIAS: ${{ secrets.DINOGYM_KEY_ALIAS }}
+          DINOGYM_KEY_PASSWORD: ${{ secrets.DINOGYM_KEY_PASSWORD }}
+        run: ./gradlew :app:assembleRelease
+
+      # Fails the job if the APK is unsigned or signed with something else than expected.
+      - name: Verify the signature
+        run: |
+          apk=app/build/outputs/apk/release/app-release.apk
+          apksigner=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n 1)apksigner
+          "$apksigner" verify --print-certs "$apk"
+          mkdir -p "$RUNNER_TEMP/out"
+          cp "$apk" "$RUNNER_TEMP/out/DinoGym-$VERSION.apk"
+          (cd "$RUNNER_TEMP/out" && sha256sum "DinoGym-$VERSION.apk" > "DinoGym-$VERSION.apk.sha256")
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "$RUNNER_TEMP/out/DinoGym-$VERSION.apk" \
+            "$RUNNER_TEMP/out/DinoGym-$VERSION.apk.sha256" \
+            --title "DinoGym $VERSION" \
+            --generate-notes
+
+      - name: Remove the keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks"

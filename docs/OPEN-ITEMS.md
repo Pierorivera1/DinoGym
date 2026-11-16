@@ -10,6 +10,7 @@ As of 2026-11-16. Remove an item when it is done or decided, and record decision
 - [ ] Run `aws login` (only needed from the staging stage on)
 - [x] Create a Firebase project: `DinoGym`, project ID `dinogym-3870b`. The Android app is added to it later, once the package name and signing key exist.
 - [x] Create a Grafana Cloud account (free tier). Tokens are created later, when observability is wired up.
+- [ ] Back up the release signing key, `~/.config/dinogym/` (both files), to a password manager. Without it no update installs over the app ([RELEASE.md](RELEASE.md), decision 45)
 
 ## To verify once the emulator is installed
 
