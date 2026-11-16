@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bottom bar. STATS stays in English on purpose (DESIGN.md "Bottom bar"). -->
+    <string name="nav_home">INICIO</string>
+    <string name="nav_programs">PROGRAMAS</string>
+    <string name="nav_start">EMPEZAR</string>
+    <string name="nav_stats">STATS</string>
+    <string name="nav_exercises">EJERCICIOS</string>
+
+    <string name="action_skip">SALTAR</string>
+    <string name="action_skip_rest">SALTAR DESCANSO</string>
+    <string name="action_log_set">REGISTRAR SERIE</string>
+    <string name="action_note">NOTA</string>
+    <string name="action_save">GUARDAR</string>
+    <string name="action_edit">EDITAR</string>
+    <string name="action_finish">TERMINAR</string>
+
+    <string name="label_reps">REPS</string>
+    <string name="label_sets">SERIES</string>
+    <string name="label_rest">DESCANSO</string>
+    <string name="label_exercise">EJERCICIO</string>
+    <string name="label_up_next">SIGUIENTE</string>
+    <string name="label_next">SIGUE</string>
+    <string name="label_cycle">CICLO</string>
+    <string name="label_min">MIN</string>
+    <string name="label_sec">SEG</string>
+    <string name="label_new_best">▲ RÉCORD</string>
+
+    <string name="cd_end_workout">Terminar entreno</string>
+    <string name="cd_close">Cerrar</string>
+    <string name="cd_one_less_rep">Una repetición menos</string>
+    <string name="cd_one_more_rep">Una repetición más</string>
+</resources>
