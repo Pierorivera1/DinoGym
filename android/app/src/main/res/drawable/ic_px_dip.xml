@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 16x16 pixel icon "dip", redrawn from ExerciseEdit.dc.html. Tinted in code; the fill is a placeholder. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M7,1h2v1h-2zM7,2h2v1h-2zM4,3h8v1h-8zM4,4h1v1h-1zM7,4h2v1h-2zM11,4h1v1h-1zM4,5h1v1h-1zM7,5h2v1h-2zM11,5h1v1h-1zM1,6h4v1h-4zM7,6h2v1h-2zM11,6h4v1h-4zM1,7h1v1h-1zM7,7h2v1h-2zM14,7h1v1h-1zM1,8h1v1h-1zM6,8h1v1h-1zM9,8h1v1h-1zM14,8h1v1h-1zM1,9h1v1h-1zM6,9h1v1h-1zM9,9h1v1h-1zM14,9h1v1h-1zM1,10h1v1h-1zM5,10h2v1h-2zM9,10h2v1h-2zM14,10h1v1h-1zM1,11h1v1h-1zM14,11h1v1h-1zM1,12h1v1h-1zM14,12h1v1h-1zM0,13h3v1h-3zM13,13h3v1h-3z" />
+</vector>

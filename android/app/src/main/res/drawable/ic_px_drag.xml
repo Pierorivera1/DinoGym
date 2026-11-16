@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 16x16 pixel icon "drag", redrawn from ProgramEdit.dc.html. Tinted in code; the fill is a placeholder. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M5,3h2v1h-2zM9,3h2v1h-2zM5,4h2v1h-2zM9,4h2v1h-2zM5,7h2v1h-2zM9,7h2v1h-2zM5,8h2v1h-2zM9,8h2v1h-2zM5,11h2v1h-2zM9,11h2v1h-2zM5,12h2v1h-2zM9,12h2v1h-2z" />
+</vector>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 16x16 pixel icon "squat", redrawn from ExerciseEdit.dc.html. Tinted in code; the fill is a placeholder. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M7,1h2v1h-2zM7,2h2v1h-2zM2,3h12v1h-12zM6,4h4v1h-4zM6,5h4v1h-4zM6,6h4v1h-4zM4,7h8v1h-8zM3,8h2v1h-2zM11,8h2v1h-2zM2,9h2v1h-2zM12,9h2v1h-2zM2,10h2v1h-2zM12,10h2v1h-2zM3,11h2v1h-2zM11,11h2v1h-2zM3,12h2v1h-2zM11,12h2v1h-2zM2,13h3v1h-3zM11,13h3v1h-3z" />
+</vector>
