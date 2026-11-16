@@ -35,4 +35,50 @@
     <string name="cd_close">Close</string>
     <string name="cd_one_less_rep">One less rep</string>
     <string name="cd_one_more_rep">One more rep</string>
+
+    <!-- Stats (task 9) -->
+    <string name="stats_tab_history">HISTORY</string>
+    <string name="stats_tab_progress">PROGRESS</string>
+    <plurals name="stats_best_tag">
+        <item quantity="one">▲ %d BEST</item>
+        <item quantity="other">▲ %d BESTS</item>
+    </plurals>
+    <!-- %1$s is the duration (42:10), %2$s the set count (14 sets). -->
+    <string name="stats_row_meta">%1$s · %2$s</string>
+    <!-- %1$s is the routine, %2$s the date. -->
+    <string name="stats_open_session_cd">Open %1$s, %2$s</string>
+    <string name="stats_history_empty">No workouts yet. Finish one and it shows up here, by month.</string>
+    <string name="stats_progress_empty">No exercises to show. Add one in Exercises.</string>
+    <string name="stats_progress_best">Best set 1</string>
+    <string name="stats_progress_none">No sets yet</string>
+    <string name="stats_open_progress_cd">Progress for %1$s</string>
+
+    <string name="session_delete_cd">Delete this workout</string>
+    <!-- %1$s is the date, %2$s the duration, %3$s the set count. -->
+    <string name="session_sub">%1$s · %2$s · %3$s</string>
+    <string name="session_help">Tap a set to change it. Tap a name for its progress.</string>
+    <string name="session_set_chip">SET %1$d</string>
+    <!-- %2$s is the reps with their unit (7 reps). -->
+    <string name="session_set_cd">Set %1$d, %2$s</string>
+    <string name="session_new_best">▲ New best on set 1</string>
+    <string name="session_delete_title">Delete workout?</string>
+    <string name="session_delete_body">This workout and its sets go away, and progress is worked out again. The program cycle does not move back.</string>
+    <string name="session_missing">This workout was deleted.</string>
+
+    <string name="progress_title">PROGRESS</string>
+    <string name="progress_sub_reps">Set 1 · reps</string>
+    <string name="progress_sub_kg">Set 1 · kg × reps</string>
+    <string name="progress_best">BEST</string>
+    <string name="progress_gain">GAIN</string>
+    <string name="progress_records">RECORDS</string>
+    <string name="progress_chart_label">SET 1 BEST OVER TIME</string>
+    <!-- %1$s is the exercise, %2$s the list of points. -->
+    <string name="progress_chart_cd">Set 1 best for %1$s: %2$s</string>
+    <!-- %1$s is the result (7, or 20 kg × 8), %2$s the date. -->
+    <string name="progress_chart_point">%1$s on %2$s</string>
+    <string name="progress_newest">NEWEST FIRST</string>
+    <string name="progress_first">FIRST</string>
+    <string name="progress_rule">Only set 1 counts. A day is listed when it beats your best.</string>
+    <string name="progress_empty">No sets of %1$s yet. Its progress starts with the first workout that logs it.</string>
+    <string name="progress_missing">This exercise no longer exists.</string>
 </resources>
