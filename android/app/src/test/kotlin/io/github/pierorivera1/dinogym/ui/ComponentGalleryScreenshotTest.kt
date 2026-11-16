@@ -44,12 +44,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * Renders every component (and the app shell) to PNGs on the JVM, so the UI can be checked
+ * Renders every component to PNGs on the JVM, so the UI can be checked
  * against the mocks without an emulator. Output: app/build/outputs/roborazzi/.
  * Nothing is compared automatically yet; the images are for a person to look at.
  *
@@ -71,21 +70,7 @@ class ComponentGalleryScreenshotTest {
     @Test
     fun galleryDay() = capture("gallery_day") { DinoTheme(ThemeMode.DAY) { Gallery() } }
 
-    @Test
-    @Config(qualifiers = "en-w360dp-h740dp-420dpi")
-    fun shellEnglishNight() = capture("shell_en_night") { DinoTheme(ThemeMode.NIGHT) { DinoGymNavigation() } }
-
-    @Test
-    @Config(qualifiers = "es-w360dp-h740dp-420dpi")
-    fun shellSpanishDay() = capture("shell_es_day") { DinoTheme(ThemeMode.DAY) { DinoGymNavigation() } }
-
-    /** EJERCICIOS must still fit on one line when the user picks a large system font. */
-    @Test
-    @Config(qualifiers = "es-w360dp-h740dp-420dpi")
-    fun shellSpanishLargeFont() {
-        RuntimeEnvironment.setFontScale(1.3f)
-        capture("shell_es_day_font130") { DinoTheme(ThemeMode.DAY) { DinoGymNavigation() } }
-    }
+    // The app shell with real screens is rendered in WorkoutFlowScreenshotTest (Home with the bar).
 
     private fun capture(name: String, content: @Composable () -> Unit) {
         compose.setContent(content)
