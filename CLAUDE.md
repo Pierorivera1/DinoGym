@@ -6,6 +6,9 @@ Read these before making non-trivial changes:
 
 - [docs/PROJECT.md](docs/PROJECT.md): what the project is, who it is for, features and scope
 - [docs/STACK.md](docs/STACK.md): the technology chosen for each area
+- [docs/TASKS.md](docs/TASKS.md): every task in order, with checkboxes. Tick a task when it is done
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): app structure, data model and details for tasks 1–10
+- [docs/DESIGN.md](docs/DESIGN.md): the approved style guide and which screens have approved mocks
 - [docs/WORKFLOW.md](docs/WORKFLOW.md): the emulator-first pipeline and what the AWS Emulator can and cannot do
 - [docs/DECISIONS.md](docs/DECISIONS.md): every decision made so far, with the reason
 - [docs/OPEN-ITEMS.md](docs/OPEN-ITEMS.md): what is not decided or not set up yet
@@ -16,7 +19,7 @@ Read these before making non-trivial changes:
 
 A previous agent ran builds or tests that held the CPU at 100% and pushed it to 90°C. This machine has 14 threads and 15 GB of RAM.
 
-- Keep these limits in `gradle.properties` (they also apply inside Android Studio), and do not raise them:
+- Keep these limits in `android/gradle.properties` (they also apply inside Android Studio), and do not raise them:
   ```properties
   org.gradle.workers.max=3
   org.gradle.parallel=false
@@ -49,7 +52,7 @@ Do not claim the emulator proves reliability, security or performance. It proves
 ## Environment
 
 - OS: Arch Linux (Omarchy). Packages install with `pacman`.
-- Installed: Docker, AWS CLI v2, GitHub CLI (authenticated), Android Studio, Go (pacman), Terraform (mise, see decision 18).
+- Installed: Docker (service stopped, user not in the `docker` group yet; ask the owner for the sudo password when it is needed), AWS CLI v2, GitHub CLI (authenticated), Android Studio, Go and Terraform (both mise, decisions 18 and 37).
 - Not installed yet: the AWS Emulator (Docker route in [docs/WORKFLOW.md](docs/WORKFLOW.md)).
 - AWS CLI has no credentials yet. They are not needed until the staging step.
 - The previous app is version 1, renamed on GitHub to `Pierorivera1/Old-DinoGym` (local clone: `~/Projects/OLD-DinoGym`). Do not change it. This project takes over the name `Pierorivera1/DinoGym`.
@@ -63,7 +66,7 @@ Do not claim the emulator proves reliability, security or performance. It proves
 ## UI and design
 
 - No screen is built until the owner approves a mock of it (decision 16).
-- Use the design skill for mock screens and visual direction, and follow the owner's style guide once it exists. Use the owner's mobile UI skills when writing Compose screens.
+- Use the design skill for mock screens and visual direction, and follow [docs/DESIGN.md](docs/DESIGN.md). The design canvas is https://claude.ai/artifact/3XzHLFUzvpe5iuf5SrAhXj; keep its source in `docs/design/mocks/` in step with it. Use the owner's mobile UI skills when writing Compose screens.
 
 ## Sub-agents and threads
 

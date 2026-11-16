@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DinoGym style tile</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@400;500;600;700&amp;family=Silkscreen&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1480px; height: 1960px; box-sizing: border-box; background: #E4E0EA; padding: 40px; font-family: Inter, sans-serif; display: flex; flex-direction: column; gap: 24px">
+  <div style="display: flex; align-items: baseline; justify-content: space-between">
+    <h1 style="margin: 0; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 40px; color: #241A30">DINOGYM · STYLE TILE</h1>
+    <p style="margin: 0; font-size: 15px; color: #4A4256">Pixelify Sans for short, big text. Inter for everything people read. 1 art pixel = 2dp.</p>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); flex-grow: 1">
+    <sc-for list="{{vs}}" as="v" hint-placeholder-count="2">
+      <section style="background: {{v.t.bg}}; color: {{v.t.outline}}; padding: 40px; display: flex; flex-direction: column; gap: 28px">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <h2 style="margin: 0; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 40px; color: {{v.t.outline}}">{{v.t.name}}</h2>
+          <p style="margin: 0; font-size: 15px; color: {{v.t.muted}}">{{v.desc}}</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: {{v.t.muted}}">COLOUR</div>
+          <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px">
+            <sc-for list="{{v.sw}}" as="c" hint-placeholder-count="10">
+              <div style="display: flex; flex-direction: column; gap: 6px">
+                <div style="height: 44px; background: {{c.hex}}; border: 2px solid {{v.t.outline}}"></div>
+                <div style="font-size: 12px; font-weight: 600; color: {{v.t.outline}}">{{c.name}}</div>
+                <div style="font-size: 12px; color: {{v.t.muted}}">{{c.hex}}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: {{v.t.muted}}">TYPE</div>
+          <div style="display: flex; align-items: flex-end; gap: 32px">
+            <div style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 56px; line-height: 1">12</div>
+            <div style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 56px; line-height: 1">01:30</div>
+            <div style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 28px; line-height: 1">PULL DAY</div>
+          </div>
+          <div style="font-family: 'Pixelify Sans', sans-serif; font-weight: 500; font-size: 28px">ÁÉÍÓÚÜÑ ¿¡ áéíóúüñ</div>
+          <div style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px">LOG SET · REGISTRAR SERIE</div>
+          <div style="font-size: 20px; font-weight: 600">Neutral-grip pull-ups</div>
+          <div style="font-size: 16px; line-height: 1.5; color: {{v.t.outline}}">Stop most sets 1–2 reps short of failure. Take the last set to failure. Detén la mayoría de las series a 1–2 repeticiones del fallo.</div>
+          <div style="font-size: 14px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">REPS · KG · REST · DESCANSO</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: {{v.t.muted}}">BUTTONS</div>
+          <div style="display: flex; gap: 16px; align-items: center">
+            <button type="button" style="height: 56px; padding: 0 20px; display: flex; align-items: center; gap: 10px; background: {{v.t.primary}}; color: {{v.t.onPrimary}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px; cursor: pointer">
+              <svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.check}}" fill="{{v.t.onPrimary}}"></path></svg>
+              LOG SET
+            </button>
+            <button type="button" style="height: 56px; padding: 0 20px; display: flex; align-items: center; gap: 10px; background: {{v.t.surface}}; color: {{v.t.outline}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px; cursor: pointer">
+              <svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.timer}}" fill="{{v.t.action}}"></path></svg>
+              REST
+            </button>
+            <button type="button" style="height: 56px; padding: 0 20px; display: flex; align-items: center; gap: 10px; background: {{v.t.selBg}}; color: {{v.t.selText}}; border: 2px solid {{v.t.selBorder}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px; cursor: pointer">
+              <svg viewBox="0 0 8 8" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{cur.y}}" fill="#F5D23A"></path><path d="{{cur.o}}" fill="#33213F"></path></svg>
+              SELECTED
+            </button>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: {{v.t.muted}}">TEXT BOX · STAT BAR · STAT PANEL</div>
+          <div style="filter: drop-shadow(4px 4px 0 {{v.t.shadow}})">
+            <div style="background: {{v.t.bg}}; border: 3px solid {{v.t.outline}}; padding: 14px 16px; display: flex; gap: 14px; align-items: center">
+              <img src="/_blob/302248974e46a4c504c80e111541b3ef" alt="" width="48" height="48" style="image-rendering: pixelated; flex-shrink: 0">
+              <p style="margin: 0; font-size: 16px; line-height: 1.45">* You feel stronger. New best on pull-ups: 7 reps.</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 32px; align-items: center">
+            <div style="display: flex; align-items: center; gap: 10px">
+              <span style="font-size: 14px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">REST</span>
+              <div style="display: flex; gap: 4px">
+                <sc-for list="{{v.restBar}}" as="b" hint-placeholder-count="6"><div style="width: 16px; height: 20px; background: {{b.c}}; border: 2px solid {{v.t.outline}}"></div></sc-for>
+              </div>
+              <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px">0:45</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px">
+              <span style="font-size: 14px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">SETS</span>
+              <div style="display: flex; gap: 4px">
+                <sc-for list="{{v.setBar}}" as="b" hint-placeholder-count="5"><div style="width: 16px; height: 20px; background: {{b.c}}; border: 2px solid {{v.t.outline}}"></div></sc-for>
+              </div>
+              <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px">3/5</span>
+            </div>
+          </div>
+          <div style="background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between">
+            <span style="font-size: 14px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">REPS</span>
+            <div style="display: flex; align-items: center; gap: 20px">
+              <button type="button" aria-label="One less rep" style="width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; background: {{v.t.surface2}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; cursor: pointer"><svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.minus}}" fill="{{v.t.outline}}"></path></svg></button>
+              <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 56px; line-height: 1; min-width: 72px; text-align: center">12</span>
+              <button type="button" aria-label="One more rep" style="width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; background: {{v.t.surface2}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; cursor: pointer"><svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.plus}}" fill="{{v.t.outline}}"></path></svg></button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: {{v.t.muted}}">NAV LABEL WIDTH TEST (72dp TABS, 11sp)</div>
+          <sc-for list="{{v.navTests}}" as="row" hint-placeholder-count="3">
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <div style="font-size: 12px; color: {{v.t.muted}}">{{row.caption}}</div>
+              <div style="display: grid; grid-template-columns: repeat(5, 72px); gap: 4px">
+                <sc-for list="{{row.tabs}}" as="tab" hint-placeholder-count="5">
+                  <div style="height: 64px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: {{tab.bg}}; color: {{tab.fg}}; border: 2px solid {{tab.border}}; clip-path: {{n}}">
+                    <svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{tab.icon}}" fill="{{tab.fg}}"></path></svg>
+                    <span style="font-family: {{row.font}}; font-size: {{row.size}}; font-weight: {{row.weight}}; white-space: nowrap; line-height: 1">{{tab.label}}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: {{v.t.muted}}">DINOCITO · CURSOR · ICONS (16×16 AT 2×)</div>
+          <div style="display: flex; align-items: center; gap: 28px">
+            <img src="/_blob/302248974e46a4c504c80e111541b3ef" alt="Dinocito, the mascot" width="96" height="96" style="image-rendering: pixelated">
+            <svg viewBox="0 0 8 8" width="32" height="32" shape-rendering="crispEdges" role="img" aria-label="Selection cursor"><path d="{{cur.y}}" fill="#F5D23A"></path><path d="{{cur.o}}" fill="#33213F"></path></svg>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap">
+              <sc-for list="{{iconList}}" as="i" hint-placeholder-count="12">
+                <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: {{v.t.surface2}}; clip-path: {{n}}">
+                  <svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{i}}" fill="{{v.t.outline}}"></path></svg>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </section>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1480,"height":1960}}'>
+const T = {
+  night: { name: 'NIGHT', bg: '#0C0915', surface: '#1C1430', surface2: '#2A1F45', outline: '#F4F2F7', muted: '#A39BB6', primary: '#A98BFF', onPrimary: '#0C0915', select: '#F5D23A', onSelect: '#0C0915', action: '#F0A030', danger: '#FF4D4D', success: '#5CD27A', hi: 'rgba(255,255,255,0.22)', lo: 'rgba(0,0,0,0.45)', shadow: '#4A3A80', selBg: '#1C1430', selBorder: '#F5D23A', selText: '#F5D23A', navBorder: '#F0A030' },
+  day: { name: 'DAY', bg: '#FBF3E8', surface: '#FFFDF8', surface2: '#F3E6D6', outline: '#33213F', muted: '#7A6684', primary: '#6B4FC8', onPrimary: '#FBF3E8', select: '#FBDA61', onSelect: '#33213F', action: '#33213F', danger: '#B8326A', success: '#2F7D45', hi: 'rgba(255,255,255,0.6)', lo: 'rgba(51,33,63,0.25)', shadow: '#33213F', selBg: '#FBDA61', selBorder: '#33213F', selText: '#33213F', navBorder: '#33213F', pink: '#F2B6C6', teal: '#9FDCD4' }
+};
+const N = 'polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px)';
+function px(rows) { let d = ''; rows.forEach(function (r, y) { for (let x = 0; x < r.length; x++) { if (r[x] === '#') d += 'M' + x + ' ' + y + 'h1v1h-1z'; } }); return d; }
+const I = {
+  home: px(['','.......##','......####','.....##..##','....##....##','...##......##','..##........##','.##..........##','...#........#','...#..####..#','...#..#..#..#','...#..#..#..#','...#..#..#..#','...####..####']),
+  programs: px(['','.....######','..####....####','..#..######..#','..#..........#','..#.##.#####.#','..#..........#','..#.##.#####.#','..#..........#','..#.##.#####.#','..#..........#','..#.##.###...#','..#..........#','..############']),
+  start: px(['','','....#','....###','....#####','....#######','....#########','....##########','....##########','....#########','....#######','....#####','....###','....#']),
+  stats: px(['','','...........##','...........##','.......##..##','.......##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','.##############']),
+  exercises: px(['','','','..##........##','.###........###','.###........###','.##############','.##############','.###........###','.###........###','..##........##']),
+  check: px(['','','..............##','.............###','............###','...........###','.##........###','.###......###','..###....###','...###..###','....######','.....####','......##']),
+  timer: px(['','......####','.....######','....##....##','...#...##...#','..#....##....#','..#....##....#','..#....####..#','..#..........#','..#..........#','...#........#','....##....##','.....######']),
+  plus: px(['','','','','.......##','.......##','.......##','...##########','...##########','.......##','.......##','.......##']),
+  minus: px(['','','','','','','','...##########','...##########']),
+  close: px(['','','...##......##','....##....##','.....##..##','......####','......####','.....##..##','....##....##','...##......##']),
+  edit: px(['','..........##','.........####','........####','.......####','......####','.....####','....####','...####','...###','...##']),
+  skip: px(['','','','..#....#....##','..##...##...##','..###..###..##','..####.####.##','..###..###..##','..##...##...##','..#....#....##']),
+  pull: px(['################','.##..........##','.....##..##','.....#.##.#','.......##','......####','.....#.##.#','.......##','.......##','......#..#','......#..#','.....##..##'])
+};
+const CUR_O = px(['..####..', '.#....#.', '#......#', '#.#..#.#', '#......#', '#..##..#', '.#....#.', '..####..']);
+const CUR_Y = px(['........', '..####..', '.######.', '.#.##.#.', '.######.', '.##..##.', '..####..', '........']);
+class Component extends DCLogic {
+  renderVals() {
+    const navIcons = [I.home, I.programs, I.start, I.stats, I.exercises];
+    function tabs(t, labels) {
+      return labels.map(function (l, i) {
+        const sel = i === 0, start = i === 2;
+        return { label: l, icon: navIcons[i], bg: start ? t.primary : (sel ? t.selBg : t.surface), fg: start ? t.onPrimary : (sel ? t.selText : t.outline), border: start ? t.outline : (sel ? t.selBorder : t.navBorder) };
+      });
+    }
+    const EN = ['HOME', 'PROGRAMS', 'START', 'STATS', 'EXERCISES'];
+    const ES = ['INICIO', 'PROGRAMAS', 'EMPEZAR', 'STATS', 'EJERCICIOS'];
+    const vs = ['night', 'day'].map(function (k) {
+      const t = T[k];
+      const sw = [['bg', t.bg], ['surface', t.surface], ['outline', t.outline], ['text-muted', t.muted], ['primary', t.primary], ['select', t.select], [k === 'night' ? 'action' : 'pink', k === 'night' ? t.action : t.pink], [k === 'night' ? 'surface-2' : 'teal', k === 'night' ? t.surface2 : t.teal], ['danger', t.danger], ['success', t.success]].map(function (p) { return { name: p[0], hex: p[1] }; });
+      const bar = function (n, of) { const a = []; for (let i = 0; i < of; i++) a.push({ c: i < n ? t.primary : 'transparent' }); return a; };
+      return {
+        t: t,
+        desc: k === 'night' ? 'Dark theme after Family A: violet-black, white outlines, saturated accents.' : 'Light theme after Family B: cream, plum outlines, pastel fills.',
+        sw: sw,
+        restBar: bar(4, 6),
+        setBar: bar(3, 5),
+        navTests: [
+          { caption: 'English · Pixelify Sans 11', font: "'Pixelify Sans', sans-serif", size: '11px', weight: '600', tabs: tabs(t, EN) },
+          { caption: 'Spanish · Pixelify Sans 11', font: "'Pixelify Sans', sans-serif", size: '11px', weight: '600', tabs: tabs(t, ES) },
+          { caption: 'Spanish · Silkscreen 9 (alternative)', font: "'Silkscreen', sans-serif", size: '9px', weight: '400', tabs: tabs(t, ES) }
+        ]
+      };
+    });
+    return { vs: vs, n: N, ic: I, cur: { o: CUR_O, y: CUR_Y }, iconList: [I.home, I.programs, I.start, I.stats, I.exercises, I.check, I.timer, I.plus, I.minus, I.close, I.edit, I.skip, I.pull] };
+  }
+}
+</script>
+</body>
+</html>

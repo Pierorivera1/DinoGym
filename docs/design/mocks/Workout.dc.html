@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Active exercise screen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 900px; height: 960px; box-sizing: border-box; background: #E4E0EA; padding: 40px; display: flex; gap: 40px; font-family: Inter, sans-serif">
+  <sc-for list="{{vs}}" as="v" hint-placeholder-count="2">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">{{v.label}}</div>
+      <div style="width: 390px; height: 844px; box-sizing: border-box; background: {{v.t.bg}}; color: {{v.t.outline}}; padding: 0 16px 16px; display: flex; flex-direction: column; gap: 14px; overflow: hidden">
+        <header style="height: 56px; display: grid; grid-template-columns: 48px 1fr 64px; align-items: center">
+          <button type="button" aria-label="{{v.s.endAria}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: transparent; border: 2px solid {{v.t.danger}}; clip-path: {{n}}; cursor: pointer"><svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.close}}" fill="{{v.t.danger}}"></path></svg></button>
+          <h1 style="margin: 0; text-align: center; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 24px">PULL</h1>
+          <span style="text-align: right; font-family: 'Pixelify Sans', sans-serif; font-weight: 500; font-size: 18px; color: {{v.t.muted}}">18:42</span>
+        </header>
+
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">{{v.s.exLabel}}</span>
+          <div style="display: flex; gap: 4px; flex-grow: 1">
+            <sc-for list="{{v.bar}}" as="b" hint-placeholder-count="6"><div style="flex-grow: 1; height: 14px; background: {{b.c}}; border: 2px solid {{v.t.outline}}"></div></sc-for>
+          </div>
+          <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px">3/6</span>
+        </div>
+
+        <div style="display: flex; gap: 14px; align-items: center">
+          <div style="width: 64px; height: 64px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: {{v.t.surface2}}; clip-path: {{n}}">
+            <svg viewBox="0 0 16 16" width="48" height="48" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.pull}}" fill="{{v.t.outline}}"></path></svg>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 2px">
+            <h2 style="margin: 0; font-size: 22px; font-weight: 600">{{v.s.exName}}</h2>
+            <span style="font-size: 14px; color: {{v.t.muted}}">{{v.s.target}}</span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: {{v.t.surface}}; border: 2px solid {{v.t.success}}; clip-path: {{n}}">
+          <svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.check}}" fill="{{v.t.success}}"></path></svg>
+          <span style="font-size: 14px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">{{v.s.set1}}</span>
+          <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 26px; flex-grow: 1">7 <span style="font-family: Inter, sans-serif; font-weight: 400; font-size: 14px; color: {{v.t.muted}}">reps</span></span>
+          <span style="padding: 4px 8px; background: {{v.t.select}}; color: {{v.t.onSelect}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 13px">{{v.s.best}}</span>
+        </div>
+
+        <div style="filter: drop-shadow(4px 4px 0 {{v.t.shadow}})">
+          <div style="background: {{v.t.selBg}}; color: {{v.t.selText}}; border: 2px solid {{v.t.selBorder}}; clip-path: {{n}}; padding: 14px 16px 18px; display: flex; flex-direction: column; gap: 12px">
+            <div style="display: flex; align-items: center; gap: 10px">
+              <svg viewBox="0 0 8 8" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{cur.y}}" fill="#F5D23A"></path><path d="{{cur.o}}" fill="#33213F"></path></svg>
+              <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px">{{v.s.set2}}</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between">
+              <span style="font-size: 14px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.activeMuted}}">REPS</span>
+              <div style="display: flex; align-items: center; gap: 16px">
+                <button type="button" aria-label="{{v.s.lessAria}}" style="width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; cursor: pointer"><svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.minus}}" fill="{{v.t.outline}}"></path></svg></button>
+                <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 64px; line-height: 1; min-width: 72px; text-align: center; color: {{v.t.outline}}">6</span>
+                <button type="button" aria-label="{{v.s.moreAria}}" style="width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; cursor: pointer"><svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.plus}}" fill="{{v.t.outline}}"></path></svg></button>
+              </div>
+            </div>
+            <span style="font-size: 13px; color: {{v.t.activeMuted}}">{{v.s.prefill}}</span>
+          </div>
+        </div>
+
+        <button type="button" style="height: 64px; display: flex; align-items: center; justify-content: center; gap: 10px; background: {{v.t.primary}}; color: {{v.t.onPrimary}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px; cursor: pointer">
+          <svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.check}}" fill="{{v.t.onPrimary}}"></path></svg>{{v.s.log}}
+        </button>
+
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+          <a href="RestPicker.dc.html" aria-label="{{v.s.restAria}}" style="height: 52px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; background: {{v.t.surface}}; color: {{v.t.outline}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 17px">
+            <svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.timer}}" fill="{{v.t.action}}"></path></svg>2:30
+          </a>
+          <button type="button" style="height: 52px; background: {{v.t.surface}}; color: {{v.t.outline}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 17px; cursor: pointer">{{v.s.note}}</button>
+          <button type="button" style="height: 52px; background: {{v.t.surface}}; color: {{v.t.outline}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 17px; cursor: pointer">{{v.s.skip}}</button>
+        </div>
+
+        <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: 2px dotted {{v.t.muted}}; font-size: 14px">
+          <span><span style="font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">{{v.s.nextLabel}}</span> {{v.s.next}}</span>
+          <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 500; color: {{v.t.muted}}">2 × 25</span>
+        </div>
+      </div>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["EN + ES","EN","ES"],"default":"EN + ES"},"$preview":{"width":900,"height":960}}'>
+const T = {
+  night: { name: 'NIGHT', bg: '#0C0915', surface: '#1C1430', surface2: '#2A1F45', outline: '#F4F2F7', muted: '#A39BB6', primary: '#A98BFF', onPrimary: '#0C0915', select: '#F5D23A', onSelect: '#0C0915', action: '#F0A030', danger: '#FF4D4D', success: '#5CD27A', hi: 'rgba(255,255,255,0.22)', lo: 'rgba(0,0,0,0.45)', shadow: '#4A3A80', selBg: '#1C1430', selBorder: '#F5D23A', selText: '#F5D23A', activeMuted: '#A39BB6' },
+  day: { name: 'DAY', bg: '#FBF3E8', surface: '#FFFDF8', surface2: '#F3E6D6', outline: '#33213F', muted: '#7A6684', primary: '#6B4FC8', onPrimary: '#FBF3E8', select: '#FBDA61', onSelect: '#33213F', action: '#33213F', danger: '#B8326A', success: '#2F7D45', hi: 'rgba(255,255,255,0.6)', lo: 'rgba(51,33,63,0.25)', shadow: '#33213F', selBg: '#FBDA61', selBorder: '#33213F', selText: '#33213F', activeMuted: '#5A4466' }
+};
+const N = 'polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px)';
+function px(rows) { let d = ''; rows.forEach(function (r, y) { for (let x = 0; x < r.length; x++) { if (r[x] === '#') d += 'M' + x + ' ' + y + 'h1v1h-1z'; } }); return d; }
+const I = {
+  check: px(['','','..............##','.............###','............###','...........###','.##........###','.###......###','..###....###','...###..###','....######','.....####','......##']),
+  timer: px(['','......####','.....######','....##....##','...#...##...#','..#....##....#','..#....##....#','..#....####..#','..#..........#','..#..........#','...#........#','....##....##','.....######']),
+  plus: px(['','','','','.......##','.......##','.......##','...##########','...##########','.......##','.......##','.......##']),
+  minus: px(['','','','','','','','...##########','...##########']),
+  close: px(['','','...##......##','....##....##','.....##..##','......####','......####','.....##..##','....##....##','...##......##']),
+  pull: px(['################','.##..........##','.....##..##','.....#.##.#','.......##','......####','.....#.##.#','.......##','.......##','......#..#','......#..#','.....##..##'])
+};
+const CUR_O = px(['..####..', '.#....#.', '#......#', '#.#..#.#', '#......#', '#..##..#', '.#....#.', '..####..']);
+const CUR_Y = px(['........', '..####..', '.######.', '.#.##.#.', '.######.', '.##..##.', '..####..', '........']);
+const S = {
+  en: { endAria: 'End workout', exLabel: 'EXERCISE', exName: 'Pull-ups', target: '2 sets × 6 reps · last time 6 · 6', set1: 'SET 1', best: '▲ NEW BEST', set2: 'SET 2 OF 2', lessAria: 'One less rep', moreAria: 'One more rep', prefill: 'Pre-filled from last session', log: 'LOG SET', restAria: 'Rest time 2 minutes 30 seconds, tap to change', note: 'NOTE', skip: 'SKIP', nextLabel: 'NEXT', next: 'Reverse curl' },
+  es: { endAria: 'Terminar entreno', exLabel: 'EJERCICIO', exName: 'Dominadas', target: '2 series × 6 reps · última vez 6 · 6', set1: 'SERIE 1', best: '▲ RÉCORD', set2: 'SERIE 2 DE 2', lessAria: 'Una repetición menos', moreAria: 'Una repetición más', prefill: 'Copiado de la última sesión', log: 'REGISTRAR SERIE', restAria: 'Descanso de 2 minutos 30 segundos, toca para cambiar', note: 'NOTA', skip: 'SALTAR', nextLabel: 'SIGUE', next: 'Curl inverso' }
+};
+class Component extends DCLogic {
+  renderVals() {
+    const L = this.props.lang ?? 'EN + ES';
+    const pairs = L === 'EN' ? [['night', 'en'], ['day', 'en']] : L === 'ES' ? [['night', 'es'], ['day', 'es']] : [['night', 'en'], ['day', 'es']];
+    const vs = pairs.map(function (p) {
+      const t = T[p[0]];
+      const bar = [];
+      for (let i = 0; i < 6; i++) bar.push({ c: i < 2 ? t.primary : (i === 2 ? t.select : 'transparent') });
+      return { t: t, s: S[p[1]], bar: bar, label: t.name + ' · ' + (p[1] === 'en' ? 'ENGLISH' : 'ESPAÑOL') };
+    });
+    return { vs: vs, n: N, ic: I, cur: { o: CUR_O, y: CUR_Y } };
+  }
+}
+</script>
+</body>
+</html>

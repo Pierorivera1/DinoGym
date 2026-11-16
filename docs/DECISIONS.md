@@ -98,7 +98,7 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 
 ## 18. Terraform installed through mise
 
-- **Decision:** Terraform on the laptop comes from mise (`mise use -g terraform`), not pacman. Go stays on pacman.
+- **Decision:** Terraform on the laptop comes from mise (`mise use -g terraform`), not pacman. (Go also moved to mise, see decision 37.)
 - **Why:** Arch's package lagged behind (1.15.9 against 1.17.2), and mise can pin an exact version per project, so the laptop and GitHub Actions can run the same Terraform.
 - **Rejected:** pacman, because it follows Arch's release pace; downloading the binary by hand, because nothing would update it.
 - **Later:** The Terraform code will set `required_version` so a mismatched version fails early.
@@ -194,3 +194,34 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Decision:** The body weight chart draws a 7-day trailing average as its main line with raw weigh-ins as small points. The goal direction (lose or gain) is inferred from the goal against the weigh-ins, with no separate setting.
 - **Why:** Daily weight moves by about 0.5–1 kg from water and food, so the average shows the trend. Inferring the direction saves a setting. The owner left both choices to the AI.
 - **Rejected:** Raw points only; a lose/gain/maintain setting.
+
+## 33. Design canvas approved; DESIGN.md is the style guide (2026-11-16)
+
+- **Decision:** The owner approved the style on the design canvas (style tile plus Home, active exercise, rest picker, rest timer and summary). Its values are in [DESIGN.md](DESIGN.md) and its source in [design/mocks/](design/mocks/). The owner left the open design questions to the AI, which settled them: the nav labels stay in Pixelify Sans at 11sp, auto-sizing down to 8sp with larger system fonts (the longest label, `EJERCICIOS`, measured 60.5dp against about 62dp of room on a 360dp phone); the START tab stays raised; the bottom bar is hidden during a workout.
+- **Changes from PIXEL-STYLE.md:** the Night hard shadow is dark violet `#4A3A80`, because a white offset shadow on near-black was too loud; Day uses plum for secondary borders, since it has no orange token; rest days in the cycle strip show `ZZZ`, because `REST`/`DESCANSO` do not fit; the rest picker moves seconds in 5-second steps.
+- **Why:** A tested set of values lets the screens be built without re-deciding the look.
+- **Rejected:** Inter for the nav labels (not needed once measured); keeping the bottom bar during a workout (distracts from logging).
+
+## 34. Android package name: io.github.pierorivera1.dinogym (2026-11-16)
+
+- **Decision:** The application ID and namespace are `io.github.pierorivera1.dinogym`. Debug builds add `.debug`.
+- **Why:** It must differ from version 1's `com.dinogym` so both install side by side. A package name should be a domain the owner controls; there is no custom domain (decision 23), but the GitHub account `Pierorivera1` is his, and `io.github.<user>` is the usual form for that.
+- **Rejected:** `com.dinogym.v2` and `dev.pierorivera.dinogym`, which use domains he does not own. The application ID cannot change after release without losing updates, so it is fixed now.
+
+## 35. One Gradle module for the app (2026-11-16)
+
+- **Decision:** The app starts as a single `:app` module, with `domain/`, `data/`, `timer/` and `ui/` kept apart by package. See [ARCHITECTURE.md](ARCHITECTURE.md).
+- **Why:** Simpler to build, explain and review. Fewer modules mean less Gradle configuration work, which matters with the CPU limits (decision 15). `domain/` stays free of Android imports, so it can be moved into its own module later if build time or reuse calls for it.
+- **Rejected:** A multi-module layout (`core:*`, `feature:*`) as in Google's Now in Android sample. It pays off for large teams, not for one app of this size.
+
+## 36. Room rows ready for sync from the start (2026-11-16)
+
+- **Decision:** Every Room table uses a text UUID primary key, an `updatedAt` timestamp and a nullable `deletedAt` (soft delete).
+- **Why:** Sync comes after the first version (decision 31), and its conflict design is still open. Whatever it becomes, rows created on two devices need IDs that do not collide, and deletions need to be sent to the server. Adding these columns now avoids a data migration later.
+- **Rejected:** Auto-increment integer IDs and hard deletes, which would collide across devices and lose deletions.
+
+## 37. Go installed through mise (2026-11-16)
+
+- **Decision:** Go on the laptop comes from mise (1.27.4), like Terraform (decision 18).
+- **Why:** That is how it is installed. One version manager for both tools, and versions can be pinned per project.
+- **Rejected:** pacman, which was the earlier plan.

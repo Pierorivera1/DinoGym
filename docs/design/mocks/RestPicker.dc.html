@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rest time picker</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 900px; height: 960px; box-sizing: border-box; background: #E4E0EA; padding: 40px; display: flex; gap: 40px; font-family: Inter, sans-serif">
+  <sc-for list="{{vs}}" as="v" hint-placeholder-count="2">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">{{v.label}}</div>
+      <div style="width: 390px; height: 844px; box-sizing: border-box; background: {{v.t.bg}}; color: {{v.t.outline}}; position: relative; overflow: hidden">
+        <div aria-hidden="true" style="padding: 0 16px; display: flex; flex-direction: column; gap: 14px">
+          <div style="height: 56px; display: flex; align-items: center; justify-content: center; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 24px">PULL</div>
+          <div style="height: 64px; background: {{v.t.surface2}}"></div>
+          <div style="height: 56px; background: {{v.t.surface}}; border: 2px solid {{v.t.surface2}}"></div>
+          <div style="height: 200px; background: {{v.t.surface}}; border: 2px solid {{v.t.surface2}}"></div>
+        </div>
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: {{v.t.scrim}}"></div>
+
+        <section role="dialog" aria-label="{{v.s.title}}" style="position: absolute; left: 0; right: 0; bottom: 0; background: {{v.t.surface}}; border-top: 2px solid {{v.t.outline}}; display: flex; flex-direction: column">
+          <div style="height: 56px; padding: 0 8px 0 16px; display: flex; align-items: center; justify-content: space-between; background: {{v.t.titleBar}}; color: {{v.t.titleText}}; border-bottom: 2px solid {{v.t.outline}}">
+            <h2 style="margin: 0; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px">{{v.s.title}}</h2>
+            <button type="button" aria-label="{{v.s.closeAria}}" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.close}}" fill="{{v.t.outline}}"></path></svg></button>
+          </div>
+          <div style="padding: 16px; display: flex; flex-direction: column; gap: 16px">
+            <p style="margin: 0; font-size: 14px; color: {{v.t.muted}}">{{v.s.scope}}</p>
+
+            <div style="position: relative; border: 2px solid {{v.t.outline}}; outline: 2px solid {{v.t.surface}}; outline-offset: -6px; background: {{v.t.bg}}; padding: 8px 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr))">
+              <div style="position: absolute; left: 8px; right: 8px; top: 50%; height: 60px; margin-top: -30px; border: 2px solid {{v.t.selBorder}}; background: {{v.t.band}}; clip-path: {{n}}"></div>
+              <div style="position: absolute; left: 16px; top: 50%; margin-top: -12px"><svg viewBox="0 0 8 8" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{cur.y}}" fill="#F5D23A"></path><path d="{{cur.o}}" fill="#33213F"></path></svg></div>
+              <sc-for list="{{v.cols}}" as="col" hint-placeholder-count="2">
+                <div role="listbox" aria-label="{{col.name}}" style="position: relative; display: flex; flex-direction: column; align-items: center">
+                  <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; color: {{v.t.muted}}; height: 18px">{{col.name}}</span>
+                  <sc-for list="{{col.items}}" as="it" hint-placeholder-count="5">
+                    <div role="option" aria-selected="{{it.sel}}" style="height: {{it.h}}; display: flex; align-items: center; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: {{it.size}}; color: {{it.c}}">{{it.v}}</div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">{{v.s.presets}}</span>
+              <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+                <button type="button" style="height: 52px; background: {{v.t.surface}}; color: {{v.t.outline}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; font-family: Inter, sans-serif; font-size: 14px; cursor: pointer"><b style="font-family: 'Pixelify Sans', sans-serif; font-size: 18px">1:30</b> · {{v.s.iso}}</button>
+                <button type="button" style="height: 52px; background: {{v.t.surface}}; color: {{v.t.outline}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; font-family: Inter, sans-serif; font-size: 14px; cursor: pointer"><b style="font-family: 'Pixelify Sans', sans-serif; font-size: 18px">2:30</b> · {{v.s.comp}}</button>
+              </div>
+            </div>
+
+            <button type="button" style="height: 60px; background: {{v.t.primary}}; color: {{v.t.onPrimary}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px; cursor: pointer">{{v.s.save}}</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["EN + ES","EN","ES"],"default":"EN + ES"},"$preview":{"width":900,"height":960}}'>
+const T = {
+  night: { name: 'NIGHT', bg: '#0C0915', surface: '#1C1430', surface2: '#2A1F45', outline: '#F4F2F7', muted: '#A39BB6', primary: '#A98BFF', onPrimary: '#0C0915', select: '#F5D23A', action: '#F0A030', hi: 'rgba(255,255,255,0.22)', lo: 'rgba(0,0,0,0.45)', selBorder: '#F5D23A', band: 'rgba(245,210,58,0.10)', scrim: 'rgba(12,9,21,0.78)', titleBar: '#2A1F45', titleText: '#F4F2F7', faint: '#6E6584' },
+  day: { name: 'DAY', bg: '#FBF3E8', surface: '#FFFDF8', surface2: '#F3E6D6', outline: '#33213F', muted: '#7A6684', primary: '#6B4FC8', onPrimary: '#FBF3E8', select: '#FBDA61', action: '#33213F', hi: 'rgba(255,255,255,0.6)', lo: 'rgba(51,33,63,0.25)', selBorder: '#33213F', band: '#FBDA61', scrim: 'rgba(51,33,63,0.55)', titleBar: '#9FDCD4', titleText: '#33213F', faint: '#7A6684' }
+};
+const N = 'polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px)';
+function px(rows) { let d = ''; rows.forEach(function (r, y) { for (let x = 0; x < r.length; x++) { if (r[x] === '#') d += 'M' + x + ' ' + y + 'h1v1h-1z'; } }); return d; }
+const I = {
+  close: px(['','','...##......##','....##....##','.....##..##','......####','......####','.....##..##','....##....##','...##......##'])
+};
+const CUR_O = px(['..####..', '.#....#.', '#......#', '#.#..#.#', '#......#', '#..##..#', '.#....#.', '..####..']);
+const CUR_Y = px(['........', '..####..', '.######.', '.#.##.#.', '.######.', '.##..##.', '..####..', '........']);
+const S = {
+  en: { title: 'REST TIME', closeAria: 'Close', scope: 'Pull-ups · applies to this exercise in the Pull routine', min: 'MIN', sec: 'SEC', presets: 'DEFAULTS', iso: 'isolation', comp: 'compound', save: 'SAVE' },
+  es: { title: 'DESCANSO', closeAria: 'Cerrar', scope: 'Dominadas · se aplica a este ejercicio en la rutina Pull', min: 'MIN', sec: 'SEG', presets: 'PREDETERMINADOS', iso: 'aislamiento', comp: 'compuesto', save: 'GUARDAR' }
+};
+class Component extends DCLogic {
+  renderVals() {
+    const L = this.props.lang ?? 'EN + ES';
+    const pairs = L === 'EN' ? [['night', 'en'], ['day', 'en']] : L === 'ES' ? [['night', 'es'], ['day', 'es']] : [['night', 'en'], ['day', 'es']];
+    function col(t, name, vals, selIdx) {
+      return { name: name, items: vals.map(function (v, i) {
+        const d = Math.abs(i - selIdx);
+        return { v: v, sel: d === 0 ? 'true' : 'false', h: d === 0 ? '60px' : (d === 1 ? '44px' : '36px'), size: d === 0 ? '40px' : (d === 1 ? '26px' : '18px'), c: d === 0 ? t.outline : (d === 1 ? t.muted : t.faint) };
+      }) };
+    }
+    const vs = pairs.map(function (p) {
+      const t = T[p[0]], s = S[p[1]];
+      return { t: t, s: s, label: t.name + ' · ' + (p[1] === 'en' ? 'ENGLISH' : 'ESPAÑOL'), cols: [col(t, s.min, ['0', '1', '2', '3', '4'], 2), col(t, s.sec, ['20', '25', '30', '35', '40'], 2)] };
+    });
+    return { vs: vs, n: N, ic: I, cur: { o: CUR_O, y: CUR_Y } };
+  }
+}
+</script>
+</body>
+</html>
