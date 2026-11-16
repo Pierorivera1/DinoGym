@@ -38,3 +38,6 @@ dist/
 # OS / editors
 .DS_Store
 *.swp
+
+# Agent worktrees
+.claude/
