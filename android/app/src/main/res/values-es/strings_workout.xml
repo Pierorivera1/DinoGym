@@ -19,7 +19,7 @@
     <string name="workout_last_time">última vez %1$s</string>
     <string name="workout_set_label">SERIE %1$d</string>
     <string name="workout_set_of">SERIE %1$d DE %2$d</string>
-    <string name="workout_prefilled">Copiado de la última sesión</string>
+    <string name="workout_prefilled">Copiado del último entreno</string>
     <string name="workout_prefilled_target">Copiado del objetivo de la rutina</string>
     <string name="workout_note_preview">Nota: %1$s</string>
     <string name="workout_show_only">No se registra. Hazlo y toca HECHO.</string>

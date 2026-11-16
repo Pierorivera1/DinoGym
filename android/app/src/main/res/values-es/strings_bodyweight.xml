@@ -6,7 +6,7 @@
     <string name="bw_range_3m">3M</string>
     <string name="bw_range_all">TODO</string>
     <string name="bw_current">ACTUAL</string>
-    <string name="bw_current_sub">media 7 días</string>
+    <string name="bw_current_sub">promedio 7 días</string>
     <string name="bw_change">CAMBIO</string>
     <string name="bw_change_sub_1m">en 1 mes</string>
     <string name="bw_change_sub_3m">en 3 meses</string>
@@ -16,7 +16,7 @@
     <string name="bw_goal_reached">Logrado</string>
     <string name="bw_goal_none">Toca para fijar</string>
     <string name="bw_goal_cd">Peso objetivo, toca para cambiarlo</string>
-    <string name="bw_legend_average">media 7 días</string>
+    <string name="bw_legend_average">promedio 7 días</string>
     <string name="bw_legend_weigh_in">pesaje</string>
     <string name="bw_legend_goal">objetivo</string>
     <string name="bw_chart_empty">No hay pesajes en este rango.</string>
@@ -30,7 +30,7 @@
     <string name="bw_newest_first">MÁS RECIENTE PRIMERO</string>
     <string name="bw_delete_cd">Borrar pesaje del %1$s</string>
     <string name="bw_deleted">Pesaje borrado: %1$s kg (%2$s)</string>
-    <string name="bw_empty">Aún no hay pesajes. Toca REGISTRAR PESO para añadir el de hoy.</string>
+    <string name="bw_empty">Aún no hay pesajes. Toca REGISTRAR PESO para agregar el de hoy.</string>
     <string name="bw_sheet_log_title">REGISTRAR PESO</string>
     <string name="bw_sheet_goal_title">PESO OBJETIVO</string>
     <string name="bw_date_label">FECHA</string>
