@@ -25,6 +25,14 @@ data class RoutineItem(
     val exercise: Exercise,
 )
 
+/** A routine with its size, for the Programs list and the program editor's steps. */
+data class RoutineSummary(
+    val routine: Routine,
+    val exerciseCount: Int,
+    /** Sets to log; show-only exercises add none. */
+    val setCount: Int,
+)
+
 /** A routine with its exercises in order. */
 data class RoutineDetail(
     val routine: Routine,
@@ -48,6 +56,11 @@ class RoutineRepository @Inject constructor(
 
     fun observeRoutines(): Flow<List<Routine>> =
         routineDao.observeAll().map { rows -> rows.map { it.toDomain() } }
+
+    /** Every routine with its exercise and set counts, sorted by name. */
+    fun observeRoutineSummaries(): Flow<List<RoutineSummary>> = routineDao.observeSummaries().map { rows ->
+        rows.map { RoutineSummary(Routine(it.id, it.name), it.exerciseCount, it.setCount) }
+    }
 
     /** The routine with its exercises, or null if it does not exist or was deleted. */
     fun observeRoutine(id: String): Flow<RoutineDetail?> = combine(
@@ -130,6 +143,18 @@ class RoutineRepository @Inject constructor(
         routineDao.softDeleteItem(routineExerciseId, now)
         routineDao.getItems(item.routineId).forEachIndexed { index, remaining ->
             if (remaining.position != index) routineDao.setItemPosition(remaining.id, index, now)
+        }
+    }
+
+    /** UNDO of [removeExercise]: puts the exercise back at [position] in [routineId] and renumbers. */
+    suspend fun restoreExercise(routineId: String, routineExerciseId: String, position: Int) = db.withWriteTransaction {
+        val items = routineDao.getItems(routineId).filterNot { it.id == routineExerciseId }
+        val index = position.coerceIn(0, items.size)
+        val now = clock.millis()
+        routineDao.restoreItem(routineExerciseId, index, now)
+        items.forEachIndexed { i, item ->
+            val target = if (i < index) i else i + 1
+            if (item.position != target) routineDao.setItemPosition(item.id, target, now)
         }
     }
 

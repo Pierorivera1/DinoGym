@@ -13,6 +13,7 @@ import io.github.pierorivera1.dinogym.domain.model.ProgramType
 import io.github.pierorivera1.dinogym.domain.rules.CycleRules
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -65,26 +66,53 @@ class ProgramRepository @Inject constructor(
     fun observePrograms(): Flow<List<Program>> =
         programDao.observeAll().map { rows -> rows.map { it.toDomain() } }
 
+    /** Every program with its cycle, for the Programs list: the active one first, then by name. */
+    fun observeProgramsWithCycles(): Flow<List<ProgramWithCycle>> = combine(
+        programDao.observeAll(),
+        programDao.observeAllCycles(),
+    ) { programs, steps ->
+        val byProgram = steps.groupBy { it.programId }
+        programs
+            .map { row ->
+                ProgramWithCycle(
+                    row.toDomain(),
+                    byProgram[row.id].orEmpty().map { CycleStepInfo(it.toDomain(), it.routineName) },
+                )
+            }
+            .sortedByDescending { it.program.isActive } // stable: keeps the name order inside each group
+    }
+
+    /** Names of the programs whose cycle uses [routineId], for the routine's delete dialog. */
+    fun observeProgramNamesUsingRoutine(routineId: String): Flow<List<String>> =
+        programDao.observeProgramNamesUsingRoutine(routineId)
+
     private fun observeCycleOf(program: Program): Flow<ProgramWithCycle> =
         programDao.observeCycle(program.id).map { rows ->
             ProgramWithCycle(program, rows.map { CycleStepInfo(it.toDomain(), it.routineName) })
         }
 
-    /** Creates an empty, inactive program and returns its id. */
-    suspend fun createProgram(name: String, type: ProgramType): String {
-        val id = newId()
-        programDao.insert(
-            ProgramEntity(
-                id = id,
-                name = name,
-                type = type.name,
-                currentStep = 0,
-                isActive = false,
-                updatedAt = clock.millis(),
-            ),
-        )
-        return id
-    }
+    /**
+     * Creates an empty program and returns its id. It is inactive, unless [activateIfNone] is
+     * set and no program is active: then it becomes the active one, so Home has a program.
+     */
+    suspend fun createProgram(name: String, type: ProgramType, activateIfNone: Boolean = false): String =
+        db.withWriteTransaction {
+            val id = newId()
+            val activate = activateIfNone && programDao.getActive() == null
+            programDao.insert(
+                ProgramEntity(
+                    id = id,
+                    name = name,
+                    type = type.name,
+                    currentStep = 0,
+                    isActive = activate,
+                    updatedAt = clock.millis(),
+                ),
+            )
+            id
+        }
+
+    suspend fun setProgramType(id: String, type: ProgramType) = programDao.setType(id, type.name, clock.millis())
 
     suspend fun renameProgram(id: String, name: String) = programDao.rename(id, name, clock.millis())
 
@@ -124,6 +152,13 @@ class ProgramRepository @Inject constructor(
         val step = programDao.getStep(stepId) ?: return@withWriteTransaction
         cycleWriter.removeSteps(step.programId, setOf(stepId))
     }
+
+    /**
+     * UNDO of [removeCycleStep]: puts the step back at [position]. [makeCurrent] is true when
+     * it was the next step when it was removed, so it is next again.
+     */
+    suspend fun restoreCycleStep(programId: String, stepId: String, position: Int, makeCurrent: Boolean) =
+        db.withWriteTransaction { cycleWriter.restoreStep(programId, stepId, position, makeCurrent) }
 
     /** Reorders the cycle; [orderedStepIds] holds every step id of the program in the new order. */
     suspend fun reorderCycle(programId: String, orderedStepIds: List<String>) = db.withWriteTransaction {

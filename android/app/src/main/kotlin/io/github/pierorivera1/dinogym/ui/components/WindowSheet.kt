@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,6 +41,9 @@ import io.github.pierorivera1.dinogym.ui.theme.DinoTheme
  *
  * It is drawn inside the screen, over its content, instead of in a separate window, so a
  * screenshot test can render it. The screen handles system Back (it closes the sheet).
+ *
+ * With [fullHeight] the sheet reaches 40dp below the status bar, and [content] fills the
+ * rest (use `Modifier.weight` inside it), as the exercise picker does.
  */
 @Composable
 fun WindowSheet(
@@ -46,6 +51,7 @@ fun WindowSheet(
     onClose: () -> Unit,
     closeDescription: String,
     modifier: Modifier = Modifier,
+    fullHeight: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val colors = DinoTheme.colors
@@ -61,6 +67,7 @@ fun WindowSheet(
             Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
+                .then(if (fullHeight) Modifier.statusBarsPadding().padding(top = 40.dp).fillMaxHeight() else Modifier)
                 .background(colors.surface)
                 .drawBehind { drawRect(colors.outline, Offset.Zero, Size(size.width, ArtPixel.toPx())) }
                 .padding(top = ArtPixel)
@@ -95,7 +102,7 @@ fun WindowSheet(
                 }
             }
             Column(
-                Modifier.padding(16.dp),
+                (if (fullHeight) Modifier.weight(1f) else Modifier).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 content = content,
             )

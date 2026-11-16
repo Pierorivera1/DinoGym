@@ -333,3 +333,17 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
   - **Deleting a session** removes it and any summary of it from the back stack. Rejected: returning to a summary of a deleted session.
 - **Not drawn:** the PROGRESS list (exercise tile, name, best set 1) follows the history rows' style. It needs the owner's review with the rest of the second batch.
 - **Why:** Records should mean real improvement, and a correction to a past set should show everywhere at once.
+
+## 48. Programs screens: editing a cycle safely (2026-11-16)
+
+- **Decision:** Task 7 built the Programs list, program editor, routine editor and exercise picker from the mocks. Behaviour the mocks do not show:
+  - **Removing the step the cycle is on makes the next step current** (the first if it was the last), and UNDO restores it. Rejected: going back a step.
+  - **UNDO clears `deletedAt` on the same row** instead of inserting a new one, so sync later sees one row, not a delete plus an insert.
+  - **Deleting the active program leaves no program active**, and the dialog says so. Rejected: silently activating another one.
+  - **A new program starts as Calisthenics** and becomes active only when no program is active, so a first program works on Home at once.
+  - **Deleting a routine used by several programs** names them in the dialog, then removes its steps from every cycle. Rejected: blocking the delete. A routine with a workout in progress cannot be deleted; the sheet asks to finish or discard the workout first.
+  - **Exercises added from the picker start at 2 × 10**, rest 1:30 for isolation (curls, raises) and 2:30 otherwise (TRAINING.md). Show-only exercises get 1 × 0 and no rest, as in the seed.
+  - **Reps:** RANGE opens two reps above the fixed number and can never collapse to equal ends; sets 1–20, reps 1–999.
+  - **The picker** searches ignoring case and accents, keeps ticked rows visible while searching, and allows adding an exercise that is already in the routine (some routines repeat one).
+- **Not blocked:** editing a routine's exercises while a workout of it is open. The workout reads its exercises when it starts.
+- **Why:** No edit can leave the cycle pointing at nothing, and every removal can be undone except whole-item deletes, which ask first (decision 41).
