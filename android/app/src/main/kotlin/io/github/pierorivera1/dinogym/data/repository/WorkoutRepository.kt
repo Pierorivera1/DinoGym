@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import java.time.Clock
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -89,6 +90,13 @@ class WorkoutRepository @Inject constructor(
         sessionDao.observeInProgress().flatMapLatest { session ->
             if (session == null) flowOf(null) else observeWorkout(session)
         }
+
+    /**
+     * Only the session in progress, without its exercises: a light read for Home and for
+     * deciding at launch whether to return to a workout.
+     */
+    fun observeInProgressSession(): Flow<Session?> =
+        sessionDao.observeInProgress().map { it?.toDomain() }
 
     private fun observeWorkout(session: SessionEntity): Flow<ActiveWorkout?> = combine(
         routineDao.observeById(session.routineId),

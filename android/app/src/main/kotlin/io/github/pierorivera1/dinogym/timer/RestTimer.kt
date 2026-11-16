@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.pierorivera1.dinogym.di.ApplicationScope
 import io.github.pierorivera1.dinogym.di.RestTimerStore
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,6 +48,9 @@ class RestTimer @Inject constructor(
     /** Serialises DataStore writes so the last one always holds the latest state. */
     private val writeLock = Mutex()
 
+    /** Completed once the saved rest has been loaded at app start (see [awaitRestored]). */
+    private val restored = CompletableDeferred<Unit>()
+
     /** Set by any change, so loading the saved rest never overwrites a newer one. */
     @Volatile
     private var changedSinceLaunch = false
@@ -82,8 +86,20 @@ class RestTimer @Inject constructor(
 
     /** Loads the saved rest at app start. Called from `DinoGymApp.onCreate`. */
     fun restoreInBackground() {
-        scope.launch { restore() }
+        scope.launch {
+            try {
+                restore()
+            } finally {
+                restored.complete(Unit)
+            }
+        }
     }
+
+    /**
+     * Suspends until the saved rest has been loaded, so the app can decide at launch whether
+     * to reopen the rest screen. Returns at once after the first load.
+     */
+    suspend fun awaitRestored() = restored.await()
 
     /**
      * Loads the saved rest. A rest that ended while the app was dead is cleared (its alarm
