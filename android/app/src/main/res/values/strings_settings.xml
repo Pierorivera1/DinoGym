@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Settings (task 10): the Settings screen (ui/settings) and the open-source licences screen. -->
+<resources>
+    <string name="settings_title">SETTINGS</string>
+    <string name="settings_back_cd">Back to home</string>
+
+    <!-- THEME segmented control, in the order System / Night / Day. -->
+    <string name="settings_theme_label">THEME</string>
+    <string name="settings_theme_system">SYSTEM</string>
+    <string name="settings_theme_night">NIGHT</string>
+    <string name="settings_theme_day">DAY</string>
+    <string name="settings_theme_help">System follows your phone: dark mode uses Night, light mode uses Day.</string>
+
+    <!-- LANGUAGE is read-only: the app follows the phone. settings_language_current names this file's own language. -->
+    <string name="settings_language_label">LANGUAGE</string>
+    <string name="settings_language_current">English</string>
+    <string name="settings_language_help">DinoGym uses your phone’s language: English or Spanish. Change it in Android settings.</string>
+
+    <!-- ABOUT. -->
+    <string name="settings_about_label">ABOUT</string>
+    <string name="settings_version">Version</string>
+    <!-- Version name and build number, for example "2.0.0 (1)". -->
+    <string name="settings_version_value">%1$s (%2$d)</string>
+    <string name="settings_source">Source code</string>
+    <string name="settings_source_host" translatable="false">GitHub</string>
+    <string name="settings_licences">Open-source licences</string>
+    <string name="settings_licence">Licence</string>
+    <string name="settings_licence_value" translatable="false">MIT</string>
+    <!-- The text box adds the "* " prefix. -->
+    <string name="settings_bubble">DinoGym is free and open source. Your workouts stay on this phone.</string>
+    <string name="settings_no_browser">No browser found to open the link.</string>
+
+    <!-- Open-source licences screen. Project and licence names are proper names, not translated. -->
+    <string name="licences_title">LICENCES</string>
+    <string name="licences_back_cd">Back to settings</string>
+    <string name="licences_intro">DinoGym is built with these fonts and libraries. Tap one to read its licence.</string>
+    <string name="licences_fonts_label">FONTS</string>
+    <string name="licences_libraries_label">LIBRARIES</string>
+    <string name="licences_public_domain">Public domain</string>
+    <string name="licences_show_cd">Show licence</string>
+    <string name="licences_hide_cd">Hide licence</string>
+    <string name="licences_open_cd">Open licence in the browser</string>
+
+    <string name="licence_ofl" translatable="false">SIL Open Font License 1.1</string>
+    <string name="licence_apache" translatable="false">Apache License 2.0</string>
+    <string name="lib_inter" translatable="false">Inter</string>
+    <string name="lib_pixelify_sans" translatable="false">Pixelify Sans</string>
+    <string name="lib_androidx" translatable="false">AndroidX Core, Activity and Lifecycle</string>
+    <string name="lib_compose" translatable="false">Jetpack Compose and Material 3</string>
+    <string name="lib_navigation3" translatable="false">Navigation 3</string>
+    <string name="lib_room" translatable="false">Room and AndroidX SQLite</string>
+    <string name="lib_sqlite" translatable="false">SQLite</string>
+    <string name="lib_datastore" translatable="false">DataStore</string>
+    <string name="lib_kotlin" translatable="false">Kotlin standard library, coroutines and serialization</string>
+    <string name="lib_hilt" translatable="false">Dagger and Hilt</string>
+</resources>
