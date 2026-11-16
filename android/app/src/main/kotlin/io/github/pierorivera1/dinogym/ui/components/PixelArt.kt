@@ -40,7 +40,9 @@ private fun DrawScope.centred(side: Float) =
 
 /**
  * One of our 16x16 icons (`R.drawable.ic_px_*`), drawn in a single [tint] at [scale]x
- * (2 = 32dp, 3 = 48dp). Decorative unless a [contentDescription] is given.
+ * (2 = 32dp, 3 = 48dp). [size] overrides the scale for the in-between sizes the mocks use
+ * (24dp, 16dp); the art pixel is still snapped to whole screen pixels.
+ * Decorative unless a [contentDescription] is given.
  */
 @Composable
 fun PixelIcon(
@@ -48,6 +50,7 @@ fun PixelIcon(
     tint: Color,
     modifier: Modifier = Modifier,
     scale: Int = 2,
+    size: Dp = (16 * scale).dp,
     contentDescription: String? = null,
 ) {
     val painter = painterResource(icon)
@@ -56,8 +59,8 @@ fun PixelIcon(
     } else {
         Modifier
     }
-    Canvas(modifier.size((16 * scale).dp).then(semantics)) {
-        val side = 16 * wholePixels(scale.dp)
+    Canvas(modifier.size(size).then(semantics)) {
+        val side = 16 * wholePixels(size / 16)
         translate(centred(side).x, centred(side).y) {
             with(painter) { draw(Size(side, side), colorFilter = ColorFilter.tint(tint)) }
         }

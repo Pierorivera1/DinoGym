@@ -19,6 +19,7 @@ import io.github.pierorivera1.dinogym.ui.theme.DinoTheme
  * A number with big − and + buttons (64dp, easy to hit between sets), and a [label] on the
  * left (`REPS`, `KG`). The caller owns [value] and changes it in [onDecrease] / [onIncrease].
  * [decreaseDescription] and [increaseDescription] are what a screen reader says for the buttons.
+ * [valueText] is what is shown for [value]; the weight stepper passes kilograms such as `22.5`.
  */
 @Composable
 fun Stepper(
@@ -29,6 +30,7 @@ fun Stepper(
     decreaseDescription: String,
     increaseDescription: String,
     modifier: Modifier = Modifier,
+    valueText: String = value.toString(),
 ) {
     val colors = DinoTheme.colors
     Row(
@@ -47,7 +49,7 @@ fun Stepper(
                 PixelIcon(R.drawable.ic_px_minus, colors.outline)
             }
             Text(
-                text = value.toString(),
+                text = valueText,
                 style = DinoTheme.type.numberXl,
                 color = colors.outline,
                 textAlign = TextAlign.Center,
