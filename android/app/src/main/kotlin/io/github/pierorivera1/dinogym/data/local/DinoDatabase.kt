@@ -18,8 +18,11 @@ import androidx.room3.RoomDatabase
         SessionEntity::class,
         SetEntryEntity::class,
         LocalFlagEntity::class,
+        WeighInEntity::class,
+        PreferenceEntity::class,
     ],
-    version = 1,
+    // 2: weigh_in and preference (task 11). Every step has a migration in Migrations.kt.
+    version = 2,
     exportSchema = true,
 )
 abstract class DinoDatabase : RoomDatabase() {
@@ -28,6 +31,8 @@ abstract class DinoDatabase : RoomDatabase() {
     abstract fun exerciseDao(): ExerciseDao
     abstract fun sessionDao(): SessionDao
     abstract fun localFlagDao(): LocalFlagDao
+    abstract fun weighInDao(): WeighInDao
+    abstract fun preferenceDao(): PreferenceDao
 
     companion object {
         const val FILE_NAME = "dinogym.db"

@@ -19,7 +19,7 @@ Order agreed 2026-11-16. Tasks 1–10 are planned in detail; from task 11 on the
 
 ## Part 2: more app features
 
-- [ ] **11. Body weight.** Mock, then weigh-in entry and the chart with the 7-day average and goal line. Offline.
+- [x] **11. Body weight.** Mock, then weigh-in entry and the chart with the 7-day average and goal line. Offline.
 
 ## Part 3: cloud foundations (before sign-in)
 
