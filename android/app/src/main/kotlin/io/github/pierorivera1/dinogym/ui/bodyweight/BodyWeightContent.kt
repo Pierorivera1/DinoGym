@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -70,27 +71,32 @@ data class BodyWeightActions(
     }
 }
 
-/**
- * The WEIGHT segment with its sheet and UNDO bar on top (mock `BodyWeight.dc.html`). This is
- * what goes under the HISTORY / PROGRESS / WEIGHT control of the Stats screen. Stateless.
- *
- * The sheet's scrim covers only this area. If the Stats screen wants it over the whole
- * screen (as in the mock), it can draw [BodyWeightContent] here and [BodyWeightOverlays] at
- * its own root instead.
- */
+/** The ViewModel's functions as [BodyWeightActions], for the Stats tab. */
 @Composable
-fun BodyWeightPane(state: BodyWeightUiState, actions: BodyWeightActions, modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxSize()) {
-        BodyWeightContent(state, actions)
-        BodyWeightOverlays(state, actions)
+fun rememberBodyWeightActions(viewModel: BodyWeightViewModel): BodyWeightActions =
+    remember(viewModel) {
+        BodyWeightActions(
+            onSelectRange = viewModel::selectRange,
+            onLog = viewModel::openLog,
+            onOpenGoal = viewModel::openGoal,
+            onDelete = viewModel::delete,
+            onUndo = viewModel::undoDelete,
+            onUndoTimeout = viewModel::dismissUndo,
+            onCloseSheet = viewModel::closeSheet,
+            onPreviousDay = viewModel::previousDay,
+            onNextDay = viewModel::nextDay,
+            onKgTextChange = viewModel::onKgTextChange,
+            onNudge = viewModel::nudge,
+            onSave = viewModel::save,
+            onClearGoal = viewModel::clearGoal,
+        )
     }
-}
 
 /**
  * The scrolling part: CURRENT / CHANGE / GOAL panels, the 1M / 3M / ALL range, the chart,
  * LOG WEIGHT and the weigh-ins newest first, each with a delete button. With no weigh-ins at
- * all, a mascot text box and LOG WEIGHT. It has no side padding of its own beyond the
- * screen's 16dp, which it adds, so it can sit directly under the segmented control.
+ * all, a mascot text box and LOG WEIGHT. It has no side padding: it sits inside the Stats
+ * screen's 16dp, directly under the segmented control.
  */
 @Composable
 fun BodyWeightContent(state: BodyWeightUiState, actions: BodyWeightActions, modifier: Modifier = Modifier) {
@@ -99,7 +105,7 @@ fun BodyWeightContent(state: BodyWeightUiState, actions: BodyWeightActions, modi
     val locale = LocalConfiguration.current.locales[0]
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 96.dp),
+        contentPadding = PaddingValues(bottom = 96.dp),
     ) {
         // Items carry their own 12dp gap below; the weigh-in rows touch, so the list reads as one framed box.
         val gap = Modifier.padding(bottom = 12.dp)
