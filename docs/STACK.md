@@ -9,7 +9,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Language | Kotlin |
 | UI | Jetpack Compose with Material 3 |
 | Navigation | Navigation 3 |
-| Local storage | Room (replaces version 1's JSON file) |
+| Local storage | Room 3 with the bundled SQLite driver (replaces version 1's JSON file) |
 | Background sync | WorkManager |
 | Dependency injection | Hilt |
 | Networking | Ktor client, generated from the OpenAPI contract |

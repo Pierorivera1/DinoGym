@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Placeholder launcher icon: a yellow pixel blob. Replaced by Dinocito in task 3. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#F5D23A"
+        android:pathData="M38,34h32v4h4v32h-4v4h-32v-4h-4v-32h4z" />
+    <path
+        android:fillColor="#0C0915"
+        android:pathData="M44,46h4v8h-4zM60,46h4v8h-4z" />
+</vector>
