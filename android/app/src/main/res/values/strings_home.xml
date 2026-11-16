@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home screen (ui/home). Routine and program names are user data and are passed in as %s. -->
+<resources>
+    <string name="home_title" translatable="false">DINOGYM</string>
+    <string name="cd_settings">Settings</string>
+
+    <!-- The mascot's text box. %1$s is the routine name, %2$d the reps, %3$s the exercise. -->
+    <string name="home_bubble_next">%1$s day is up next.</string>
+    <string name="home_bubble_next_with_last">%1$s day is up next. Last time you did %2$d %3$s on set 1.</string>
+    <string name="home_bubble_resume">Your %1$s workout is still open. Pick up where you left off.</string>
+    <string name="home_bubble_rest">Rest day. Recover, then mark it done.</string>
+    <string name="home_bubble_empty_cycle">This program has no steps yet. Add routines in Programs.</string>
+    <string name="home_bubble_no_program">There is no active program. Choose one in Programs.</string>
+
+    <string name="home_program_step">%1$s · %2$d OF %3$d</string>
+    <plurals name="home_exercise_count">
+        <item quantity="one">%d exercise</item>
+        <item quantity="other">%d exercises</item>
+    </plurals>
+    <plurals name="home_set_count">
+        <item quantity="one">%d set</item>
+        <item quantity="other">%d sets</item>
+    </plurals>
+    <string name="home_meta">%1$s · %2$s</string>
+    <string name="home_show_only">not logged</string>
+    <string name="cd_edit_routine">Edit the %1$s routine</string>
+
+    <string name="home_start">START %1$s</string>
+    <string name="home_resume">RESUME %1$s</string>
+    <string name="home_rest_title">REST DAY</string>
+    <string name="home_rest_then">Then: %1$s</string>
+    <string name="home_rest_done">REST DONE</string>
+    <string name="home_no_program_title">NO PROGRAM</string>
+
+    <string name="home_cycle_rest" translatable="false">ZZZ</string>
+    <string name="cd_cycle_rest">Rest day</string>
+    <string name="home_last_label">Last workout:</string>
+    <string name="home_last_none">none yet</string>
+</resources>

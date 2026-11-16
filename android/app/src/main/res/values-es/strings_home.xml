@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cd_settings">Ajustes</string>
+
+    <string name="home_bubble_next">Hoy toca %1$s.</string>
+    <string name="home_bubble_next_with_last">Hoy toca %1$s. La última vez hiciste %2$d %3$s en la serie 1.</string>
+    <string name="home_bubble_resume">Tu entreno %1$s sigue abierto. Sigue donde lo dejaste.</string>
+    <string name="home_bubble_rest">Día de descanso. Recupérate y márcalo como hecho.</string>
+    <string name="home_bubble_empty_cycle">Este programa aún no tiene pasos. Añade rutinas en Programas.</string>
+    <string name="home_bubble_no_program">No hay un programa activo. Elige uno en Programas.</string>
+
+    <string name="home_program_step">%1$s · %2$d DE %3$d</string>
+    <plurals name="home_exercise_count">
+        <item quantity="one">%d ejercicio</item>
+        <item quantity="many">%d ejercicios</item>
+        <item quantity="other">%d ejercicios</item>
+    </plurals>
+    <plurals name="home_set_count">
+        <item quantity="one">%d serie</item>
+        <item quantity="many">%d series</item>
+        <item quantity="other">%d series</item>
+    </plurals>
+    <string name="home_meta">%1$s · %2$s</string>
+    <string name="home_show_only">sin registro</string>
+    <string name="cd_edit_routine">Editar la rutina %1$s</string>
+
+    <string name="home_start">EMPEZAR %1$s</string>
+    <string name="home_resume">SEGUIR %1$s</string>
+    <string name="home_rest_title">DESCANSO</string>
+    <string name="home_rest_then">Después: %1$s</string>
+    <string name="home_rest_done">DESCANSO HECHO</string>
+    <string name="home_no_program_title">SIN PROGRAMA</string>
+
+    <string name="cd_cycle_rest">Día de descanso</string>
+    <string name="home_last_label">Último entreno:</string>
+    <string name="home_last_none">aún ninguno</string>
+</resources>

@@ -6,12 +6,18 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import dagger.hilt.android.qualifiers.ApplicationContext
+import io.github.pierorivera1.dinogym.MainActivity
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Wakes the app at the end of a rest, even in Doze and with the process dead, by asking
  * [AlarmManager] to deliver a broadcast to [RestOverReceiver].
+ *
+ * It uses [AlarmManager.setAlarmClock] (decision 42): alarm clocks are never delayed by Doze
+ * and are not rate-limited, unlike `setExactAndAllowWhileIdle`, which allows about one alarm
+ * a minute in Doze and back-to-back rests would hit that. The system shows a small alarm
+ * icon in the status bar during a rest; tapping the alarm in the system UI opens the app.
  *
  * There is only ever one rest alarm: scheduling again replaces the previous one, because
  * the PendingIntent is the same (same receiver, same request code).
@@ -29,7 +35,7 @@ class RestAlarm @Inject constructor(
         // default on API 31–32, so the fallback should never run. If it does, an inexact
         // while-idle alarm still fires, possibly late, instead of throwing SecurityException.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()) {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, rest.endsAtMillis, operation)
+            alarmManager.setAlarmClock(AlarmManager.AlarmClockInfo(rest.endsAtMillis, showAppIntent()), operation)
         } else {
             alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, rest.endsAtMillis, operation)
         }
@@ -39,6 +45,15 @@ class RestAlarm @Inject constructor(
     fun cancel() {
         // Alarms match on the Intent without its extras, so any label cancels the same alarm.
         alarmManager.cancel(pendingIntent(nextLabel = ""))
+    }
+
+    /** What the system opens when the user taps the alarm (for example in the quick settings). */
+    private fun showAppIntent(): PendingIntent {
+        val intent = Intent(context, MainActivity::class.java)
+            .setAction(Intent.ACTION_MAIN)
+            .addCategory(Intent.CATEGORY_LAUNCHER)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        return PendingIntent.getActivity(context, SHOW_REQUEST_CODE, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 
     private fun pendingIntent(nextLabel: String): PendingIntent {
@@ -54,5 +69,6 @@ class RestAlarm @Inject constructor(
 
     private companion object {
         const val REQUEST_CODE = 0
+        const val SHOW_REQUEST_CODE = 1
     }
 }

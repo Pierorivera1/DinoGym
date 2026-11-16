@@ -283,3 +283,15 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Permissions:** `POST_NOTIFICATIONS`; `USE_EXACT_ALARM` on Android 13 and later, `SCHEDULE_EXACT_ALARM` on Android 12. Google Play limits `USE_EXACT_ALARM` to alarm, timer and calendar apps; the app ships through GitHub Releases (decision 8), and this needs a second look if it ever goes to Play.
 - **Rejected:** A foreground service. The `shortService` type stops after 3 minutes and rests go up to 9:00; the `specialUse` and `health` types need declarations or permissions the app has no other use for; and a service would still need an alarm or a wake lock to fire on time in Doze.
 - **Not handled:** A reboot during a rest drops the alarm. A rest lasts at most 9 minutes, and the next app start clears it.
+
+## 43. Workout flow behaviour (2026-11-16)
+
+- **Decision:** Task 5 built Home, the active exercise, the rest picker, the rest timer and the summary from the approved mocks. Behaviour the mocks do not show:
+  - **The workout moves to the next exercise by itself** after the last set of an exercise. The NEXT box at the bottom is information, not a button. Rejected: a tap on NEXT after every exercise.
+  - **✕ and the system Back button ask first:** save and finish what was logged, discard, or keep going. Back on the rest screen returns to the exercise and the rest keeps running.
+  - **A note is saved with the next set that is logged.**
+  - **On launch, the app reopens a workout in progress**, and the rest screen if a rest is running.
+  - **Sheets and confirmations are drawn inside the screen**, not as Material dialogs, so the screenshot tests can render them.
+  - **Each screen is three parts:** a ViewModel with one state object, a stateless composable that draws that state, and a thin entry composable joining them. The stateless part is what the screenshot tests render.
+  - **The notification permission is asked once**, the first time a rest starts (Android 13+). The timer works without it; only the notifications are missing.
+- **Why:** Fewer taps between sets, and no way to lose a workout by accident.

@@ -10,7 +10,7 @@ Order agreed 2026-11-16. Tasks 1–10 are planned in detail; from task 11 on the
 - [x] **2. CI.** GitHub Actions workflow: build, unit tests, lint on every push.
 - [x] **3. Theme and components.** Night and Day colours, bundled fonts, stepped corners, raised buttons, text box, stat bar, stepper, Dinocito's cursor, bottom bar, first icons. English and Spanish string files.
 - [x] **4. Database and training rules.** Room tables and repositories, the owner's program loaded on first run. Rules with unit tests: cycle advance, pre-fill from last session, set-1 bests. DAO tests in CI.
-- [ ] **5. Workout flow** (approved mocks). Home, active exercise, rest picker, rest timer in the background, summary. A workout survives an app restart.
+- [x] **5. Workout flow** (approved mocks). Home, active exercise, rest picker, rest timer in the background, summary. A workout survives an app restart.
 - [x] **6. Second mock batch** (alongside tasks 1–5). Programs, Exercises, Stats, Settings, for the owner's approval.
 - [ ] **7. Programs.** Program list, cycle editor, routine editor, exercise picker.
 - [ ] **8. Exercises.** Library, add and edit (icon, fixed-pattern template, weight switch), archive and restore.
