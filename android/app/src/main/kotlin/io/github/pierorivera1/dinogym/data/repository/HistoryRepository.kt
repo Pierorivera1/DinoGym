@@ -13,6 +13,7 @@ import io.github.pierorivera1.dinogym.domain.model.Session
 import io.github.pierorivera1.dinogym.domain.model.SetEntry
 import io.github.pierorivera1.dinogym.domain.model.SetOneResult
 import io.github.pierorivera1.dinogym.domain.rules.CycleRules
+import io.github.pierorivera1.dinogym.domain.rules.ProgressRules
 import io.github.pierorivera1.dinogym.domain.rules.SetOneBests
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -125,6 +126,29 @@ class HistoryRepository @Inject constructor(
         sessionDao.softDeleteSetsOfSession(sessionId, now)
         sessionDao.softDelete(sessionId, now)
     }
+
+    /**
+     * Changes a logged set of a past session; the note stays. Progress is a query over
+     * set 1 (decision 28), so a set-1 change recomputes it with nothing else to update.
+     */
+    suspend fun updateSetValues(setId: String, reps: Int, weightKg: Double?) =
+        sessionDao.updateSetValues(setId, reps, weightKg, clock.millis())
+
+    /** Set 1 of every finished session, grouped by exercise id, each list oldest first. */
+    private fun observeSetOnesByExercise(): Flow<Map<String, List<SetOneResult>>> =
+        sessionDao.observeAllSetOnes().map { rows ->
+            rows.groupBy({ it.exerciseId }, { it.toDomain() })
+        }
+
+    /** Session id → the exercises whose set 1 set a new best in it (history tags, past session marks). */
+    fun observeNewBestsBySession(): Flow<Map<String, Set<String>>> =
+        observeSetOnesByExercise().map(ProgressRules::newBestsBySession)
+
+    /** Exercise id → its current best set 1, for the PROGRESS tab. Exercises never logged are missing. */
+    fun observeBestSetOnes(): Flow<Map<String, SetOneResult>> =
+        observeSetOnesByExercise().map { byExercise ->
+            byExercise.mapNotNull { (id, history) -> SetOneBests.bests(history).lastOrNull()?.let { id to it } }.toMap()
+        }
 
     /** The progress records of an exercise: the days set 1 beat the previous best, oldest first. */
     fun observeSetOneBests(exerciseId: String): Flow<List<SetOneResult>> =

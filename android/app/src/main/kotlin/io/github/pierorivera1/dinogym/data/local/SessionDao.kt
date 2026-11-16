@@ -119,6 +119,10 @@ interface SessionDao {
     @Query("UPDATE set_entry SET reps = :reps, weightKg = :weightKg, note = :note, updatedAt = :now WHERE id = :id")
     suspend fun updateSet(id: String, reps: Int, weightKg: Double?, note: String?, now: Long)
 
+    /** Changes a set's numbers and keeps its note: editing a past session (Stats). */
+    @Query("UPDATE set_entry SET reps = :reps, weightKg = :weightKg, updatedAt = :now WHERE id = :id")
+    suspend fun updateSetValues(id: String, reps: Int, weightKg: Double?, now: Long)
+
     @Query("UPDATE set_entry SET note = :note, updatedAt = :now WHERE id = :id")
     suspend fun setNote(id: String, note: String?, now: Long)
 
@@ -186,4 +190,18 @@ interface SessionDao {
         """,
     )
     fun observeSetOnesOfRoutine(routineId: String): Flow<List<SetOneRow>>
+
+    /**
+     * Set 1 of every exercise in every finished session, oldest first. Feeds the `▲ n BEST`
+     * tags in history, the record marks in a past session and the PROGRESS tab's bests.
+     */
+    @Query(
+        """
+        SELECT e.exerciseId, s.id AS sessionId, s.startedAt AS date, e.reps, e.weightKg
+        FROM set_entry e JOIN session s ON s.id = e.sessionId
+        WHERE e.setIndex = 1 AND e.deletedAt IS NULL AND s.endedAt IS NOT NULL AND s.deletedAt IS NULL
+        ORDER BY s.startedAt
+        """,
+    )
+    fun observeAllSetOnes(): Flow<List<SetOneRow>>
 }
