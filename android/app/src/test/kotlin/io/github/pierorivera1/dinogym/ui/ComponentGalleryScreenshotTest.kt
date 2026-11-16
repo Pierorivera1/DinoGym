@@ -58,7 +58,8 @@ import org.robolectric.annotation.GraphicsMode
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [36], qualifiers = "w400dp-h1100dp-420dpi")
+// A plain Application: the real one opens the database, whose native SQLite library is not available on the JVM.
+@Config(sdk = [36], qualifiers = "w400dp-h1100dp-420dpi", application = android.app.Application::class)
 class ComponentGalleryScreenshotTest {
 
     @get:Rule
