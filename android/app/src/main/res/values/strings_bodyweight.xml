@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Body weight (task 11, ui/bodyweight): the WEIGHT segment of Stats and its log and goal sheets. -->
+<resources>
+    <string name="bw_tab_weight">WEIGHT</string>
+    <string name="bw_range_1m">1M</string>
+    <string name="bw_range_3m">3M</string>
+    <string name="bw_range_all">ALL</string>
+    <string name="bw_current">CURRENT</string>
+    <string name="bw_current_sub">7-day average</string>
+    <string name="bw_change">CHANGE</string>
+    <string name="bw_change_sub_1m">in 1 month</string>
+    <string name="bw_change_sub_3m">in 3 months</string>
+    <string name="bw_change_sub_all">all time</string>
+    <string name="bw_goal">GOAL</string>
+    <string name="bw_goal_to_go">%1$s kg to go</string>
+    <string name="bw_goal_reached">Reached</string>
+    <string name="bw_goal_none">Tap to set</string>
+    <string name="bw_goal_cd">Goal weight, tap to change</string>
+    <string name="bw_legend_average">7-day average</string>
+    <string name="bw_legend_weigh_in">weigh-in</string>
+    <string name="bw_legend_goal">goal</string>
+    <string name="bw_chart_empty">No weigh-ins in this range.</string>
+    <!-- Screen reader summary of the chart. %1$s is a range phrase below; %2$s and %3$s are weights. -->
+    <string name="bw_chart_summary">Body weight, %1$s: 7-day average from %2$s to %3$s kg</string>
+    <string name="bw_chart_summary_goal">, goal %1$s kg</string>
+    <string name="bw_range_phrase_1m">last month</string>
+    <string name="bw_range_phrase_3m">last 3 months</string>
+    <string name="bw_range_phrase_all">all time</string>
+    <string name="bw_log">LOG WEIGHT</string>
+    <string name="bw_list_label">WEIGH-INS</string>
+    <string name="bw_newest_first">NEWEST FIRST</string>
+    <string name="bw_delete_cd">Delete weigh-in of %1$s</string>
+    <string name="bw_deleted">Deleted %1$s kg (%2$s)</string>
+    <string name="bw_empty">No weigh-ins yet. Tap LOG WEIGHT to add today\'s.</string>
+    <string name="bw_sheet_log_title">LOG WEIGHT</string>
+    <string name="bw_sheet_goal_title">GOAL WEIGHT</string>
+    <string name="bw_date_label">DATE</string>
+    <string name="bw_today">TODAY</string>
+    <string name="bw_prev_day_cd">Previous day</string>
+    <string name="bw_next_day_cd">Next day</string>
+    <string name="bw_kg_label">KG</string>
+    <string name="bw_kg_field_cd">Weight in kilograms</string>
+    <string name="bw_less_cd">0.1 kg less</string>
+    <string name="bw_more_cd">0.1 kg more</string>
+    <string name="bw_log_help">Starts at your last weigh-in. Type the weight or nudge it by 0.1 kg.</string>
+    <string name="bw_goal_help">Drawn as a dashed line. Losing or gaining is worked out from your current average.</string>
+    <string name="bw_kg_error">Enter a weight from 20 to 400 kg.</string>
+    <string name="bw_save_goal">SAVE GOAL</string>
+    <string name="bw_clear_goal">CLEAR GOAL</string>
+</resources>

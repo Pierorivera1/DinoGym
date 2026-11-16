@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Body weight (task 11, ui/bodyweight): the WEIGHT segment of Stats and its log and goal sheets. -->
+<resources>
+    <string name="bw_tab_weight">PESO</string>
+    <string name="bw_range_1m">1M</string>
+    <string name="bw_range_3m">3M</string>
+    <string name="bw_range_all">TODO</string>
+    <string name="bw_current">ACTUAL</string>
+    <string name="bw_current_sub">media 7 días</string>
+    <string name="bw_change">CAMBIO</string>
+    <string name="bw_change_sub_1m">en 1 mes</string>
+    <string name="bw_change_sub_3m">en 3 meses</string>
+    <string name="bw_change_sub_all">desde el inicio</string>
+    <string name="bw_goal">OBJETIVO</string>
+    <string name="bw_goal_to_go">faltan %1$s kg</string>
+    <string name="bw_goal_reached">Logrado</string>
+    <string name="bw_goal_none">Toca para fijar</string>
+    <string name="bw_goal_cd">Peso objetivo, toca para cambiarlo</string>
+    <string name="bw_legend_average">media 7 días</string>
+    <string name="bw_legend_weigh_in">pesaje</string>
+    <string name="bw_legend_goal">objetivo</string>
+    <string name="bw_chart_empty">No hay pesajes en este rango.</string>
+    <string name="bw_chart_summary">Peso corporal, %1$s: media de 7 días de %2$s a %3$s kg</string>
+    <string name="bw_chart_summary_goal">, objetivo %1$s kg</string>
+    <string name="bw_range_phrase_1m">último mes</string>
+    <string name="bw_range_phrase_3m">últimos 3 meses</string>
+    <string name="bw_range_phrase_all">desde el inicio</string>
+    <string name="bw_log">REGISTRAR PESO</string>
+    <string name="bw_list_label">PESAJES</string>
+    <string name="bw_newest_first">MÁS RECIENTE PRIMERO</string>
+    <string name="bw_delete_cd">Borrar pesaje del %1$s</string>
+    <string name="bw_deleted">Pesaje borrado: %1$s kg (%2$s)</string>
+    <string name="bw_empty">Aún no hay pesajes. Toca REGISTRAR PESO para añadir el de hoy.</string>
+    <string name="bw_sheet_log_title">REGISTRAR PESO</string>
+    <string name="bw_sheet_goal_title">PESO OBJETIVO</string>
+    <string name="bw_date_label">FECHA</string>
+    <string name="bw_today">HOY</string>
+    <string name="bw_prev_day_cd">Día anterior</string>
+    <string name="bw_next_day_cd">Día siguiente</string>
+    <string name="bw_kg_label">KG</string>
+    <string name="bw_kg_field_cd">Peso en kilos</string>
+    <string name="bw_less_cd">0,1 kg menos</string>
+    <string name="bw_more_cd">0,1 kg más</string>
+    <string name="bw_log_help">Empieza en tu último pesaje. Escribe el peso o ajústalo de 0,1 en 0,1 kg.</string>
+    <string name="bw_goal_help">Se dibuja como una línea punteada. Bajar o subir se deduce de tu media actual.</string>
+    <string name="bw_kg_error">Escribe un peso entre 20 y 400 kg.</string>
+    <string name="bw_save_goal">GUARDAR OBJETIVO</string>
+    <string name="bw_clear_goal">QUITAR OBJETIVO</string>
+</resources>
