@@ -35,10 +35,11 @@ fun ExerciseIcon.drawable(): Int = when (this) {
 
 /**
  * An exercise's icon on a stepped `surface2` tile, as on the active exercise screen
- * (64dp tile, icon at 3x). Decorative: the exercise name is always next to it.
+ * (64dp tile, icon at 3x). The library uses a 56dp tile with a 48dp icon ([iconSize]).
+ * Decorative: the exercise name is always next to it.
  */
 @Composable
-fun ExerciseTile(icon: ExerciseIcon, modifier: Modifier = Modifier, size: Dp = 64.dp) {
+fun ExerciseTile(icon: ExerciseIcon, modifier: Modifier = Modifier, size: Dp = 64.dp, iconSize: Dp = size * 3 / 4) {
     val colors = DinoTheme.colors
     Box(
         modifier = modifier
@@ -47,6 +48,6 @@ fun ExerciseTile(icon: ExerciseIcon, modifier: Modifier = Modifier, size: Dp = 6
             .background(colors.surface2),
         contentAlignment = Alignment.Center,
     ) {
-        PixelIcon(icon.drawable(), colors.outline, size = size * 3 / 4)
+        PixelIcon(icon.drawable(), colors.outline, size = iconSize)
     }
 }

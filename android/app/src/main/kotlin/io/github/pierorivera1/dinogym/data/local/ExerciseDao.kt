@@ -49,6 +49,18 @@ interface ExerciseDao {
         now: Long,
     )
 
+    /** Names of the routines that use the exercise, once each, sorted; for the editor's archive note. */
+    @Query(
+        """
+        SELECT DISTINCT routine.name FROM routine
+        JOIN routine_exercise ON routine_exercise.routineId = routine.id
+        WHERE routine_exercise.exerciseId = :exerciseId
+            AND routine_exercise.deletedAt IS NULL AND routine.deletedAt IS NULL
+        ORDER BY routine.name COLLATE NOCASE
+        """,
+    )
+    fun observeRoutineNamesUsing(exerciseId: String): Flow<List<String>>
+
     @Query("UPDATE exercise SET archived = :archived, updatedAt = :now WHERE id = :id")
     suspend fun setArchived(id: String, archived: Boolean, now: Long)
 }

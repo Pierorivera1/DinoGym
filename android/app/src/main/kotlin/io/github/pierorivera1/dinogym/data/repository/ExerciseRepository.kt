@@ -30,6 +30,16 @@ class ExerciseRepository @Inject constructor(
     fun observeExercise(id: String): Flow<Exercise?> =
         exerciseDao.observeById(id).map { it?.toDomain() }
 
+    /** Names of the routines that use exercise [id], sorted ("Pull", "Upper"). */
+    fun observeRoutineNamesUsing(id: String): Flow<List<String>> = exerciseDao.observeRoutineNamesUsing(id)
+
+    /**
+     * Creates an exercise with the defaults the `+ NEW` button uses: the generic icon, logged
+     * as reps, no weight. Returns its id, so the editor can open it.
+     */
+    suspend fun createDefaultExercise(name: String): String =
+        createExercise(name, ExerciseIcon.GENERIC, ExerciseKind.REPS, template = null, weightEnabled = false)
+
     /** Creates an active exercise and returns its id. [template] is only used by [ExerciseKind.TEMPLATE]. */
     suspend fun createExercise(
         name: String,

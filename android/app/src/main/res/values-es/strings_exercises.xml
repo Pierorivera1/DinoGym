@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pestaña Ejercicios (ui/exercises): la biblioteca y el editor de ejercicios. -->
+<resources>
+    <string name="exercises_title">EJERCICIOS</string>
+    <string name="exercises_new_cd">Nuevo ejercicio</string>
+    <string name="exercises_new_name">Nuevo ejercicio</string>
+    <string name="exercises_filter_active">ACTIVOS · %1$d</string>
+    <string name="exercises_filter_archived">ARCHIVADOS · %1$d</string>
+    <string name="exercises_empty_active">Todavía no hay ejercicios. Toca NUEVO para agregar uno.</string>
+    <string name="exercises_empty_archived">No hay nada archivado. Un ejercicio archivado conserva su historial y vuelve con RESTAURAR.</string>
+
+    <string name="exercise_edit_title">EDITAR EJERCICIO</string>
+    <string name="exercise_edit_back_cd">Volver a ejercicios</string>
+    <string name="exercise_missing">Este ejercicio ya no existe.</string>
+    <string name="exercise_name_label">NOMBRE</string>
+    <string name="exercise_name_error">Ponle un nombre. Hasta entonces se queda el anterior.</string>
+    <string name="exercise_icon_label">ÍCONO</string>
+    <string name="exercise_icon_lever">Front lever</string>
+    <string name="exercise_icon_pull_up">Dominada</string>
+    <string name="exercise_icon_row">Remo</string>
+    <string name="exercise_icon_curl">Curl</string>
+    <string name="exercise_icon_raise">Elevación</string>
+    <string name="exercise_icon_dip">Fondo</string>
+    <string name="exercise_icon_push_up">Flexión</string>
+    <string name="exercise_icon_squat">Sentadilla</string>
+    <string name="exercise_icon_jump_rope">Soga</string>
+    <string name="exercise_icon_generic">Otro</string>
+    <string name="exercise_kind_label">CÓMO SE REGISTRA</string>
+    <string name="exercise_kind_reps">REPS</string>
+    <string name="exercise_kind_pattern">PATRÓN</string>
+    <string name="exercise_kind_show_only">SIN REGISTRO</string>
+    <string name="exercise_kind_show_only_help">Aparece en la rutina pero no se registra, como saltar soga al final de Legs.</string>
+    <string name="exercise_pattern_label">PATRÓN</string>
+    <string name="exercise_pattern_help">{n} es el número que registras. Se ve así:</string>
+    <string name="exercise_pattern_error">Pon {n} donde va el número que registras. Hasta entonces se queda el último patrón con {n}.</string>
+    <string name="exercise_weight">Registrar peso</string>
+    <string name="exercise_weight_help_off">Apagado: los programas de calistenia ocultan el peso en este ejercicio.</string>
+    <string name="exercise_weight_help_on">Encendido: el peso aparece en todos los programas.</string>
+    <string name="exercise_archive">ARCHIVAR</string>
+    <string name="exercise_restore">RESTAURAR</string>
+    <string name="exercise_used_in">Se usa en %1$s.</string>
+    <string name="exercise_used_nowhere">No se usa en ninguna rutina.</string>
+    <string name="exercise_archive_help">Al archivarlo sale del buscador; su historial y progreso se quedan. Lo recuperas desde Archivados.</string>
+    <string name="exercise_archived_help">Archivado: no sale en el buscador. Su historial y progreso se quedan. RESTAURAR lo trae de vuelta.</string>
+    <string name="exercise_list_and">%1$s y %2$s</string>
+</resources>
