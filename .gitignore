@@ -1,0 +1,40 @@
+# Third-party reference art: copyrighted, never published (see docs/OPEN-ITEMS.md)
+docs/design/references/
+
+# Secrets and signing material
+*.jks
+*.keystore
+keystore.properties
+google-services.json
+.env
+.env.*
+*.pem
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+
+# Android / Gradle
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+captures/
+.kotlin/
+
+# Go
+/backend/bin/
+*.test
+*.out
+
+# Web
+node_modules/
+dist/
+
+# OS / editors
+.DS_Store
+*.swp

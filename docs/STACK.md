@@ -1,0 +1,82 @@
+# Stack
+
+The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
+
+## Android app
+
+| Concern | Choice |
+|---|---|
+| Language | Kotlin |
+| UI | Jetpack Compose with Material 3 |
+| Navigation | Navigation 3 |
+| Local storage | Room (replaces version 1's JSON file) |
+| Background sync | WorkManager |
+| Dependency injection | Hilt |
+| Networking | Ktor client, generated from the OpenAPI contract |
+| Sign-in | Google one-tap through Android Credential Manager |
+| Push | Firebase Cloud Messaging |
+| Crash reports | Firebase Crashlytics |
+| Languages | English and Spanish |
+| Distribution | Signed release APK on GitHub Releases |
+
+## Backend
+
+| Concern | Choice |
+|---|---|
+| Language | Go |
+| Compute | AWS Lambda, deployed as a zipped binary (no Docker image) |
+| HTTP entry | API Gateway (HTTP API) |
+| Database | DynamoDB |
+| Files | S3 |
+| Queues | SQS |
+| Scheduled jobs | EventBridge Scheduler (reminders, weekly summaries) |
+| Auth | The backend verifies the Google ID token and issues its own sessions |
+| API contract | OpenAPI, the source for the Kotlin client |
+
+## Web
+
+| Concern | Choice |
+|---|---|
+| Language | TypeScript |
+| Framework | React |
+| Hosting | S3 behind CloudFront |
+| Pages | Logged-in dashboard, and public pages for shared routines |
+
+## Infrastructure and delivery
+
+| Concern | Choice |
+|---|---|
+| Infrastructure as code | Terraform, remote state in S3 |
+| Environments | Emulator, staging (real AWS), prod (real AWS) |
+| CI/CD | GitHub Actions |
+| AWS access from CI | OIDC, no stored keys |
+| Local AWS | AWS Emulator, run in Docker (see [WORKFLOW.md](WORKFLOW.md)) |
+| Cost control | AWS budget alarm |
+| Domain | None; API Gateway and CloudFront default URLs |
+
+## Observability
+
+| Concern | Choice |
+|---|---|
+| Instrumentation | OpenTelemetry in the Go code |
+| Backend for traces, metrics, logs | Grafana Cloud free tier |
+| Dashboards and alerts | Defined in Terraform |
+| App crashes | Firebase Crashlytics |
+| Lambda logs | CloudWatch Logs, 7-day retention, WARN level in prod (a safety net; detail is in Grafana) |
+
+## Repository layout
+
+One repository holding everything. Planned top-level folders:
+
+```
+android/   the Android app
+backend/   the Go API and workers
+web/       the React site
+infra/     Terraform
+docs/      these documents
+.github/   workflows
+```
+
+## Docker
+
+Docker is not used for deployment. Its only job is running the AWS Emulator locally, because AWS publishes only RPM and Debian packages and this machine runs Arch.
