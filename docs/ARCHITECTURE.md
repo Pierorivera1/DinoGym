@@ -47,6 +47,8 @@ Every table uses a text UUID primary key plus `updatedAt` and a nullable `delete
 | `routine_exercise` | routineId, exerciseId, position, sets, repMin, repMax, restSeconds |
 | `session` | routineId, programId, startedAt, endedAt (null = in progress), currentPosition (the exercise a workout in progress is on) |
 | `set_entry` | sessionId, exerciseId, setIndex, reps, weightKg (nullable), note |
+| `weigh_in` | measuredAt, weightKg (database version 2, decision 49) |
+| `preference` | key (primary key instead of a UUID), value. Synced user settings such as the goal weight |
 
 - `local_flag` is one extra, local-only table (key, value). It records that the first-run seed has run (decision 40) and is never synced.
 - A workout in progress is a `session` with no `endedAt`. Sets are written as they are logged, so a workout survives the app being killed, as in version 1.

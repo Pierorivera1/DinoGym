@@ -326,3 +326,17 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
   - **Deleting a session** removes it and any summary of it from the back stack. Rejected: returning to a summary of a deleted session.
 - **Not drawn:** the PROGRESS list (exercise tile, name, best set 1) follows the history rows' style. It needs the owner's review with the rest of the second batch.
 - **Why:** Records should mean real improvement, and a correction to a past set should show everywhere at once.
+
+## 49. Body weight: storage, chart and entry (2026-11-16)
+
+- **Decision:** Task 11 added body weight as the third Stats segment, WEIGHT (HISTORIAL / PROGRESO / PESO), with the mock `BodyWeight.dc.html` (built before the owner's review, as in decision 41). Two new tables move the database to version 2 with a written migration, tested in CI with Room's `MigrationTestHelper`:
+  - `weigh_in` (time, kg), with the usual id, `updatedAt`, `deletedAt`.
+  - `preference` (key, value, `updatedAt`, `deletedAt`): user settings that should sync later. The goal weight is the first, `body_weight_goal_kg`. The theme is not here, because it belongs to the device (decision 46).
+- **Rules:**
+  - Every weigh-in counts; several on one day are averaged into that day. The chart's main line is the 7-day trailing average (decision 32), with the raw weigh-ins as small points and the goal as a dashed line. Ranges: 1M, 3M, ALL.
+  - CURRENT is the average ending on the latest day with a weigh-in, not today, so a gap never empties it.
+  - A change toward the goal shows in `success`; a change away shows in plain text, never `danger`, because daily swings are normal.
+  - The weight is typed (comma or point, 20–400 kg) with −/+ 0.1 kg nudges, on today or a past day. Rejected: a stepper alone (70 to 80 kg is 100 taps).
+  - Deleting a weigh-in offers UNDO; clearing the goal soft-deletes its row.
+- **Rejected:** A separate Body weight screen off Home (one more place to look); last-weigh-in-of-the-day only (throws data away); storing the goal in the device-only settings file (it would not sync); a destructive migration (the first release ships version 1 and its data must survive).
+- **Known gap:** the sheet's scrim covers the Stats screen but not the bottom bar, which belongs to the app shell.
