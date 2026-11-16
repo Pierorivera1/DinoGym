@@ -1,4 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">DinoGym</string>
+
+    <!-- Bottom bar. Also the placeholder screen titles. -->
+    <string name="nav_home">HOME</string>
+    <string name="nav_programs">PROGRAMS</string>
+    <string name="nav_start">START</string>
+    <string name="nav_stats">STATS</string>
+    <string name="nav_exercises">EXERCISES</string>
+
+    <!-- Buttons shared by several screens. -->
+    <string name="action_skip">SKIP</string>
+    <string name="action_skip_rest">SKIP REST</string>
+    <string name="action_log_set">LOG SET</string>
+    <string name="action_note">NOTE</string>
+    <string name="action_save">SAVE</string>
+    <string name="action_edit">EDIT</string>
+    <string name="action_finish">FINISH</string>
+
+    <!-- Labels (Inter SemiBold caps). -->
+    <string name="label_reps">REPS</string>
+    <string name="label_sets">SETS</string>
+    <string name="label_rest">REST</string>
+    <string name="label_exercise">EXERCISE</string>
+    <string name="label_up_next">UP NEXT</string>
+    <string name="label_next">NEXT</string>
+    <string name="label_cycle">CYCLE</string>
+    <string name="label_min">MIN</string>
+    <string name="label_sec">SEC</string>
+    <string name="label_new_best">▲ NEW BEST</string>
+
+    <!-- Content descriptions for screen readers. -->
+    <string name="cd_end_workout">End workout</string>
+    <string name="cd_close">Close</string>
+    <string name="cd_one_less_rep">One less rep</string>
+    <string name="cd_one_more_rep">One more rep</string>
 </resources>

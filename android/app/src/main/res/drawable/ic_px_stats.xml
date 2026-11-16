@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 16x16 pixel icon "stats", redrawn from Main.dc.html. Tinted in code; the fill is a placeholder. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M11,2h2v1h-2zM11,3h2v1h-2zM7,4h2v1h-2zM11,4h2v1h-2zM7,5h2v1h-2zM11,5h2v1h-2zM3,6h2v1h-2zM7,6h2v1h-2zM11,6h2v1h-2zM3,7h2v1h-2zM7,7h2v1h-2zM11,7h2v1h-2zM3,8h2v1h-2zM7,8h2v1h-2zM11,8h2v1h-2zM3,9h2v1h-2zM7,9h2v1h-2zM11,9h2v1h-2zM3,10h2v1h-2zM7,10h2v1h-2zM11,10h2v1h-2zM3,11h2v1h-2zM7,11h2v1h-2zM11,11h2v1h-2zM1,12h14v1h-14z" />
+</vector>
