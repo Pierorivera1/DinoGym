@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="workout_sets">
+        <item quantity="one">%d serie</item>
+        <item quantity="many">%d series</item>
+        <item quantity="other">%d series</item>
+    </plurals>
+    <plurals name="workout_reps">
+        <item quantity="one">%1$s rep</item>
+        <item quantity="many">%1$s reps</item>
+        <item quantity="other">%1$s reps</item>
+    </plurals>
+    <plurals name="workout_reps_unit">
+        <item quantity="one">rep</item>
+        <item quantity="many">reps</item>
+        <item quantity="other">reps</item>
+    </plurals>
+    <string name="workout_target">%1$s × %2$s</string>
+    <string name="workout_last_time">última vez %1$s</string>
+    <string name="workout_set_label">SERIE %1$d</string>
+    <string name="workout_set_of">SERIE %1$d DE %2$d</string>
+    <string name="workout_prefilled">Copiado de la última sesión</string>
+    <string name="workout_prefilled_target">Copiado del objetivo de la rutina</string>
+    <string name="workout_note_preview">Nota: %1$s</string>
+    <string name="workout_show_only">No se registra. Hazlo y toca HECHO.</string>
+    <string name="workout_next_finish">Terminar entreno</string>
+    <string name="workout_edit_set">Corregir</string>
+    <string name="label_kg">KG</string>
+    <string name="cd_less_kg">2,5 kg menos</string>
+    <string name="cd_more_kg">2,5 kg más</string>
+    <string name="cd_rest_time">Descanso de %1$s, toca para cambiar</string>
+    <string name="action_done">HECHO</string>
+    <string name="action_delete">BORRAR</string>
+
+    <plurals name="duration_minutes">
+        <item quantity="one">%d minuto</item>
+        <item quantity="many">%d minutos</item>
+        <item quantity="other">%d minutos</item>
+    </plurals>
+    <plurals name="duration_seconds">
+        <item quantity="one">%d segundo</item>
+        <item quantity="many">%d segundos</item>
+        <item quantity="other">%d segundos</item>
+    </plurals>
+
+    <string name="note_title">NOTA</string>
+    <string name="note_hint">Se guarda con la próxima serie que registres.</string>
+
+    <string name="end_title">¿TERMINAR ENTRENO?</string>
+    <plurals name="end_body">
+        <item quantity="one">Registraste %d serie. Guárdala y termina, o descarta el entreno.</item>
+        <item quantity="many">Registraste %d series. Guárdalas y termina, o descarta el entreno.</item>
+        <item quantity="other">Registraste %d series. Guárdalas y termina, o descarta el entreno.</item>
+    </plurals>
+    <string name="end_body_empty">Aún no hay nada registrado.</string>
+    <string name="end_save">GUARDAR Y TERMINAR</string>
+    <string name="end_discard">DESCARTAR</string>
+    <string name="end_keep_going">SEGUIR</string>
+
+    <string name="rest_next_set">%1$s, serie %2$d de %3$d</string>
+
+    <string name="picker_title">DESCANSO</string>
+    <string name="picker_scope">%1$s · se aplica a este ejercicio en la rutina %2$s</string>
+    <string name="label_defaults">PREDETERMINADOS</string>
+    <string name="picker_isolation">aislamiento</string>
+    <string name="picker_compound">compuesto</string>
+
+    <string name="rest_of">de %1$s</string>
+    <string name="rest_of_done">de %1$s · serie %2$d de %3$s hecha</string>
+    <string name="cd_rest_left">Quedan %1$s de descanso</string>
+    <string name="rest_bubble">Respira. Sigue: %1$s.</string>
+    <string name="rest_bubble_plain">Respira.</string>
+    <string name="cd_rest_minus">15 segundos menos</string>
+    <string name="cd_rest_plus">15 segundos más</string>
+    <string name="rest_background">El temporizador sigue con la pantalla apagada.</string>
+
+    <string name="summary_title">ENTRENO HECHO</string>
+    <string name="summary_bubble_one">Te sientes más fuerte. Nuevo récord en %1$s: %2$s.</string>
+    <plurals name="summary_bubble_many">
+        <item quantity="one">Te sientes más fuerte. %d récord nuevo hoy.</item>
+        <item quantity="many">Te sientes más fuerte. %d récords nuevos hoy.</item>
+        <item quantity="other">Te sientes más fuerte. %d récords nuevos hoy.</item>
+    </plurals>
+    <string name="summary_bubble_none">Entreno guardado. Lo que cuenta es venir.</string>
+    <string name="label_time">TIEMPO</string>
+    <string name="label_bests">RÉCORDS</string>
+    <string name="summary_list">REPS SERIE 1</string>
+    <string name="summary_vs_last">VS ANTERIOR</string>
+    <string name="summary_next">Sigue en tu ciclo:</string>
+    <string name="summary_next_rest">DESCANSO</string>
+</resources>

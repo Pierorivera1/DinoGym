@@ -9,54 +9,127 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import io.github.pierorivera1.dinogym.R
 import io.github.pierorivera1.dinogym.ui.components.BottomBar
 import io.github.pierorivera1.dinogym.ui.components.BottomTab
+import io.github.pierorivera1.dinogym.ui.home.HomeEntry
 import io.github.pierorivera1.dinogym.ui.navigation.ExercisesRoute
 import io.github.pierorivera1.dinogym.ui.navigation.HomeRoute
 import io.github.pierorivera1.dinogym.ui.navigation.ProgramsRoute
+import io.github.pierorivera1.dinogym.ui.navigation.RestRoute
 import io.github.pierorivera1.dinogym.ui.navigation.StatsRoute
+import io.github.pierorivera1.dinogym.ui.navigation.SummaryRoute
+import io.github.pierorivera1.dinogym.ui.navigation.WorkoutRoute
 import io.github.pierorivera1.dinogym.ui.navigation.route
 import io.github.pierorivera1.dinogym.ui.navigation.tabFor
 import io.github.pierorivera1.dinogym.ui.theme.DinoTheme
+import io.github.pierorivera1.dinogym.ui.workout.RestEntry
+import io.github.pierorivera1.dinogym.ui.workout.SummaryEntry
+import io.github.pierorivera1.dinogym.ui.workout.WorkoutEntry
 
 /**
  * The app shell: the navigation host plus the bottom bar. The back stack is a list of
- * [NavKey]s that survives rotation and process death; [NavDisplay] shows the top one.
+ * [NavKey]s that survives rotation and process death; [NavDisplay] shows the top one, and
+ * each entry gets its own ViewModels (cleared when the entry leaves the stack).
  * The bar shows only while a top-level screen is on top (see [tabFor]).
  * Must be called inside [DinoTheme].
  */
 @Composable
-fun DinoGymNavigation() {
+fun DinoGymNavigation(appViewModel: AppViewModel = hiltViewModel()) {
     val backStack = rememberNavBackStack(HomeRoute)
-    val tab = tabFor(backStack.last())
-    Column(Modifier.fillMaxSize().background(DinoTheme.colors.bg)) {
+    // Ask for the notification permission at most once per activity (on the first rest).
+    var askedForNotifications by rememberSaveable { mutableStateOf(false) }
+
+    // A workout survives a restart: at launch, reopen it (and its rest, if one is running).
+    LaunchedEffect(Unit) {
+        val resume = appViewModel.screensToResume()
+        if (resume.isNotEmpty() && backStack.toList() == listOf(HomeRoute)) backStack.addAll(resume)
+    }
+
+    AppShell(
+        tab = tabFor(backStack.last()),
+        onTabClick = { backStack.openTab(it) },
+        onStartClick = {
+            appViewModel.start(onStarted = { backStack.openWorkout() }, onNothingToStart = { backStack.openTab(BottomTab.HOME) })
+        },
+    ) {
         NavDisplay(
             backStack = backStack,
             onBack = { backStack.removeLastOrNull() },
-            modifier = Modifier.weight(1f),
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator(),
+            ),
             entryProvider = entryProvider {
-                entry<HomeRoute> { PlaceholderScreen(R.string.nav_home) }
+                entry<HomeRoute> {
+                    HomeEntry(
+                        onWorkoutStarted = { backStack.openWorkout() },
+                        onEditRoutine = { /* The routine editor arrives with the Programs task. */ },
+                        onOpenSettings = { /* The Settings screen arrives in a later task. */ },
+                        onOpenHistory = { backStack.openTab(BottomTab.STATS) },
+                    )
+                }
                 entry<ProgramsRoute> { PlaceholderScreen(R.string.nav_programs) }
                 entry<StatsRoute> { PlaceholderScreen(R.string.nav_stats) }
                 entry<ExercisesRoute> { PlaceholderScreen(R.string.nav_exercises) }
+                entry<WorkoutRoute> {
+                    WorkoutEntry(
+                        onOpenRest = { if (backStack.last() == WorkoutRoute) backStack.add(RestRoute) },
+                        onFinished = { backStack.openSummary(it) },
+                        onExit = { backStack.openTab(BottomTab.HOME) },
+                    )
+                }
+                entry<RestRoute> {
+                    RestEntry(
+                        onRestOver = { if (backStack.last() == RestRoute) backStack.removeLastOrNull() },
+                        onFinished = { backStack.openSummary(it) },
+                        onExit = { backStack.openTab(BottomTab.HOME) },
+                        askForNotifications = !askedForNotifications,
+                        onAskedForNotifications = { askedForNotifications = true },
+                    )
+                }
+                entry<SummaryRoute> { key ->
+                    SummaryEntry(
+                        sessionId = key.sessionId,
+                        onFinish = { backStack.openTab(BottomTab.HOME) },
+                        onEditSession = { /* Editing a past session arrives with the Stats task. */ },
+                    )
+                }
             },
         )
-        if (tab != null) {
-            BottomBar(
-                selected = tab,
-                onTabClick = { backStack.openTab(it) },
-                onStartClick = ::startNextWorkout,
-            )
-        }
+    }
+}
+
+/**
+ * The shell's layout without any state: [content] above the bottom bar, which shows only
+ * when [tab] is not null. Screenshot tests use it to draw a screen with the bar.
+ */
+@Composable
+fun AppShell(
+    tab: BottomTab?,
+    onTabClick: (BottomTab) -> Unit,
+    onStartClick: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    Column(Modifier.fillMaxSize().background(DinoTheme.colors.bg)) {
+        Box(Modifier.weight(1f)) { content() }
+        if (tab != null) BottomBar(selected = tab, onTabClick = onTabClick, onStartClick = onStartClick)
     }
 }
 
@@ -70,8 +143,19 @@ private fun NavBackStack<NavKey>.openTab(tab: BottomTab) {
     if (tab != BottomTab.HOME) add(tab.route())
 }
 
-/** START in the bottom bar. Starting the next routine in the cycle arrives with the workout flow. */
-private fun startNextWorkout() = Unit
+/** The workout opens on top of Home, so finishing or discarding it lands on Home. */
+private fun NavBackStack<NavKey>.openWorkout() {
+    clear()
+    add(HomeRoute)
+    add(WorkoutRoute)
+}
+
+/** The summary replaces the workout screens: Back from it goes Home, never into a finished workout. */
+private fun NavBackStack<NavKey>.openSummary(sessionId: String) {
+    clear()
+    add(HomeRoute)
+    add(SummaryRoute(sessionId))
+}
 
 /** Stand-in for a screen that is not built yet: its title on the background. */
 @Composable

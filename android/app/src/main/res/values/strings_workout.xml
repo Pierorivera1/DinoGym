@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Workout flow (ui/workout): active exercise, rest picker, rest timer, summary. -->
+<resources>
+    <!-- Active exercise. -->
+    <plurals name="workout_sets">
+        <item quantity="one">%d set</item>
+        <item quantity="other">%d sets</item>
+    </plurals>
+    <!-- %1$s is a number or a range such as 6–10. -->
+    <plurals name="workout_reps">
+        <item quantity="one">%1$s rep</item>
+        <item quantity="other">%1$s reps</item>
+    </plurals>
+    <plurals name="workout_reps_unit">
+        <item quantity="one">rep</item>
+        <item quantity="other">reps</item>
+    </plurals>
+    <string name="workout_target">%1$s × %2$s</string>
+    <string name="workout_last_time">last time %1$s</string>
+    <string name="workout_set_label">SET %1$d</string>
+    <string name="workout_set_of">SET %1$d OF %2$d</string>
+    <string name="workout_prefilled">Pre-filled from last session</string>
+    <string name="workout_prefilled_target">Pre-filled from the routine target</string>
+    <string name="workout_note_preview">Note: %1$s</string>
+    <string name="workout_show_only">Not logged. Do it, then tap DONE.</string>
+    <string name="workout_next_finish">Finish workout</string>
+    <string name="workout_edit_set">Correct</string>
+    <string name="label_kg">KG</string>
+    <string name="cd_less_kg">2.5 kg less</string>
+    <string name="cd_more_kg">2.5 kg more</string>
+    <string name="cd_rest_time">Rest time %1$s, tap to change</string>
+    <string name="action_done">DONE</string>
+    <string name="action_delete">DELETE</string>
+
+    <!-- Spoken durations, for screen readers. -->
+    <plurals name="duration_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="duration_seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+
+    <!-- Note sheet. -->
+    <string name="note_title">NOTE</string>
+    <string name="note_hint">Saved with the next set you log.</string>
+
+    <!-- End workout sheet (the ✕). -->
+    <string name="end_title">END WORKOUT?</string>
+    <plurals name="end_body">
+        <item quantity="one">You logged %d set. Save it and finish, or throw the workout away.</item>
+        <item quantity="other">You logged %d sets. Save them and finish, or throw the workout away.</item>
+    </plurals>
+    <string name="end_body_empty">Nothing is logged yet.</string>
+    <string name="end_save">SAVE AND FINISH</string>
+    <string name="end_discard">DISCARD</string>
+    <string name="end_keep_going">KEEP GOING</string>
+
+    <!-- What comes next, in the rest notification and the rest screen. -->
+    <string name="rest_next_set">%1$s, set %2$d of %3$d</string>
+
+    <!-- Rest time picker. -->
+    <string name="picker_title">REST TIME</string>
+    <string name="picker_scope">%1$s · applies to this exercise in the %2$s routine</string>
+    <string name="label_defaults">DEFAULTS</string>
+    <string name="picker_isolation">isolation</string>
+    <string name="picker_compound">compound</string>
+
+    <!-- Rest timer. -->
+    <string name="rest_of">of %1$s</string>
+    <string name="rest_of_done">of %1$s · set %2$d of %3$s done</string>
+    <string name="cd_rest_left">%1$s of rest left</string>
+    <string name="rest_bubble">Breathe. Up next: %1$s.</string>
+    <string name="rest_bubble_plain">Breathe.</string>
+    <string name="rest_minus" translatable="false">−15s</string>
+    <string name="rest_plus" translatable="false">+15s</string>
+    <string name="cd_rest_minus">15 seconds less</string>
+    <string name="cd_rest_plus">15 seconds more</string>
+    <string name="rest_background">The timer keeps running with the screen off.</string>
+
+    <!-- Summary. -->
+    <string name="summary_title">WORKOUT DONE</string>
+    <string name="summary_bubble_one">You feel stronger. New best on %1$s: %2$s.</string>
+    <plurals name="summary_bubble_many">
+        <item quantity="one">You feel stronger. %d new best today.</item>
+        <item quantity="other">You feel stronger. %d new bests today.</item>
+    </plurals>
+    <string name="summary_bubble_none">Workout saved. Showing up is what counts.</string>
+    <string name="label_time">TIME</string>
+    <string name="label_bests">BESTS</string>
+    <string name="summary_list">SET 1 REPS</string>
+    <string name="summary_vs_last">VS LAST</string>
+    <string name="summary_next">Next in your cycle:</string>
+    <string name="summary_next_rest">REST</string>
+</resources>
