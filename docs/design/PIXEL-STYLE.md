@@ -1,6 +1,6 @@
 # Pixel style: what we take from the references
 
-Status: draft, 2026-11-16. Piero answered the first round of questions on 2026-11-16 (decision 25). When it is approved, the tokens and components here become `docs/DESIGN.md`, the style guide for Android (Compose, Material 3) and the React web pages.
+Status: the reasoning behind the style. The approved values now live in [../DESIGN.md](../DESIGN.md) (decision 33), which wins where the two differ.
 
 ## The rule
 
@@ -312,10 +312,7 @@ No questions are open right now.
 
 ## Next steps
 
-1. Piero reviews the mascot sprite and the open questions above.
-2. Build a font and colour test page with both themes, showing the real fonts, buttons, text box and stat bar.
-3. Write `docs/DESIGN.md` from the approved result.
-4. Make mocks for approval (decision 16). Each screen gets a mock in both themes and both languages.
+Steps 1 to 3 are done: the mascot and the font and colour test page were approved, and [DESIGN.md](../DESIGN.md) was written (decision 33). Mock status per screen is tracked in DESIGN.md.
 
 ## Screens to mock
 

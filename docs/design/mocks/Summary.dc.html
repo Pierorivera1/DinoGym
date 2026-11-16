@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Workout summary screen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 900px; height: 960px; box-sizing: border-box; background: #E4E0EA; padding: 40px; display: flex; gap: 40px; font-family: Inter, sans-serif">
+  <sc-for list="{{vs}}" as="v" hint-placeholder-count="2">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">{{v.label}}</div>
+      <div style="width: 390px; height: 844px; box-sizing: border-box; background: {{v.t.bg}}; color: {{v.t.outline}}; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; overflow: hidden">
+        <div style="display: flex; align-items: center; gap: 14px">
+          <img src="/_blob/302248974e46a4c504c80e111541b3ef" alt="" width="80" height="80" style="image-rendering: pixelated; flex-shrink: 0">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <h1 style="margin: 0; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 30px; line-height: 1.05">{{v.s.title}}</h1>
+            <span style="font-size: 14px; color: {{v.t.muted}}">{{v.s.sub}}</span>
+          </div>
+        </div>
+
+        <div style="filter: drop-shadow(4px 4px 0 {{v.t.shadow}})">
+          <div style="background: {{v.t.bg}}; border: 3px solid {{v.t.outline}}; padding: 12px 14px">
+            <p style="margin: 0; font-size: 15px; line-height: 1.45">{{v.s.bubble}}</p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+          <sc-for list="{{v.stats}}" as="st" hint-placeholder-count="3">
+            <div style="background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; padding: 10px 12px 14px; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">{{st.k}}</span>
+              <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 28px; line-height: 1">{{st.v}}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{v.t.muted}}">
+            <span>{{v.s.listLabel}}</span><span>{{v.s.vsLast}}</span>
+          </div>
+          <ul style="margin: 0; padding: 0; list-style: none; background: {{v.t.surface}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}">
+            <sc-for list="{{v.rows}}" as="r" hint-placeholder-count="6">
+              <li style="height: 40px; padding: 0 12px; display: flex; align-items: center; gap: 10px; border-bottom: 2px dotted {{v.t.surface2}}; background: {{r.bg}}">
+                <span style="flex-grow: 1; font-size: 15px">{{r.name}}</span>
+                <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px">{{r.reps}}</span>
+                <span style="width: 44px; text-align: right; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 15px; color: {{r.dc}}">{{r.delta}}</span>
+              </li>
+            </sc-for>
+          </ul>
+        </div>
+
+        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; color: {{v.t.muted}}">
+            {{v.s.next}} <span style="padding: 4px 8px; border: 2px solid {{v.t.outline}}; color: {{v.t.outline}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 13px">PUSH</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 8px">
+            <button type="button" style="height: 60px; background: {{v.t.surface}}; color: {{v.t.outline}}; border: 2px solid {{v.t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px; cursor: pointer">{{v.s.edit}}</button>
+            <button type="button" style="height: 60px; display: flex; align-items: center; justify-content: center; gap: 8px; background: {{v.t.primary}}; color: {{v.t.onPrimary}}; border: 2px solid {{v.t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{v.t.hi}}, inset 0 -4px 0 {{v.t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px; cursor: pointer">
+              <svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.check}}" fill="{{v.t.onPrimary}}"></path></svg>{{v.s.finish}}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["EN + ES","EN","ES"],"default":"EN + ES"},"$preview":{"width":900,"height":960}}'>
+const T = {
+  night: { name: 'NIGHT', bg: '#0C0915', surface: '#1C1430', surface2: '#2A1F45', outline: '#F4F2F7', muted: '#A39BB6', primary: '#A98BFF', onPrimary: '#0C0915', action: '#F0A030', success: '#5CD27A', hi: 'rgba(255,255,255,0.22)', lo: 'rgba(0,0,0,0.45)', shadow: '#4A3A80', bestBg: 'rgba(92,210,122,0.14)' },
+  day: { name: 'DAY', bg: '#FBF3E8', surface: '#FFFDF8', surface2: '#F3E6D6', outline: '#33213F', muted: '#7A6684', primary: '#6B4FC8', onPrimary: '#FBF3E8', action: '#33213F', success: '#2F7D45', hi: 'rgba(255,255,255,0.6)', lo: 'rgba(51,33,63,0.25)', shadow: '#33213F', bestBg: '#E3F3E6' }
+};
+const N = 'polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px)';
+function px(rows) { let d = ''; rows.forEach(function (r, y) { for (let x = 0; x < r.length; x++) { if (r[x] === '#') d += 'M' + x + ' ' + y + 'h1v1h-1z'; } }); return d; }
+const I = {
+  check: px(['','','..............##','.............###','............###','...........###','.##........###','.###......###','..###....###','...###..###','....######','.....####','......##'])
+};
+const S = {
+  en: { title: 'WORKOUT DONE', sub: 'Pull · 42:10 · Mon 16 Nov', bubble: '* You feel stronger. New best on pull-ups: 7 reps.', stats: [['TIME', '42:10'], ['SETS', '14/14'], ['BESTS', '1']], listLabel: 'SET 1 REPS', vsLast: 'VS LAST', next: 'Next in your cycle:', edit: 'EDIT', finish: 'FINISH',
+    rows: ['Front lever + pulls', 'Forearm curl', 'Pull-ups', 'Reverse curl', 'Rows', 'Bicep curl'] },
+  es: { title: 'ENTRENO HECHO', sub: 'Pull · 42:10 · lun 16 nov', bubble: '* Te sientes más fuerte. Nuevo récord en dominadas: 7 reps.', stats: [['TIEMPO', '42:10'], ['SERIES', '14/14'], ['RÉCORDS', '1']], listLabel: 'REPS SERIE 1', vsLast: 'VS ANTERIOR', next: 'Sigue en tu ciclo:', edit: 'EDITAR', finish: 'TERMINAR',
+    rows: ['Front lever + dominadas', 'Curl de antebrazo', 'Dominadas', 'Curl inverso', 'Remo', 'Curl de bíceps'] }
+};
+const REPS = [['4', '='], ['13', '='], ['7', '▲ +1'], ['25', '='], ['12', '='], ['12', '=']];
+class Component extends DCLogic {
+  renderVals() {
+    const L = this.props.lang ?? 'EN + ES';
+    const pairs = L === 'EN' ? [['night', 'en'], ['day', 'en']] : L === 'ES' ? [['night', 'es'], ['day', 'es']] : [['night', 'en'], ['day', 'es']];
+    const vs = pairs.map(function (p) {
+      const t = T[p[0]], s = S[p[1]];
+      return {
+        t: t, s: s, label: t.name + ' · ' + (p[1] === 'en' ? 'ENGLISH' : 'ESPAÑOL'),
+        stats: s.stats.map(function (x) { return { k: x[0], v: x[1] }; }),
+        rows: s.rows.map(function (name, i) { const best = REPS[i][1] !== '='; return { name: name, reps: REPS[i][0], delta: REPS[i][1], dc: best ? t.success : t.muted, bg: best ? t.bestBg : 'transparent' }; })
+      };
+    });
+    return { vs: vs, n: N, ic: I };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,10 +1,10 @@
 # DinoGym
 
-An offline-first Android workout tracker for bodyweight training, with a serverless AWS backend for accounts, sync, shareable routines and reminders.
+An offline-first Android workout tracker for gym and calisthenics training, with a serverless AWS backend for accounts, sync, shareable routines and reminders.
 
 This is version 2, a full rebuild. Version 1 lives at [Old-DinoGym](https://github.com/Pierorivera1/Old-DinoGym).
 
-**Status:** planning. No code yet; the design is in [docs/](docs/).
+**Status:** planning done, app build starting. The plan is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and the design in [docs/DESIGN.md](docs/DESIGN.md).
 
 | Area | Stack |
 |---|---|
