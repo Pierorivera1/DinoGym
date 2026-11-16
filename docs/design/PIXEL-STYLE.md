@@ -1,13 +1,13 @@
 # Pixel style: what we take from the references
 
-Status: draft, 2026-11-16. Waiting for Piero's review. When it is approved, the tokens and components here become `docs/DESIGN.md`, the style guide for Android (Compose, Material 3) and the React web pages.
+Status: draft, 2026-11-16. Piero answered the first round of questions on 2026-11-16 (decision 25). When it is approved, the tokens and components here become `docs/DESIGN.md`, the style guide for Android (Compose, Material 3) and the React web pages.
 
 ## The rule
 
 DinoGym looks like a pixel-art game, but it works like a tool.
 
 - **We take the style, not the art.** Nothing from `references/` ships in the app or the website. That includes characters, sprites, fonts and logos. Every icon, sprite and font we use is drawn by us or comes with an open license.
-- **We are inspired by Undertale and Deltarune. We don't copy them.** We don't use their characters or their FIGHT / ACT / ITEM / MERCY labels, and we don't use the Determination font or the red soul heart as our cursor. The dino is our character.
+- **We are inspired by Undertale and Deltarune. We don't copy them.** We don't use their characters or their FIGHT / ACT / ITEM / MERCY labels, and we don't use the Determination font or the red soul heart as our cursor. Our own mascot, a round yellow blob (see Mascot), is our character.
 - **Readability comes before style.** If the pixel look makes a button harder to find, read or press, the look gives way. Someone mid-set, out of breath and holding a phone in a sweaty hand, has to read a number and tap a button on the first try.
 
 ## What the references have in common
@@ -23,7 +23,7 @@ The `references/` folder holds two families of images. The app takes one family 
 | Soul heart | A single chunky, flat sprite in one colour with no shading reads instantly. Our selection cursor gets the same treatment, using our own shape. |
 | Pixel font sheet | Blocky letters on a square grid with very thick strokes. Good for headings and numbers. Too heavy for long text. |
 | Item icons (Stick, Toy Knife...) | Icons with a white 1-pixel outline on black, a few flat colours, and a short label underneath. |
-| Character lineup | Characters with dark outlines and limited palettes, roughly 2 to 3 tones per colour. A guide for the dino mascot's sprite. |
+| Character lineup | Characters with dark outlines and limited palettes, roughly 2 to 3 tones per colour. A guide for the mascot's sprite. |
 | Purple landing pages | Proof that this style works for a web page: deep violet-black background, violet accent, white pixel headings, outlined pixel buttons, small `*` dialog boxes and soft glow behind key elements. This is the model for the React pages. |
 
 **The feel:** dark, quiet, high contrast, a little melancholic and a little funny. Colour is spent only where it means something.
@@ -45,7 +45,7 @@ The `references/` folder holds two families of images. The app takes one family 
 - **Dark theme ("Night") = Family A.** It uses near-black violet surfaces, white outlines and saturated accents.
 - **Light theme ("Day") = Family B.** It uses cream surfaces, plum outlines and pastel fills.
 
-Both themes share the same pixel grid, shapes, fonts, components and dino. Only the colours change, so one set of components covers both.
+Both themes share the same pixel grid, shapes, fonts, components and mascot. Only the colours change, so one set of components covers both.
 
 ## Style pillars
 
@@ -53,7 +53,7 @@ Both themes share the same pixel grid, shapes, fonts, components and dino. Only 
 2. **Visible outlines.** Every interactive element has a 2dp outline, so its edge is obvious without relying on colour.
 3. **Few colours, each with a meaning.** One neutral ramp plus 4 accents. Each accent has a fixed job (see Colour).
 4. **Big numbers.** Reps, weight and the timer are the largest text on the screen.
-5. **Game flavour in the wording and small moments, not in the layout.** The layouts stay ordinary mobile screens a user already knows how to use.
+5. **Game look only, no game mechanics.** No streaks, levels, XP or `LV`/`HP` stats. The game feel comes from how things look, not from scoring the user. Layouts stay ordinary mobile screens a user already knows how to use.
 
 ## The pixel grid
 
@@ -108,12 +108,12 @@ Rules:
 
 ## Typography
 
-There are two roles. Pixel fonts look great large and get tiring when small or long.
+There are two roles. Pixel fonts look great large and get tiring when small or long, so the pixel font is used only where text is short and big. Everything the user reads is in a plain sans (Piero, 2026-11-16: "the app text should be readable").
 
-| Role | Used for | Candidate fonts (open license) |
+| Role | Used for | Font (open license) |
 |---|---|---|
-| **Display** | Screen titles, buttons, numbers (reps, weight, timer), stat labels | **Pixelify Sans** (OFL, 4 weights, the most readable), Silkscreen (OFL, small caps-style labels) |
-| **Body** | Notes, descriptions, settings, anything longer than one line | A pixel font with normal proportions, such as **monogram** (CC0) or Pixelify Sans Regular at 16sp or larger. Fallback: a plain sans, if testing shows the pixel body text is tiring |
+| **Display** (pixel) | Screen titles, buttons, bottom navigation labels, big numbers (reps, weight, timer) | **Pixelify Sans** (OFL, 4 weights, the most readable pixel font found). Alternative to test: Silkscreen (OFL) for short all-caps labels |
+| **Body** (plain) | Exercise names in lists, notes, descriptions, settings, history, anything longer than a few words | **Inter** (OFL). Same file on Android and web, wide Latin coverage including Spanish |
 
 Proposed type scale:
 
@@ -121,10 +121,10 @@ Proposed type scale:
 |---|---|---|---|
 | `number-xl` | 56sp | Display | `12` reps, `01:30` timer |
 | `title` | 28sp | Display | `PULL DAY` |
-| `heading` | 20sp | Display | Exercise name |
+| `heading` | 20sp | Body, semibold | Exercise name |
 | `button` | 18sp | Display, all caps | `LOG SET` / `REGISTRAR` |
 | `body` | 16sp | Body | Notes |
-| `label` | 14sp | Display or Body | `REPS`, `KG`, `HP`-style labels |
+| `label` | 14sp | Body, all caps | `REPS`, `KG`, `REST` |
 
 Rules:
 
@@ -142,18 +142,18 @@ Each component lists the reference it comes from and how it is used in DinoGym.
 
 - A boxed rectangle with a 2dp outline, stepped corners, an icon on the left, an all-caps label and the raised bands.
 - **Primary** buttons are filled with `primary`. **Secondary** buttons are outlined with an `action`/`outline` stroke.
-- **Selected or focused:** the fill or outline changes to `select` and the dino cursor replaces the icon. This mirrors how a selected battle button turns yellow.
+- **Selected or focused:** the fill or outline changes to `select` and the mascot cursor replaces the icon. This mirrors how a selected battle button turns yellow.
 - Bottom action rows hold at most 4 buttons, for example the actions under the active exercise: `LOG`, `REST`, `SKIP`, `NOTE`.
 
 ### Selection cursor (from the soul heart, made our own)
 
-- A small dino-head sprite (8×8 art pixels) in `select` or `primary`. It marks the current item in lists and menus, and the active set.
+- A small sprite of the mascot's face (8×8 art pixels). It marks the current item in lists and menus, the selected tab and the active set.
 - It moves in steps, not smoothly.
 
 ### Text box (from Undertale's dialog box and the `* It's a beautiful day` box)
 
 - A full-width box with a thick 3dp outline. Text starts with `*` and appears letter by letter. Tapping shows all of it at once.
-- **Use it for:** the coach and dino voice, such as rest-over messages, empty states, the first-run tutorial, the post-workout summary and personal-best messages.
+- **Use it for:** the mascot's voice, such as rest-over messages, empty states, the first-run tutorial, the post-workout summary and personal-best messages.
 - **Do not use it for:** errors that block the user, or anything the user must read to continue. Those use a normal dialog.
 - Example: `* You feel stronger. New best on push-ups: 22 reps.` / `* Te sientes más fuerte. Nuevo récord en flexiones: 22 reps.`
 
@@ -186,17 +186,63 @@ Each component lists the reference it comes from and how it is used in DinoGym.
 
 ### Bottom navigation
 
-- A boxed bar with a 2dp top outline. Each tab is an icon with a pixel label under it, like `MATCH / CHAT / STORIES` on the landing page. The selected tab gets a `select` fill behind its icon and the cursor.
+Piero's direction (2026-11-16): the bottom bar uses the battle-button style for five destinations.
+
+| Tab | English | Spanish |
+|---|---|---|
+| 1 | HOME | INICIO |
+| 2 | PROGRAMS | PROGRAMAS |
+| 3 (centre) | START | EMPEZAR |
+| 4 | STATS | STATS (kept in English; `ESTADÍSTICAS` is too long) |
+| 5 | EXERCISES | EJERCICIOS |
+
+- Each tab is its own boxed button with a 2dp outline in `action` orange and stepped corners, with the pixel icon on top and the pixel label underneath. Five side-by-side boxes do not fit icon-left-of-label at 360dp, so the icon goes on top.
+- **Selected tab:** the box and label turn `select` yellow and the mascot cursor replaces the icon, like a selected battle button.
+- **START** is bigger and filled with `primary`, and it sits slightly raised above the bar, like the centre button in Piero's screenshot. It starts the next workout in the plan.
+- **Width check:** at 360dp each tab is about 64dp wide, which fits about 8 pixel-font capitals at 11 to 12sp. `EXERCISES`, `EJERCICIOS` and `PROGRAMAS` are 9 to 10 letters, so the font-test page must prove they fit. If they don't, the labels switch to the body font (Inter, 12sp caps), and the boxes keep the battle-button look.
 
 ### Charts (progress)
 
-- A stepped line or block bars on a pixel grid, with no anti-aliased curves. Points are 2×2 art-pixel squares, and the axis labels use the display font.
+- A stepped line or block bars on a pixel grid, with no anti-aliased curves. Points are 2×2 art-pixel squares. Axis labels are small text, so they use the body font (decision 25).
+- Grid lines are dotted, 1 art pixel thick, in `text-muted` at low opacity. Charts use no smooth gradients: the fill under a line is a flat tint of the line colour, or a checkerboard dither of it.
+
+#### Body weight chart
+
+This spec comes from [WISHLIST.md](../WISHLIST.md), section "Body weight". Piero's reference screenshot from another app is used for the layout only, and its look is replaced by ours.
+
+```
+┌──────────────────────────────────────────────┐
+│ BODY WEIGHT              ◎ 77 kg   [+ LOG]  │  header: title (display), goal, button
+│ [ 1M ][▓3M▓][ 1Y ][ ALL ]                    │  segmented range control
+│ 82.5 ┊····┊··················┊·············  │
+│      ▀▀▄▄                                    │  stepped line, 2dp (1 art px)
+│ 80   ┊··░░▀▀▄▄▄▄··▄▀▄········┊·············  │  ░ = flat tint / dither fill
+│      ┊░░░░░░░░░░▀▀░░░▀▀▄▄▄▄▄▄▄▄              │
+│ 77.5 ┊░░░░░░░░░░░░░░░░░░░░░░░░░▀▀▄▄■        │  ■ = latest weigh-in, 4×4 art px
+│ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ 77    │  dashed goal line + value
+│      SEP              OCT               NOV  │  month labels (body font)
+└──────────────────────────────────────────────┘
+```
+
+| Part | Night | Day |
+|---|---|---|
+| Line and point | `primary` `#A98BFF` (6.6:1 on `surface`) | `primary` `#6B4FC8` (5.8:1 on `surface`) |
+| Fill under the line | `primary` at about 20%, flat | `primary` at about 15%, flat |
+| Goal line and goal value | `select` `#F5D23A` (11.9:1) | Dark gold `#B07A00` (3.4:1, enough for a line; the goal value text uses `outline`). The pale yellow `#FBDA61` is only 1.25:1 on cream, so it is not used here |
+
+- **Header:** `BODY WEIGHT` in the display font. The goal shows as a pixel target icon plus the value (`77 kg`). `+ LOG` is a small secondary action button.
+- **Range control:** four boxed segments in one row. The selected segment is filled `select` with `outline` text, like a selected battle button. The labels are `1M / 3M / 1Y / ALL` and in Spanish `1M / 3M / 1A / TODO` (Spanish for "all"; `1A` = one year), confirmed by Piero.
+- **Line:** each weigh-in is joined to the next with pixel steps (Bresenham), not an anti-aliased stroke. The latest weigh-in is a 4×4 art-pixel square with a 1 art-pixel `outline` border, and when the chart first appears it blinks once, in steps.
+- **Goal line:** dashes 3 art pixels long with 2-pixel gaps, drawn above the fill and below the line. The goal value sits at its right end, in the display font.
+- **Tapping a point:** the mascot cursor jumps to it and a small window shows `12 Nov · 78.3 kg` (`12 nov · 78,3 kg` in Spanish: dates and decimals follow the phone's locale).
+- **Empty state:** a mascot text box: `* No weigh-ins yet. Tap + LOG to add today's.`
+- **Accessibility:** the chart has a text summary for screen readers, such as "Body weight, last 3 months: 82.0 to 78.3 kg, goal 77 kg".
 
 ## Motion and feedback
 
 - **Stepped movement.** Animations move in visible steps (3 to 6 frames), not smooth easing. This applies to the cursor, raised buttons and bar fills.
 - **Typewriter text** in text boxes runs at about 40 characters per second, and a tap skips it.
-- **Small celebrations:** a completed set flashes once and plays a short haptic. A personal best gets a dino sprite pop and a text box. These are short, and none of them blocks input.
+- **Small celebrations:** a completed set flashes once and plays a short haptic. A personal best gets a mascot sprite pop and a text box. These are short, and none of them blocks input.
 - **Sound** is off by default. If it is added later, it is 8-bit style, our own, with a setting to turn it off.
 - **Reduced motion:** when the system asks for less animation, typewriter text and flashes are turned off.
 
@@ -205,15 +251,17 @@ Each component lists the reference it comes from and how it is used in DinoGym.
 The vibe comes from:
 
 - the look
-- the dino's voice
-- small rewards (personal-best messages, streaks shown as `LV`)
+- the mascot's voice
+- small moments, such as a personal-best message
+
+There are no streaks, levels or XP. Stat bars borrow the `HP 20/20` look, but their labels are plain (`REST`, `SETS`).
 
 It never makes the app slower or less clear:
 
 - Standard mobile navigation and gestures, such as back, swipe and the bottom navigation.
 - Words are plain first, playful second. The button says `LOG SET`, not a game pun.
 - Data screens (history, charts, settings) are calmer: fewer text boxes and more plain panels.
-- Every string is translated, including the dino's lines, in English and Spanish.
+- Every string is translated, including the mascot's lines, in English and Spanish.
 
 ## Material 3: what we keep and what we replace
 
@@ -230,7 +278,7 @@ It never makes the app slower or less clear:
 
 - The same tokens are defined as CSS custom properties: Night for `prefers-color-scheme: dark`, Day for light.
 - Pixel images use `image-rendering: pixelated`, and fonts load from the same open-licensed files the app uses.
-- The public routine page and the landing page follow the purple landing-page reference: a big pixel heading, a dino sprite scene, outlined buttons and a `*` text box. The dashboard follows the app's data screens.
+- The public routine page and the landing page follow the purple landing-page reference: a big pixel heading, a mascot sprite scene, outlined buttons and a `*` text box. The dashboard follows the app's data screens.
 
 ## Do and don't
 
@@ -242,19 +290,42 @@ It never makes the app slower or less clear:
 | Draw our own sprites and icons on the grid | Use sprites, fonts or labels from the reference games |
 | Give each accent one job | Make every element colourful |
 | Use dithering for texture, if anything | Use smooth gradients |
-| Use the dino as the cursor and the voice | Use the red heart as a cursor |
+| Use our mascot as the cursor and the voice | Use the red heart as a cursor |
+
+## Mascot
+
+The mascot is **Dinocito**. Piero chose a round yellow blob with big glossy eyes, a lopsided smirk and small orange arms. The pixel version is drawn on a 32×32 grid in the style rules above: plum outline, three yellow tones with light from the top left, orange arms and black eyes with a two-part highlight.
+
+- Sprite: [mascot/mascot-32.png](mascot/mascot-32.png) at 1× and [mascot/mascot-384.png](mascot/mascot-384.png) at 12× for viewing.
+- Source: [mascot/draw_mascot.py](mascot/draw_mascot.py) draws it pixel by pixel from shapes, so it can be changed and redrawn instead of edited by hand.
+- Still to make: the 8×8 face for the cursor, a few poses (idle, happy, resting, celebrating) and the launcher icon.
+
+![Mascot sprite](mascot/mascot-384.png)
 
 ## Open questions for Piero
 
-1. **Two themes, two moods.** Is it right that dark (Night) follows Undertale and light (Day) follows the pastel references, or should both themes follow one of them?
-2. **How strong the game flavour is.** Should streaks and levels be shown as `LV` and `HP`-style stats, or should the look stay visual only?
-3. **Which font.** Pixelify Sans everywhere, or a pixel display font with a plainer body font? A side-by-side test is the next step.
-4. **The dino.** Should the mascot be based on version 1's launcher dino, redrawn as a sprite, or start fresh?
-5. **The `references/` folder.** These images are other people's art and the repository is public (decision 20). Keep the folder out of git with `.gitignore`?
+Answered on 2026-11-16: Night follows Undertale and Day follows pastel; game look only, with no streaks or stats; pixel font only for short, big text; the yellow blob is the mascot; `references/` is git-ignored.
+
+Second round, also 2026-11-16: the Spanish tab label stays `STATS`; the mascot is named **Dinocito**; the original drawing needs no permission to use; the Spanish range labels `1M / 3M / 1A / TODO` are fine.
+
+No questions are open right now.
 
 ## Next steps
 
-1. Piero reviews this file and answers the open questions.
+1. Piero reviews the mascot sprite and the open questions above.
 2. Build a font and colour test page with both themes, showing the real fonts, buttons, text box and stat bar.
 3. Write `docs/DESIGN.md` from the approved result.
-4. Make mocks of the workout-logging flow (decision 16).
+4. Make mocks for approval (decision 16). Each screen gets a mock in both themes and both languages.
+
+## Screens to mock
+
+In order. The list grows as the wishlist lands.
+
+1. Workout-logging flow: start workout, the active exercise with set entry, rest timer, finish and summary.
+2. Bottom navigation with the five tabs (part of every mock).
+3. Body weight chart and logging a weigh-in (see "Body weight chart" above).
+4. Home.
+5. Programs: plans, splits, editing a workout.
+6. Exercises: library, archive and restore.
+7. Stats: history by date, progress charts.
+8. Web: public routine page and dashboard.
