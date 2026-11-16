@@ -45,9 +45,10 @@ Every table uses a text UUID primary key plus `updatedAt` and a nullable `delete
 | `routine` | name |
 | `exercise` | name, iconKey, kind (`REPS`, `TEMPLATE`, `SHOW_ONLY`), template (for example `3s + {n} pulls + 3s`), weightEnabled, archived |
 | `routine_exercise` | routineId, exerciseId, position, sets, repMin, repMax, restSeconds |
-| `session` | routineId, programId, startedAt, endedAt (null = in progress) |
+| `session` | routineId, programId, startedAt, endedAt (null = in progress), currentPosition (the exercise a workout in progress is on) |
 | `set_entry` | sessionId, exerciseId, setIndex, reps, weightKg (nullable), note |
 
+- `local_flag` is one extra, local-only table (key, value). It records that the first-run seed has run (decision 40) and is never synced.
 - A workout in progress is a `session` with no `endedAt`. Sets are written as they are logged, so a workout survives the app being killed, as in version 1.
 - Completing, skipping or marking a rest day done moves `program.currentStep` on (decision 29).
 - Progress is not stored. It is a query over set 1 of each finished session, keeping the days set 1 beat the previous best (decision 28).

@@ -9,7 +9,7 @@ Order agreed 2026-11-16. Tasks 1–10 are planned in detail; from task 11 on the
 - [x] **1. Project setup.** Gradle wrapper, version catalog, `:app` with Compose, Navigation 3, Hilt and Room; package `io.github.pierorivera1.dinogym`, minSdk 26, targetSdk 36. An empty app that launches.
 - [x] **2. CI.** GitHub Actions workflow: build, unit tests, lint on every push.
 - [x] **3. Theme and components.** Night and Day colours, bundled fonts, stepped corners, raised buttons, text box, stat bar, stepper, Dinocito's cursor, bottom bar, first icons. English and Spanish string files.
-- [ ] **4. Database and training rules.** Room tables and repositories, the owner's program loaded on first run. Rules with unit tests: cycle advance, pre-fill from last session, set-1 bests. DAO tests in CI.
+- [x] **4. Database and training rules.** Room tables and repositories, the owner's program loaded on first run. Rules with unit tests: cycle advance, pre-fill from last session, set-1 bests. DAO tests in CI.
 - [ ] **5. Workout flow** (approved mocks). Home, active exercise, rest picker, rest timer in the background, summary. A workout survives an app restart.
 - [ ] **6. Second mock batch** (alongside tasks 1–5). Programs, Exercises, Stats, Settings, for the owner's approval.
 - [ ] **7. Programs.** Program list, cycle editor, routine editor, exercise picker.
