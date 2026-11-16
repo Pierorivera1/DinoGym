@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.pierorivera1.dinogym.ui.DinoGymNavigation
+import io.github.pierorivera1.dinogym.ui.theme.DinoTheme
 
 /** The only activity. Every screen is a composable inside [DinoGymNavigation]. */
 @AndroidEntryPoint
@@ -14,7 +15,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            DinoGymNavigation()
+            // Follows the system dark mode until the Settings screen can choose a ThemeMode.
+            DinoTheme {
+                DinoGymNavigation()
+            }
         }
     }
 }
