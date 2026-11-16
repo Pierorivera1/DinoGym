@@ -41,6 +41,10 @@ import io.github.pierorivera1.dinogym.ui.navigation.SummaryRoute
 import io.github.pierorivera1.dinogym.ui.navigation.WorkoutRoute
 import io.github.pierorivera1.dinogym.ui.navigation.route
 import io.github.pierorivera1.dinogym.ui.navigation.tabFor
+import io.github.pierorivera1.dinogym.ui.settings.LicencesEntry
+import io.github.pierorivera1.dinogym.ui.settings.LicencesRoute
+import io.github.pierorivera1.dinogym.ui.settings.SettingsEntry
+import io.github.pierorivera1.dinogym.ui.settings.SettingsRoute
 import io.github.pierorivera1.dinogym.ui.theme.DinoTheme
 import io.github.pierorivera1.dinogym.ui.workout.RestEntry
 import io.github.pierorivera1.dinogym.ui.workout.SummaryEntry
@@ -84,7 +88,7 @@ fun DinoGymNavigation(appViewModel: AppViewModel = hiltViewModel()) {
                     HomeEntry(
                         onWorkoutStarted = { backStack.openWorkout() },
                         onEditRoutine = { /* The routine editor arrives with the Programs task. */ },
-                        onOpenSettings = { /* The Settings screen arrives in a later task. */ },
+                        onOpenSettings = { if (backStack.last() == HomeRoute) backStack.add(SettingsRoute) },
                         onOpenHistory = { backStack.openTab(BottomTab.STATS) },
                     )
                 }
@@ -95,6 +99,15 @@ fun DinoGymNavigation(appViewModel: AppViewModel = hiltViewModel()) {
                 }
                 entry<ExerciseEditRoute> { key ->
                     ExerciseEditEntry(key.exerciseId, key.isNew, onBack = { if (backStack.last() == key) backStack.removeLastOrNull() })
+                }
+                entry<SettingsRoute> {
+                    SettingsEntry(
+                        onBack = { if (backStack.last() == SettingsRoute) backStack.removeLastOrNull() },
+                        onOpenLicences = { if (backStack.last() == SettingsRoute) backStack.add(LicencesRoute) },
+                    )
+                }
+                entry<LicencesRoute> {
+                    LicencesEntry(onBack = { if (backStack.last() == LicencesRoute) backStack.removeLastOrNull() })
                 }
                 entry<WorkoutRoute> {
                     WorkoutEntry(

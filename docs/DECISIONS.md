@@ -313,3 +313,11 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **No minification yet:** R8 stays off. Shrinking could break Room, Hilt or serialization at runtime in ways only a phone shows, and the APK size does not matter for a sideloaded app. Rejected for now: R8 with keep rules, worth revisiting with tests on a device.
 - **Rejected:** Signing on the laptop and uploading by hand (no record of what was built); Play App Signing (no Play Store, decision 8); a keystore committed in encrypted form (one leaked password away from public).
 - **Risk:** The key cannot be replaced without uninstalling the app. The owner must back up `~/.config/dinogym/`.
+## 46. Settings: theme storage and the licences screen (2026-11-16)
+
+- **Decision:** The theme choice (System / Night / Day) is stored in its own Preferences DataStore file, `settings`, on the phone only. The activity draws nothing until it has been read, so the window background shows for those few milliseconds instead of a frame in the wrong theme. The open-source licences screen lists the bundled fonts (OFL 1.1, full text from `assets/licenses/`), the libraries in the APK (Apache 2.0, linked to the licence page) and SQLite (public domain, compiled into the APK by `sqlite-bundled`).
+- **Why:** A theme belongs to a device, so it is not in Room, which is what syncs later (decision 36). Linking to the Apache 2.0 text avoids an asset per library.
+- **Strings per feature:** new screens put their strings in their own file (`strings_settings.xml`), which keeps parallel work from conflicting in `strings.xml`.
+- **Rejected:** Room for the theme (it would sync); `runBlocking` on the main thread to read the theme before the first frame; the AndroidX splash screen library or AppCompat just for this; the Google OSS licences plugin (a new dependency and Play-services tooling for one list).
+- **Known gap:** When Night or Day is forced against the phone's dark mode, the window background matches the phone's mode until the first frame. Fixing that needs `UiModeManager.setApplicationNightMode` (Android 12+) and is left for later.
+- **Mock:** The licences screen has no mock of its own; it reuses the Settings list style. It is a plain list, so it was built without one.
