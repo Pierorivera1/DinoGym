@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Settings (task 10). Copy from Settings.dc.html. -->
+<resources>
+    <string name="settings_title">AJUSTES</string>
+    <string name="settings_back_cd">Volver al inicio</string>
+
+    <string name="settings_theme_label">TEMA</string>
+    <string name="settings_theme_system">SISTEMA</string>
+    <string name="settings_theme_night">NOCHE</string>
+    <string name="settings_theme_day">DÍA</string>
+    <string name="settings_theme_help">Sistema sigue a tu celular: el modo oscuro usa Noche y el claro usa Día.</string>
+
+    <string name="settings_language_label">IDIOMA</string>
+    <string name="settings_language_current">Español</string>
+    <string name="settings_language_help">DinoGym usa el idioma de tu celular: español o inglés. Cámbialo en los ajustes de Android.</string>
+
+    <string name="settings_about_label">ACERCA DE</string>
+    <string name="settings_version">Versión</string>
+    <string name="settings_version_value">%1$s (%2$d)</string>
+    <string name="settings_source">Código fuente</string>
+    <string name="settings_licences">Licencias de código abierto</string>
+    <string name="settings_licence">Licencia</string>
+    <string name="settings_bubble">DinoGym es libre y de código abierto. Tus entrenos se quedan en este celular.</string>
+    <string name="settings_no_browser">No hay un navegador para abrir el enlace.</string>
+
+    <string name="licences_title">LICENCIAS</string>
+    <string name="licences_back_cd">Volver a ajustes</string>
+    <string name="licences_intro">DinoGym está hecho con estas fuentes y bibliotecas. Toca una para leer su licencia.</string>
+    <string name="licences_fonts_label">FUENTES</string>
+    <string name="licences_libraries_label">BIBLIOTECAS</string>
+    <string name="licences_public_domain">Dominio público</string>
+    <string name="licences_show_cd">Mostrar licencia</string>
+    <string name="licences_hide_cd">Ocultar licencia</string>
+    <string name="licences_open_cd">Abrir la licencia en el navegador</string>
+</resources>

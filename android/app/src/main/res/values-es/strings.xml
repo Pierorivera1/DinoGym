@@ -30,4 +30,45 @@
     <string name="cd_close">Cerrar</string>
     <string name="cd_one_less_rep">Una repetición menos</string>
     <string name="cd_one_more_rep">Una repetición más</string>
+
+    <!-- Stats (task 9) -->
+    <string name="stats_tab_history">HISTORIAL</string>
+    <string name="stats_tab_progress">PROGRESO</string>
+    <plurals name="stats_best_tag">
+        <item quantity="one">▲ %d RÉCORD</item>
+        <item quantity="many">▲ %d RÉCORDS</item>
+        <item quantity="other">▲ %d RÉCORDS</item>
+    </plurals>
+    <string name="stats_row_meta">%1$s · %2$s</string>
+    <string name="stats_open_session_cd">Abrir %1$s, %2$s</string>
+    <string name="stats_history_empty">Aún no hay entrenos. Termina uno y aparecerá aquí, por mes.</string>
+    <string name="stats_progress_empty">No hay ejercicios que mostrar. Añade uno en Ejercicios.</string>
+    <string name="stats_progress_best">Mejor serie 1</string>
+    <string name="stats_progress_none">Sin series aún</string>
+    <string name="stats_open_progress_cd">Progreso de %1$s</string>
+
+    <string name="session_delete_cd">Borrar este entreno</string>
+    <string name="session_sub">%1$s · %2$s · %3$s</string>
+    <string name="session_help">Toca una serie para cambiarla. Toca un nombre para ver su progreso.</string>
+    <string name="session_set_chip">S%1$d</string>
+    <string name="session_set_cd">Serie %1$d, %2$s</string>
+    <string name="session_new_best">▲ Récord en la serie 1</string>
+    <string name="session_delete_title">¿Borrar entreno?</string>
+    <string name="session_delete_body">Este entreno y sus series se borran, y el progreso se vuelve a calcular. El ciclo del programa no retrocede.</string>
+    <string name="session_missing">Este entreno fue borrado.</string>
+
+    <string name="progress_title">PROGRESO</string>
+    <string name="progress_sub_reps">Serie 1 · reps</string>
+    <string name="progress_sub_kg">Serie 1 · kg × reps</string>
+    <string name="progress_best">MEJOR</string>
+    <string name="progress_gain">AVANCE</string>
+    <string name="progress_records">RÉCORDS</string>
+    <string name="progress_chart_label">MEJOR SERIE 1 EN EL TIEMPO</string>
+    <string name="progress_chart_cd">Mejor serie 1 en %1$s: %2$s</string>
+    <string name="progress_chart_point">%1$s el %2$s</string>
+    <string name="progress_newest">MÁS RECIENTE PRIMERO</string>
+    <string name="progress_first">PRIMERO</string>
+    <string name="progress_rule">Solo cuenta la serie 1. Un día aparece cuando supera tu mejor marca.</string>
+    <string name="progress_empty">Aún no hay series de %1$s. Su progreso empieza con el primer entreno que la registre.</string>
+    <string name="progress_missing">Este ejercicio ya no existe.</string>
 </resources>

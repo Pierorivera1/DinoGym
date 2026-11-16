@@ -58,6 +58,8 @@ android {
 
     buildFeatures {
         compose = true
+        // BuildConfig.VERSION_NAME and VERSION_CODE, shown in Settings.
+        buildConfig = true
     }
 
     androidResources {

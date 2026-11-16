@@ -8,7 +8,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 /**
  * The summary as a navigation entry: creates [SummaryViewModel] for [sessionId] and shows
  * [SummaryScreen]. FINISH goes Home; EDIT is handed to the shell ([onEditSession]), which
- * will open the past-session editor once the Stats screens exist.
+ * opens the past session (Stats), where sets can be changed.
  */
 @Composable
 fun SummaryEntry(
