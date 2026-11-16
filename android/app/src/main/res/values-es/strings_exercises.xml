@@ -6,7 +6,7 @@
     <string name="exercises_new_name">Nuevo ejercicio</string>
     <string name="exercises_filter_active">ACTIVOS · %1$d</string>
     <string name="exercises_filter_archived">ARCHIVADOS · %1$d</string>
-    <string name="exercises_empty_active">Todavía no hay ejercicios. Toca NUEVO para agregar uno.</string>
+    <string name="exercises_empty_active">Aún no hay ejercicios. Toca NUEVO para agregar uno.</string>
     <string name="exercises_empty_archived">No hay nada archivado. Un ejercicio archivado conserva su historial y vuelve con RESTAURAR.</string>
 
     <string name="exercise_edit_title">EDITAR EJERCICIO</string>
@@ -29,7 +29,7 @@
     <string name="exercise_kind_reps">REPS</string>
     <string name="exercise_kind_pattern">PATRÓN</string>
     <string name="exercise_kind_show_only">SIN REGISTRO</string>
-    <string name="exercise_kind_show_only_help">Aparece en la rutina pero no se registra, como saltar soga al final de Legs.</string>
+    <string name="exercise_kind_show_only_help">Aparece en la rutina pero no se registra, como saltar soga al final de Pierna.</string>
     <string name="exercise_pattern_label">PATRÓN</string>
     <string name="exercise_pattern_help">{n} es el número que registras. Se ve así:</string>
     <string name="exercise_pattern_error">Pon {n} donde va el número que registras. Hasta entonces se queda el último patrón con {n}.</string>

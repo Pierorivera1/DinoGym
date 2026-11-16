@@ -42,7 +42,7 @@
     <string name="stats_row_meta">%1$s · %2$s</string>
     <string name="stats_open_session_cd">Abrir %1$s, %2$s</string>
     <string name="stats_history_empty">Aún no hay entrenos. Termina uno y aparecerá aquí, por mes.</string>
-    <string name="stats_progress_empty">No hay ejercicios que mostrar. Añade uno en Ejercicios.</string>
+    <string name="stats_progress_empty">No hay ejercicios que mostrar. Agrega uno en Ejercicios.</string>
     <string name="stats_progress_best">Mejor serie 1</string>
     <string name="stats_progress_none">Sin series aún</string>
     <string name="stats_open_progress_cd">Progreso de %1$s</string>
@@ -69,6 +69,6 @@
     <string name="progress_newest">MÁS RECIENTE PRIMERO</string>
     <string name="progress_first">PRIMERO</string>
     <string name="progress_rule">Solo cuenta la serie 1. Un día aparece cuando supera tu mejor marca.</string>
-    <string name="progress_empty">Aún no hay series de %1$s. Su progreso empieza con el primer entreno que la registre.</string>
+    <string name="progress_empty">Aún no hay series de %1$s. Su progreso empieza con el primer entreno en que lo registres.</string>
     <string name="progress_missing">Este ejercicio ya no existe.</string>
 </resources>

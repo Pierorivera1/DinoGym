@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="timer_channel_running">Temporizador de descanso</string>
-    <string name="timer_channel_running_description">La cuenta atrás mientras descansas. Sin sonido.</string>
+    <string name="timer_channel_running_description">La cuenta regresiva mientras descansas. Sin sonido.</string>
     <string name="timer_channel_over">Fin del descanso</string>
     <string name="timer_channel_over_description">Suena y vibra cuando termina un descanso.</string>
 

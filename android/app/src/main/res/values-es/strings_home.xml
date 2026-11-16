@@ -4,9 +4,9 @@
 
     <string name="home_bubble_next">Hoy toca %1$s.</string>
     <string name="home_bubble_next_with_last">Hoy toca %1$s. La última vez hiciste %2$d %3$s en la serie 1.</string>
-    <string name="home_bubble_resume">Tu entreno %1$s sigue abierto. Sigue donde lo dejaste.</string>
+    <string name="home_bubble_resume">Tu entreno de %1$s sigue abierto. Retómalo donde lo dejaste.</string>
     <string name="home_bubble_rest">Día de descanso. Recupérate y márcalo como hecho.</string>
-    <string name="home_bubble_empty_cycle">Este programa aún no tiene pasos. Añade rutinas en Programas.</string>
+    <string name="home_bubble_empty_cycle">Este programa aún no tiene pasos. Agrega rutinas en Programas.</string>
     <string name="home_bubble_no_program">No hay un programa activo. Elige uno en Programas.</string>
 
     <string name="home_program_step">%1$s · %2$d DE %3$d</string>

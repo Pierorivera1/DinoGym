@@ -30,7 +30,7 @@
     <string name="bw_newest_first">MÁS RECIENTE PRIMERO</string>
     <string name="bw_delete_cd">Borrar pesaje del %1$s</string>
     <string name="bw_deleted">Pesaje borrado: %1$s kg (%2$s)</string>
-    <string name="bw_empty">Aún no hay pesajes. Toca REGISTRAR PESO para añadir el de hoy.</string>
+    <string name="bw_empty">Aún no hay pesajes. Toca REGISTRAR PESO para agregar el de hoy.</string>
     <string name="bw_sheet_log_title">REGISTRAR PESO</string>
     <string name="bw_sheet_goal_title">PESO OBJETIVO</string>
     <string name="bw_date_label">FECHA</string>

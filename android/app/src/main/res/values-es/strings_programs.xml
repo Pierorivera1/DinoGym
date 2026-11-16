@@ -22,8 +22,8 @@
     <string name="programs_cd_edit_program">Editar %1$s</string>
     <string name="programs_cd_edit_program_active">Editar %1$s, activo</string>
     <string name="programs_cd_edit_routine">Editar rutina %1$s</string>
-    <string name="programs_empty">Todavía no hay programas. Toca NUEVO para crear uno.</string>
-    <string name="routines_empty">Todavía no hay rutinas. Toca NUEVA para crear una.</string>
+    <string name="programs_empty">Aún no hay programas. Toca NUEVO para crear uno.</string>
+    <string name="routines_empty">Aún no hay rutinas. Toca NUEVA para crear una.</string>
     <string name="programs_new_name">Nuevo programa</string>
     <string name="routines_new_name">Nueva rutina</string>
 
@@ -34,7 +34,7 @@
     <string name="program_missing">Este programa ya no existe.</string>
     <string name="program_saves">Los cambios se guardan solos.</string>
     <string name="program_name_label">NOMBRE</string>
-    <string name="program_name_error">Ponle un nombre. Hasta entonces queda el anterior.</string>
+    <string name="program_name_error">Ponle un nombre. Hasta entonces se queda el anterior.</string>
     <string name="program_type_label">TIPO</string>
     <string name="program_type_gym">GYM</string>
     <string name="program_type_calisthenics">CALISTENIA</string>
@@ -45,7 +45,7 @@
         <item quantity="many">%d PASOS, LUEGO SE REPITE</item>
         <item quantity="other">%d PASOS, LUEGO SE REPITE</item>
     </plurals>
-    <string name="program_cycle_empty">Todavía no hay pasos. Agrega una rutina o un descanso.</string>
+    <string name="program_cycle_empty">Aún no hay pasos. Agrega una rutina o un descanso.</string>
     <string name="program_rest_day">Descanso</string>
     <string name="program_add_routine">RUTINA</string>
     <string name="program_add_rest">DESCANSO</string>
@@ -60,25 +60,25 @@
     <string name="program_cd_remove_step">Quitar paso %1$d, %2$s</string>
     <string name="program_undo_step">Paso quitado: %1$s</string>
     <string name="program_pick_routine_title">AGREGAR RUTINA</string>
-    <string name="program_pick_routine_help">Agrega un paso al final del ciclo.</string>
+    <string name="program_pick_routine_help">Se agrega un paso al final del ciclo.</string>
     <string name="program_pick_new_routine">NUEVA RUTINA</string>
     <string name="program_delete_title">¿BORRAR PROGRAMA?</string>
-    <string name="program_delete_body">%1$s y su ciclo se borran. Las rutinas y el historial quedan.</string>
-    <string name="program_delete_body_active">%1$s y su ciclo se borran. Las rutinas y el historial quedan. Ningún programa queda activo hasta que elijas uno.</string>
+    <string name="program_delete_body">%1$s y su ciclo se borran. Las rutinas y el historial de entrenos se quedan.</string>
+    <string name="program_delete_body_active">%1$s y su ciclo se borran. Las rutinas y el historial de entrenos se quedan. Ningún programa queda activo hasta que elijas uno.</string>
 
     <!-- Routine editor. -->
     <string name="routine_edit_title">EDITAR RUTINA</string>
     <string name="routine_delete_cd">Borrar rutina</string>
     <string name="routine_missing">Esta rutina ya no existe.</string>
     <string name="routine_name_label">NOMBRE</string>
-    <string name="routine_name_error">Ponle un nombre. Hasta entonces queda el anterior.</string>
+    <string name="routine_name_error">Ponle un nombre. Hasta entonces se queda el anterior.</string>
     <string name="routine_exercises_label">EJERCICIOS · %1$d</string>
     <plurals name="routine_sets_meta">
         <item quantity="one">%d SERIE</item>
         <item quantity="many">%d SERIES</item>
         <item quantity="other">%d SERIES</item>
     </plurals>
-    <string name="routine_empty">Todavía no hay ejercicios. Toca AGREGAR EJERCICIO.</string>
+    <string name="routine_empty">Aún no hay ejercicios. Toca AGREGAR EJERCICIO.</string>
     <string name="routine_item_meta">%1$s · descanso %2$s</string>
     <string name="routine_item_show_only">Solo se muestra, no se registra</string>
     <string name="routine_show_only_help">Este ejercicio se muestra en la rutina pero no se registra, así que no tiene series ni descanso.</string>
@@ -103,10 +103,10 @@
     <string name="routine_add_exercise">AGREGAR EJERCICIO</string>
     <string name="routine_undo_exercise">Quitaste %1$s</string>
     <string name="routine_delete_title">¿BORRAR RUTINA?</string>
-    <string name="routine_delete_body">%1$s se borra. Su historial queda.</string>
-    <string name="routine_delete_body_used">%1$s se borra y sus pasos salen del ciclo de %2$s. Su historial queda.</string>
-    <string name="routine_delete_blocked_title">ENTRENAMIENTO ABIERTO</string>
-    <string name="routine_delete_blocked_body">Hay un entrenamiento de %1$s abierto. Termínalo o descártalo en Inicio y luego borra la rutina.</string>
+    <string name="routine_delete_body">%1$s se borra. Su historial de entrenos se queda.</string>
+    <string name="routine_delete_body_used">%1$s se borra y sus pasos salen del ciclo de %2$s. Su historial de entrenos se queda.</string>
+    <string name="routine_delete_blocked_title">ENTRENO ABIERTO</string>
+    <string name="routine_delete_blocked_body">Hay un entreno de %1$s abierto. Termínalo o descártalo en Inicio y luego borra la rutina.</string>
     <string name="action_ok">OK</string>
     <string name="programs_list_and">%1$s y %2$s</string>
 
@@ -123,7 +123,7 @@
     <string name="picker_in_routine">EN LA RUTINA</string>
     <string name="picker_kind_reps">Reps</string>
     <string name="picker_kind_pattern">Patrón: %1$s</string>
-    <string name="picker_kind_show_only">Solo se muestra</string>
+    <string name="picker_kind_show_only">Sin registro</string>
     <string name="picker_new_exercise_named">NUEVO EJERCICIO “%1$s”</string>
     <string name="picker_new_exercise">NUEVO EJERCICIO</string>
     <string name="picker_new_help">¿No está en tu lista? Créalo aquí. Vuelve ya marcado.</string>
