@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
@@ -21,6 +23,21 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Release signing (decision in DECISIONS.md, "Release signing"). The keystore never enters
+    // git. The values come from environment variables (the release workflow sets them from
+    // GitHub secrets) or, on the owner's machine, from android/keystore.properties (git-ignored).
+    val signing = releaseSigning()
+    if (signing != null) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(signing.getValue("storeFile"))
+                storePassword = signing.getValue("storePassword")
+                keyAlias = signing.getValue("keyAlias")
+                keyPassword = signing.getValue("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         debug {
             // Lets a debug build and a release build install side by side.
@@ -28,6 +45,9 @@ android {
         }
         release {
             isMinifyEnabled = false
+            // Unsigned when no keystore is configured (CI builds on every push, lint), so
+            // only the release workflow and the owner's machine produce an installable APK.
+            signingConfig = signingConfigs.findByName("release")
         }
     }
 
@@ -116,4 +136,28 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.room.testing)
+}
+
+/**
+ * The release signing values, or null when none are configured (the build is then unsigned).
+ * Environment variables win: DINOGYM_KEYSTORE_FILE, DINOGYM_KEYSTORE_PASSWORD,
+ * DINOGYM_KEY_ALIAS, DINOGYM_KEY_PASSWORD. Otherwise android/keystore.properties with the keys
+ * storeFile, storePassword, keyAlias, keyPassword.
+ */
+fun releaseSigning(): Map<String, String>? {
+    val fromEnv = mapOf(
+        "storeFile" to System.getenv("DINOGYM_KEYSTORE_FILE"),
+        "storePassword" to System.getenv("DINOGYM_KEYSTORE_PASSWORD"),
+        "keyAlias" to System.getenv("DINOGYM_KEY_ALIAS"),
+        "keyPassword" to System.getenv("DINOGYM_KEY_PASSWORD"),
+    )
+    if (fromEnv.values.all { !it.isNullOrBlank() }) return fromEnv.mapValues { it.value!! }
+
+    val file = rootProject.file("keystore.properties")
+    if (!file.exists()) return null
+    val props = Properties().apply { file.inputStream().use { load(it) } }
+    val keys = listOf("storeFile", "storePassword", "keyAlias", "keyPassword")
+    val missing = keys.filter { props.getProperty(it).isNullOrBlank() }
+    require(missing.isEmpty()) { "keystore.properties is missing: ${missing.joinToString()}" }
+    return keys.associateWith { props.getProperty(it) }
 }
