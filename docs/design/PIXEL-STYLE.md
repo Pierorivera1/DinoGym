@@ -231,7 +231,7 @@ This spec comes from [WISHLIST.md](../WISHLIST.md), section "Body weight". Piero
 | Goal line and goal value | `select` `#F5D23A` (11.9:1) | Dark gold `#B07A00` (3.4:1, enough for a line; the goal value text uses `outline`). The pale yellow `#FBDA61` is only 1.25:1 on cream, so it is not used here |
 
 - **Header:** `BODY WEIGHT` in the display font. The goal shows as a pixel target icon plus the value (`77 kg`). `+ LOG` is a small secondary action button.
-- **Range control:** four boxed segments in one row. The selected segment is filled `select` with `outline` text, like a selected battle button. The labels are `1M / 3M / 1Y / ALL` and `1M / 3M / 1A / TODO` in Spanish, which still needs Piero's confirmation.
+- **Range control:** four boxed segments in one row. The selected segment is filled `select` with `outline` text, like a selected battle button. The labels are `1M / 3M / 1Y / ALL` and in Spanish `1M / 3M / 1A / TODO` (Spanish for "all"; `1A` = one year), which still needs Piero's confirmation.
 - **Line:** each weigh-in is joined to the next with pixel steps (Bresenham), not an anti-aliased stroke. The latest weigh-in is a 4×4 art-pixel square with a 1 art-pixel `outline` border, and when the chart first appears it blinks once, in steps.
 - **Goal line:** dashes 3 art pixels long with 2-pixel gaps, drawn above the fill and below the line. The goal value sits at its right end, in the display font.
 - **Tapping a point:** the mascot cursor jumps to it and a small window shows `12 Nov · 78.3 kg` (`12 nov · 78,3 kg` in Spanish: dates and decimals follow the phone's locale).
