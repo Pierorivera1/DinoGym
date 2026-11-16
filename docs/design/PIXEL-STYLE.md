@@ -203,7 +203,40 @@ Piero's direction (2026-11-16): the bottom bar uses the battle-button style for 
 
 ### Charts (progress)
 
-- A stepped line or block bars on a pixel grid, with no anti-aliased curves. Points are 2×2 art-pixel squares, and the axis labels use the display font.
+- A stepped line or block bars on a pixel grid, with no anti-aliased curves. Points are 2×2 art-pixel squares. Axis labels are small text, so they use the body font (decision 25).
+- Grid lines are dotted, 1 art pixel thick, in `text-muted` at low opacity. Charts use no smooth gradients: the fill under a line is a flat tint of the line colour, or a checkerboard dither of it.
+
+#### Body weight chart
+
+This spec comes from [WISHLIST.md](../WISHLIST.md), section "Body weight". Piero's reference screenshot from another app is used for the layout only, and its look is replaced by ours.
+
+```
+┌──────────────────────────────────────────────┐
+│ BODY WEIGHT              ◎ 77 kg   [+ LOG]  │  header: title (display), goal, button
+│ [ 1M ][▓3M▓][ 1Y ][ ALL ]                    │  segmented range control
+│ 82.5 ┊····┊··················┊·············  │
+│      ▀▀▄▄                                    │  stepped line, 2dp (1 art px)
+│ 80   ┊··░░▀▀▄▄▄▄··▄▀▄········┊·············  │  ░ = flat tint / dither fill
+│      ┊░░░░░░░░░░▀▀░░░▀▀▄▄▄▄▄▄▄▄              │
+│ 77.5 ┊░░░░░░░░░░░░░░░░░░░░░░░░░▀▀▄▄■        │  ■ = latest weigh-in, 4×4 art px
+│ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ 77    │  dashed goal line + value
+│      SEP              OCT               NOV  │  month labels (body font)
+└──────────────────────────────────────────────┘
+```
+
+| Part | Night | Day |
+|---|---|---|
+| Line and point | `primary` `#A98BFF` (6.6:1 on `surface`) | `primary` `#6B4FC8` (5.8:1 on `surface`) |
+| Fill under the line | `primary` at about 20%, flat | `primary` at about 15%, flat |
+| Goal line and goal value | `select` `#F5D23A` (11.9:1) | Dark gold `#B07A00` (3.4:1, enough for a line; the goal value text uses `outline`). The pale yellow `#FBDA61` is only 1.25:1 on cream, so it is not used here |
+
+- **Header:** `BODY WEIGHT` in the display font. The goal shows as a pixel target icon plus the value (`77 kg`). `+ LOG` is a small secondary action button.
+- **Range control:** four boxed segments in one row. The selected segment is filled `select` with `outline` text, like a selected battle button. The labels are `1M / 3M / 1Y / ALL` and `1M / 3M / 1A / TODO` in Spanish, which still needs Piero's confirmation.
+- **Line:** each weigh-in is joined to the next with pixel steps (Bresenham), not an anti-aliased stroke. The latest weigh-in is a 4×4 art-pixel square with a 1 art-pixel `outline` border, and when the chart first appears it blinks once, in steps.
+- **Goal line:** dashes 3 art pixels long with 2-pixel gaps, drawn above the fill and below the line. The goal value sits at its right end, in the display font.
+- **Tapping a point:** the mascot cursor jumps to it and a small window shows `12 Nov · 78.3 kg` (`12 nov · 78,3 kg` in Spanish: dates and decimals follow the phone's locale).
+- **Empty state:** a mascot text box: `* No weigh-ins yet. Tap + LOG to add today's.`
+- **Accessibility:** the chart has a text summary for screen readers, such as "Body weight, last 3 months: 82.0 to 78.3 kg, goal 77 kg".
 
 ## Motion and feedback
 
@@ -284,4 +317,17 @@ Still open:
 1. Piero reviews the mascot sprite and the open questions above.
 2. Build a font and colour test page with both themes, showing the real fonts, buttons, text box and stat bar.
 3. Write `docs/DESIGN.md` from the approved result.
-4. Make mocks of the workout-logging flow (decision 16).
+4. Make mocks for approval (decision 16). Each screen gets a mock in both themes and both languages.
+
+## Screens to mock
+
+In order. The list grows as the wishlist lands.
+
+1. Workout-logging flow: start workout, the active exercise with set entry, rest timer, finish and summary.
+2. Bottom navigation with the five tabs (part of every mock).
+3. Body weight chart and logging a weigh-in (see "Body weight chart" above).
+4. Home.
+5. Programs: plans, splits, editing a workout.
+6. Exercises: library, archive and restore.
+7. Stats: history by date, progress charts.
+8. Web: public routine page and dashboard.
