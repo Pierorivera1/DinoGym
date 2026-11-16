@@ -23,7 +23,7 @@ The app is one Gradle module with three layers, kept apart by package:
 io.github.pierorivera1.dinogym
 ├── domain/     pure Kotlin: models and rules (cycle, pre-fill, set-1 bests). No Android imports
 ├── data/       Room database, DAOs, repositories, first-run seed data
-├── timer/      rest timer: background notification and service
+├── timer/      rest timer: end time, countdown notification and alarm (decision 42)
 └── ui/
     ├── theme/      DinoTheme tokens, fonts, shapes (from DESIGN.md)
     ├── components/ buttons, text box, stat bar, stepper, cursor, bottom bar, icons

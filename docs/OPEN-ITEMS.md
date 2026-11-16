@@ -30,7 +30,6 @@ As of 2026-11-16. Remove an item when it is done or decided, and record decision
 ## To verify later
 
 - [ ] The AWS free-tier terms for a new account (AWS changed them in 2025); [WISHLIST.md](WISHLIST.md) assumes the always-free allowances
-- [ ] The foreground service type for the rest timer (`shortService` is capped at 3 minutes)
 - [ ] The r/bodyweightfitness Recommended Routine wiki against the mirror used in [research/exercise-selection.md](research/exercise-selection.md)
 
 - [ ] Google sign-in on the web dashboard accepts a `*.cloudfront.net` origin, since there is no custom domain
