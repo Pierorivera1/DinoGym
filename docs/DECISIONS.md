@@ -235,3 +235,15 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Why:** A new project should not start on a line that is already superseded, and the build should not depend on which JDK a machine happens to have.
 - **Rejected:** Room 2.8, which works but would need a migration to Room 3 later; holding AndroidX back to versions that accept compileSdk 36; relying on the JDK on the path (JDK 27 is newer than the Android tools are tested with).
 - **Cost of the choice:** Room 3 is newer, so there are fewer examples online than for Room 2.
+
+## 39. Theme and components: how the pixel look is built (2026-11-16)
+
+- **Decision:** Task 3 built the theme in `ui/theme/` and the shared components in `ui/components/`. The choices behind it:
+  - **Variable font files** for Pixelify Sans and Inter, with each weight pinned through `FontVariation`. Rejected: static files per weight, which need a font tool that is not installed. Cost: Inter adds about 860 KB to the APK.
+  - **Pixel art is snapped to whole screen pixels**, so icons and the mascot stay sharp on densities such as 2.625x. Rejected: plain vector scaling, which blurs the edges.
+  - **Our own border modifier** (`steppedBorder`) instead of Compose's `border()`, which fills in the cut corner pixel.
+  - **The typewriter draws the untyped text transparent**, so the text box never changes size and screen readers get the whole sentence. It is off when the system has animations disabled.
+  - **Home stays at the bottom of the back stack:** Back from any tab returns to Home, Back from Home leaves the app.
+  - **Screenshots with Roborazzi and Robolectric** (test-only libraries, added to the version catalog). The laptop cannot run an emulator (decision 15), so a JVM test renders the components and screens to PNG files for comparing against the mocks. The images are written on every unit-test run and are not compared automatically, because font rendering differs between machines. Rejected: Google's Compose screenshot plugin (still alpha); no visual check at all.
+- **Why:** These keep the look exact to DESIGN.md while staying inside the CPU limits.
+- **Icon source:** `docs/design/icons/gen_icons.py` generates the vector drawables from the 16×16 bitmaps.

@@ -1,0 +1,99 @@
+import sys, math
+from PIL import Image
+res = sys.argv[1]  # android/app/src/main/res
+I = {
+  'home': ['','.......##','......####','.....##..##','....##....##','...##......##','..##........##','.##..........##','...#........#','...#..####..#','...#..#..#..#','...#..#..#..#','...#..#..#..#','...####..####'],
+  'programs': ['','.....######','..####....####','..#..######..#','..#..........#','..#.##.#####.#','..#..........#','..#.##.#####.#','..#..........#','..#.##.#####.#','..#..........#','..#.##.###...#','..#..........#','..############'],
+  'start': ['','','....#','....###','....#####','....#######','....#########','....##########','....##########','....#########','....#######','....#####','....###','....#'],
+  'stats': ['','','...........##','...........##','.......##..##','.......##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','...##..##..##','.##############'],
+  'exercises': ['','','','..##........##','.###........###','.###........###','.##############','.##############','.###........###','.###........###','..##........##'],
+  'check': ['','','..............##','.............###','............###','...........###','.##........###','.###......###','..###....###','...###..###','....######','.....####','......##'],
+  'timer': ['','......####','.....######','....##....##','...#...##...#','..#....##....#','..#....##....#','..#....####..#','..#..........#','..#..........#','...#........#','....##....##','.....######'],
+  'plus': ['','','','','.......##','.......##','.......##','...##########','...##########','.......##','.......##','.......##'],
+  'minus': ['','','','','','','','...##########','...##########'],
+  'close': ['','','...##......##','....##....##','.....##..##','......####','......####','.....##..##','....##....##','...##......##'],
+  'edit': ['','..........##','.........####','........####','.......####','......####','.....####','....####','...####','...###','...##'],
+  'skip': ['','','','..#....#....##','..##...##...##','..###..###..##','..####.####.##','..###..###..##','..##...##...##','..#....#....##'],
+  'pull': ['################','.##..........##','.....##..##','.....#.##.#','.......##','......####','.....#.##.#','.......##','.......##','......#..#','......#..#','.....##..##'],
+}
+
+
+def f(v):
+    return '%g' % round(v, 3)
+
+
+def runs(grid_rows, scale=1.0, ox=0.0, oy=0.0):
+    """Merge each row's filled cells into horizontal runs: one subpath per run."""
+    d = []
+    for y, r in enumerate(grid_rows):
+        x = 0
+        while x < len(r):
+            if r[x]:
+                s = x
+                while x < len(r) and r[x]:
+                    x += 1
+                w = f((x - s) * scale)
+                d.append('M%s,%sh%sv%sh-%sz' % (f(ox + s * scale), f(oy + y * scale), w, f(scale), w))
+            else:
+                x += 1
+    return ''.join(d)
+
+
+for name, rows in I.items():
+    grid = [[c == '#' for c in r] for r in rows]
+    xml = ('<?xml version="1.0" encoding="utf-8"?>\n'
+           '<!-- 16x16 pixel icon "%s", redrawn from Main.dc.html. Tinted in code; the fill is a placeholder. -->\n'
+           '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n'
+           '    android:width="32dp"\n    android:height="32dp"\n'
+           '    android:viewportWidth="16"\n    android:viewportHeight="16">\n'
+           '    <path\n        android:fillColor="#FF000000"\n        android:pathData="%s" />\n'
+           '</vector>\n') % (name, runs(grid))
+    open('%s/drawable/ic_px_%s.xml' % (res, name), 'w').write(xml)
+
+# Launcher foreground from the 32x32 mascot.
+img = Image.open(sys.argv[2]).convert('RGBA')
+W, H = img.size
+px = img.load()
+
+
+def fits(scale):
+    """True when every opaque pixel sits inside the 66dp safe circle of the 108dp canvas."""
+    ox = 54 - W * scale / 2
+    oy = 54 - H * scale / 2
+    for y in range(H):
+        for x in range(W):
+            if px[x, y][3] == 0:
+                continue
+            for cx in (x, x + 1):
+                for cy in (y, y + 1):
+                    if math.hypot(ox + cx * scale - 54, oy + cy * scale - 54) > 33:
+                        return False
+    return True
+
+
+scale = 3.0
+while not fits(scale):
+    scale -= 0.05
+scale = math.floor(scale * 4) / 4
+assert fits(scale)
+ox = 54 - W * scale / 2
+oy = 54 - H * scale / 2
+colors = []
+for y in range(H):
+    for x in range(W):
+        p = px[x, y]
+        if p[3] and p not in colors:
+            colors.append(p)
+paths = []
+for c in colors:
+    grid = [[px[x, y] == c for x in range(W)] for y in range(H)]
+    hexc = '#%02X%02X%02X' % c[:3] if c[3] == 255 else '#%02X%02X%02X%02X' % (c[3], c[0], c[1], c[2])
+    paths.append('    <path\n        android:fillColor="%s"\n        android:pathData="%s" />\n' % (hexc, runs(grid, scale, ox, oy)))
+xml = ('<?xml version="1.0" encoding="utf-8"?>\n'
+       '<!-- Dinocito launcher foreground, traced from docs/design/mascot/mascot-32.png.\n'
+       '     One art pixel = %sdp, so every opaque pixel sits inside the 66dp adaptive-icon safe zone. -->\n'
+       '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n'
+       '    android:width="108dp"\n    android:height="108dp"\n'
+       '    android:viewportWidth="108"\n    android:viewportHeight="108">\n%s</vector>\n') % (f(scale), ''.join(paths))
+open('%s/drawable/ic_launcher_foreground.xml' % res, 'w').write(xml)
+print('scale', scale, 'colors', len(colors))
