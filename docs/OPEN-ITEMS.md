@@ -21,7 +21,7 @@ As of 2026-11-16. Remove an item when it is done or decided, and record decision
 ## Still to decide
 
 - [ ] The architecture write-up and the order we build in (the next step)
-- [ ] The UI direction, then mock screens for approval (in progress in the Design thread). Style chosen (decision 21); draft in [design/PIXEL-STYLE.md](design/PIXEL-STYLE.md) awaits review; then a font/colour test page, `DESIGN.md`, and mocks
+- [ ] The UI direction, then mock screens for approval (in progress in the Design thread). Style chosen (decisions 21 and 25); next: a font and colour test page, then `DESIGN.md`, then mocks
 - [ ] The sync design: how conflicts between devices are resolved
 - [ ] The DynamoDB data model
 - [ ] The Android package name (it must differ from version 1's so both can be installed)

@@ -144,3 +144,10 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Why:** The shortest and most widely recognized permissive license. Anyone can read, reuse and learn from the code, which suits a public resume project.
 - **Rejected:** Apache-2.0. Its explicit patent grant matters little for a personal app, and it is longer.
 
+
+## 25. Style details: themes, fonts, navigation, mascot (2026-11-16)
+
+- **Decision:** The dark theme follows Undertale, and the light theme follows pastel pixel art. The app has the game look only, with no streaks, levels or XP. Pixelify Sans is used only for short, big text (titles, buttons, navigation labels, big numbers), and Inter for everything people read. Both are OFL and bundled in the app and on the web. The bottom bar uses battle-style boxed buttons for Home, Programs, Start (centre, raised) and Stats, plus Exercises. The mascot is a round yellow blob redrawn as a 32×32 sprite (`docs/design/mascot/`), not a dino.
+- **Why:** Piero's answers to the first style questions. Readability while training matters more than an all-pixel look. Game mechanics would add features without helping someone log a workout.
+- **Rejected:** A pixel font for all text, which tires the eyes in long text. Streaks and `LV`/`HP` stats. Material Symbols mixed with pixel icons. A dino mascot.
+- **Still open:** The Spanish label for STATS, the mascot's name and where the mascot comes from (see `docs/design/PIXEL-STYLE.md`).
