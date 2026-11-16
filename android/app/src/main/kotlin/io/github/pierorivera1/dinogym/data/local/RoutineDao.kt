@@ -5,12 +5,37 @@ import androidx.room3.Insert
 import androidx.room3.Query
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * A routine with its size, for the Programs list ("6 exercises · 14 sets"). Show-only
+ * exercises count as exercises but their sets do not, as on Home.
+ */
+data class RoutineSummaryRow(
+    val id: String,
+    val name: String,
+    val exerciseCount: Int,
+    val setCount: Int,
+)
+
 /** Routines and the exercises inside them. Every read skips soft-deleted rows. */
 @Dao
 interface RoutineDao {
 
     @Query("SELECT * FROM routine WHERE deletedAt IS NULL ORDER BY name COLLATE NOCASE")
     fun observeAll(): Flow<List<RoutineEntity>>
+
+    @Query(
+        """
+        SELECT r.id, r.name, COUNT(re.id) AS exerciseCount,
+            COALESCE(SUM(CASE WHEN e.kind = 'SHOW_ONLY' THEN 0 ELSE re.sets END), 0) AS setCount
+        FROM routine r
+        LEFT JOIN routine_exercise re ON re.routineId = r.id AND re.deletedAt IS NULL
+        LEFT JOIN exercise e ON e.id = re.exerciseId
+        WHERE r.deletedAt IS NULL
+        GROUP BY r.id
+        ORDER BY r.name COLLATE NOCASE
+        """,
+    )
+    fun observeSummaries(): Flow<List<RoutineSummaryRow>>
 
     @Query("SELECT * FROM routine WHERE id = :id AND deletedAt IS NULL")
     fun observeById(id: String): Flow<RoutineEntity?>
@@ -61,6 +86,10 @@ interface RoutineDao {
 
     @Query("UPDATE routine_exercise SET deletedAt = :now, updatedAt = :now WHERE id = :id")
     suspend fun softDeleteItem(id: String, now: Long)
+
+    /** UNDO of a removed exercise: the row comes back at [position]. */
+    @Query("UPDATE routine_exercise SET deletedAt = NULL, position = :position, updatedAt = :now WHERE id = :id")
+    suspend fun restoreItem(id: String, position: Int, now: Long)
 
     @Query("UPDATE routine_exercise SET deletedAt = :now, updatedAt = :now WHERE routineId = :routineId AND deletedAt IS NULL")
     suspend fun softDeleteItemsOfRoutine(routineId: String, now: Long)

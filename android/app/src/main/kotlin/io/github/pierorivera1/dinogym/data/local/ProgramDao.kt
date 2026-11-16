@@ -39,6 +39,9 @@ interface ProgramDao {
     @Query("UPDATE program SET name = :name, updatedAt = :now WHERE id = :id")
     suspend fun rename(id: String, name: String, now: Long)
 
+    @Query("UPDATE program SET type = :type, updatedAt = :now WHERE id = :id")
+    suspend fun setType(id: String, type: String, now: Long)
+
     @Query("UPDATE program SET deletedAt = :now, isActive = 0, updatedAt = :now WHERE id = :id")
     suspend fun softDelete(id: String, now: Long)
 
@@ -63,6 +66,28 @@ interface ProgramDao {
     )
     fun observeCycle(programId: String): Flow<List<CycleStepRow>>
 
+    /** Every step of every program, for the Programs list (soft-deleted programs have no live steps). */
+    @Query(
+        """
+        SELECT c.id, c.programId, c.position, c.routineId, r.name AS routineName
+        FROM cycle_step c LEFT JOIN routine r ON r.id = c.routineId
+        WHERE c.deletedAt IS NULL
+        ORDER BY c.programId, c.position
+        """,
+    )
+    fun observeAllCycles(): Flow<List<CycleStepRow>>
+
+    /** Names of the programs whose cycle uses the routine, once each, sorted; for the delete dialog. */
+    @Query(
+        """
+        SELECT DISTINCT p.name FROM program p
+        JOIN cycle_step c ON c.programId = p.id
+        WHERE c.routineId = :routineId AND c.deletedAt IS NULL AND p.deletedAt IS NULL
+        ORDER BY p.name COLLATE NOCASE
+        """,
+    )
+    fun observeProgramNamesUsingRoutine(routineId: String): Flow<List<String>>
+
     @Query("SELECT * FROM cycle_step WHERE programId = :programId AND deletedAt IS NULL ORDER BY position")
     suspend fun getCycle(programId: String): List<CycleStepEntity>
 
@@ -80,6 +105,10 @@ interface ProgramDao {
 
     @Query("UPDATE cycle_step SET deletedAt = :now, updatedAt = :now WHERE id = :id")
     suspend fun softDeleteStep(id: String, now: Long)
+
+    /** UNDO of a removed step: the row comes back at [position]. */
+    @Query("UPDATE cycle_step SET deletedAt = NULL, position = :position, updatedAt = :now WHERE id = :id")
+    suspend fun restoreStep(id: String, position: Int, now: Long)
 
     @Query("UPDATE cycle_step SET deletedAt = :now, updatedAt = :now WHERE programId = :programId AND deletedAt IS NULL")
     suspend fun softDeleteStepsOfProgram(programId: String, now: Long)
