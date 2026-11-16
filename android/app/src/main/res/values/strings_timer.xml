@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Rest timer notifications (timer/RestNotifier.kt). %1$s is what comes next, for example "Pull-ups, set 2 of 2". -->
+<resources>
+    <string name="timer_channel_running">Rest timer</string>
+    <string name="timer_channel_running_description">The countdown while you rest. Silent.</string>
+    <string name="timer_channel_over">Rest over</string>
+    <string name="timer_channel_over_description">Sounds and vibrates when a rest ends.</string>
+
+    <string name="timer_notification_running">Rest: next up %1$s</string>
+    <string name="timer_notification_running_plain">Rest</string>
+    <string name="timer_notification_over">Rest over. Next: %1$s</string>
+    <string name="timer_notification_over_plain">Rest over</string>
+</resources>

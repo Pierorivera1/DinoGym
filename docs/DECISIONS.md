@@ -275,3 +275,11 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
   - **Settings opens from a gear button on Home's header.** This changes the approved Home mock. Rejected: a sixth tab in the bottom bar.
   - **The bottom bar shows only on the four tab screens.** Editors and detail screens have a top bar with back.
 - **Why:** Building from mocks keeps the screens consistent with the approved style even when the owner has not seen each one.
+
+## 42. Rest timer without a foreground service (2026-11-16)
+
+- **Decision:** A rest is stored as an end time. While it runs, an ongoing silent notification shows a system countdown to that time. An exact alarm (`AlarmManager.setAlarmClock`) fires at the end and posts a "rest over" notification with sound and vibration, unless the app is on screen. The end time is saved in DataStore, so the rest survives the app being killed.
+- **Why:** The timer must stay right with the screen off. A notification countdown and an alarm are handled by the system, so they keep working when the app's process is asleep or dead, and they use no battery in between. `setAlarmClock` is never delayed by Doze; the other exact alarm call is rate-limited to about one a minute, which back-to-back rests would hit. The cost is a small alarm icon in the status bar during a rest.
+- **Permissions:** `POST_NOTIFICATIONS`; `USE_EXACT_ALARM` on Android 13 and later, `SCHEDULE_EXACT_ALARM` on Android 12. Google Play limits `USE_EXACT_ALARM` to alarm, timer and calendar apps; the app ships through GitHub Releases (decision 8), and this needs a second look if it ever goes to Play.
+- **Rejected:** A foreground service. The `shortService` type stops after 3 minutes and rests go up to 9:00; the `specialUse` and `health` types need declarations or permissions the app has no other use for; and a service would still need an alarm or a wake lock to fire on time in Doze.
+- **Not handled:** A reboot during a rest drops the alarm. A rest lasts at most 9 minutes, and the next app start clears it.

@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Rest timer (timer/). The rest screen asks for this at runtime on Android 13+. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- The end-of-rest alarm. USE_EXACT_ALARM (API 33+) is granted at install and cannot be
+         revoked; Play limits it to alarm and timer apps, and this app ships on GitHub Releases. -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <!-- API 31-32 have no USE_EXACT_ALARM; there this one is granted by default. -->
+    <uses-permission
+        android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        android:maxSdkVersion="32" />
+
     <application
         android:name=".DinoGymApp"
         android:allowBackup="false"
@@ -17,6 +27,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Fired by AlarmManager at the end of a rest. Not exported: only our alarm reaches it. -->
+        <receiver
+            android:name=".timer.RestOverReceiver"
+            android:exported="false" />
     </application>
 
 </manifest>

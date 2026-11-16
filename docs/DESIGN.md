@@ -142,7 +142,7 @@ These record behaviour shown in the approved mocks.
 - **Home:** text box with the next routine and the last set-1 result for it; the Up next card lists every exercise as `sets × reps`; an edit button on the card opens the routine editor (fixes the version 1 complaint about finding edit); START and SKIP; cycle strip; last workout row.
 - **Active exercise:** top bar with ✕ (end), routine name and elapsed time; `EXERCISE n/N` stat bar; exercise tile, name and `sets × reps · last time`; done sets as set rows; the active set card pre-filled with last session's number; LOG SET; a row of rest time (opens the picker), NOTE and SKIP; NEXT exercise at the bottom. The weight field appears only for Gym programs or when turned on for the exercise (decision 26).
 - **Rest time picker:** opened from the rest button. Applies to that exercise in that routine. Shortcuts: 1:30 isolation, 2:30 compound (TRAINING.md defaults).
-- **Rest timer:** `numberXl` timer, 10-block bar, −15s / +15s, mascot text box with what comes next, SKIP REST, and a note that it keeps running with the screen off (foreground service).
+- **Rest timer:** `numberXl` timer, 10-block bar, −15s / +15s, mascot text box with what comes next, SKIP REST, and a note that it keeps running with the screen off (a notification countdown and an alarm, decision 42).
 - **Summary:** title, routine and duration, text box naming any new best, TIME / SETS / BESTS panels, set-1 reps per exercise against last time (`=` or `▲ +n`), next step in the cycle, EDIT and FINISH.
 
 These record behaviour shown in the mocks of 2026-11-16 that await review:
