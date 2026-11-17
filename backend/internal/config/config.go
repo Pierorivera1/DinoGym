@@ -16,6 +16,8 @@ type Config struct {
 	LogLevel slog.Level
 	// Telemetry is "otlp", "console" or "none" (decision 63).
 	Telemetry string
+	// Table is the DynamoDB table (decision 52).
+	Table string
 }
 
 // Load reads the settings through getenv, normally os.Getenv.
@@ -25,10 +27,12 @@ type Config struct {
 //	DINOGYM_LOG_LEVEL  DEBUG, INFO, WARN, ERROR; default WARN in prod, DEBUG elsewhere
 //	DINOGYM_TELEMETRY  otlp, console, none; default otlp when OTEL_EXPORTER_OTLP_ENDPOINT
 //	                   is set, otherwise none
+//	DINOGYM_TABLE      DynamoDB table name, default dinogym
 func Load(getenv func(string) string) (Config, error) {
 	c := Config{
-		Env:  orDefault(getenv("DINOGYM_ENV"), "local"),
-		Addr: orDefault(getenv("DINOGYM_ADDR"), "127.0.0.1:8080"),
+		Env:   orDefault(getenv("DINOGYM_ENV"), "local"),
+		Addr:  orDefault(getenv("DINOGYM_ADDR"), "127.0.0.1:8080"),
+		Table: orDefault(getenv("DINOGYM_TABLE"), "dinogym"),
 	}
 	switch c.Env {
 	case "local", "staging", "prod":

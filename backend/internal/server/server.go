@@ -12,6 +12,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
 	"github.com/Pierorivera1/DinoGym/backend/internal/api"
+	"github.com/Pierorivera1/DinoGym/backend/internal/store"
 )
 
 // MaxBodyBytes caps a request body. A full push of 500 rows is well under it.
@@ -23,14 +24,15 @@ var ErrNotImplemented = errors.New("not implemented")
 
 // Server answers the API's operations.
 type Server struct {
-	log *slog.Logger
+	log   *slog.Logger
+	store *store.Store // used by sync in task 21
 }
 
 var _ api.StrictServerInterface = (*Server)(nil)
 
-// New returns a Server that logs to log.
-func New(log *slog.Logger) *Server {
-	return &Server{log: log}
+// New returns a Server that logs to log and keeps synced rows in st.
+func New(log *slog.Logger, st *store.Store) *Server {
+	return &Server{log: log, store: st}
 }
 
 func (s *Server) GetHealth(context.Context, api.GetHealthRequestObject) (api.GetHealthResponseObject, error) {

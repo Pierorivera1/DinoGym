@@ -33,7 +33,8 @@ As of 2026-11-17. Remove an item when it is done or decided, and record decision
 
 ## State of the build
 
+- Task 16: the Go API (`backend/`) runs as one binary on the laptop and on Lambda, with OpenTelemetry (decisions 63–64). Its DynamoDB store applies the sync rules and is tested on the emulator, as are SQS, S3 and Scheduler (decision 65). Sign-in and sync still answer 501 until tasks 20 and 21. The integration tests run only on the laptop until CI starts the emulator in task 18.
 - Task 15: the API contract is `api/openapi.yaml`. It generates the Kotlin client (`android/api-client`) and the Go server interfaces (`backend/internal/api`); see decisions 60–62. Token formats for `/auth/*` are settled in task 20.
 - Task 14: the AWS Emulator 1.0.491 runs in Docker; DynamoDB, SQS, S3, Scheduler and Terraform (provider 6.22.0) work on it; the Go Lambda cannot run on it ([WORKFLOW.md](WORKFLOW.md)).
-- Task 12 decided the cloud items: sync (51), DynamoDB model (52), region (53), secrets (54), FCM auth (55). Still open in sync: concurrent pushes taking change numbers out of order (decision 51, task 21).
+- Task 12 decided the cloud items: sync (51), DynamoDB model (52), region (53), secrets (54), FCM auth (55). Still open in sync: concurrent pushes taking change numbers out of order, and the sync index lagging behind a write (decisions 51 and 65, task 21).
 - Part 1 (tasks 1–10) and Part 2 (task 11) are done; progress is tracked in [TASKS.md](TASKS.md). The first release is tagged from `main` as described in [RELEASE.md](RELEASE.md). `docs/design/references/` (third-party art) is git-ignored and stays local.

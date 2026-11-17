@@ -26,7 +26,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Language | Go |
 | Compute | AWS Lambda, deployed as a zipped binary (no Docker image). The same binary runs as a local HTTP server (decision 63) |
 | HTTP entry | API Gateway (HTTP API) |
-| Database | DynamoDB |
+| Database | DynamoDB, through the AWS SDK for Go v2; one table with one sync index (decisions 52 and 65) |
 | Files | S3 |
 | Queues | SQS |
 | Scheduled jobs | EventBridge Scheduler (reminders, weekly summaries) |
@@ -54,7 +54,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Google Cloud access (FCM) | Workload identity federation from the Lambda's AWS role, no key |
 | CI/CD | GitHub Actions |
 | AWS access from CI | OIDC, no stored keys |
-| Local AWS | AWS Emulator 1.0.491, run in Docker from a pinned image (see [WORKFLOW.md](WORKFLOW.md)) |
+| Local AWS | AWS Emulator 1.0.491, run in Docker from a pinned image (see [WORKFLOW.md](WORKFLOW.md)); Go integration tests run against it (decisions 59 and 65) |
 | Cost control | AWS budget alarm |
 | Domain | None; API Gateway and CloudFront default URLs |
 
@@ -62,7 +62,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 
 | Concern | Choice |
 |---|---|
-| Instrumentation | OpenTelemetry Go SDK in the backend, exported over OTLP/HTTP and flushed after every Lambda invocation (decision 64) |
+| Instrumentation | OpenTelemetry Go SDK in the backend, exported over OTLP/HTTP and flushed after every Lambda invocation (decision 64); AWS calls traced with `otelaws` (decision 65) |
 | Backend for traces, metrics, logs | Grafana Cloud free tier |
 | Dashboards and alerts | Defined in Terraform |
 | App crashes | Firebase Crashlytics |
