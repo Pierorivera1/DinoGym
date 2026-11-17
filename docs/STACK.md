@@ -31,7 +31,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Queues | SQS |
 | Scheduled jobs | EventBridge Scheduler (reminders, weekly summaries) |
 | Auth | The backend verifies the Google ID token and issues its own sessions |
-| Secrets | SSM Parameter Store, SecureString, standard tier |
+| Secrets | SSM Parameter Store, SecureString, standard tier; created by the owner, not Terraform (decision 69) |
 | Sync | Newest edit per row wins; devices pull by a server change number |
 | API contract | OpenAPI 3.0.3 in `api/openapi.yaml`, the source for the Kotlin client and the Go server (oapi-codegen); linted with Redocly CLI in CI (decisions 60–61) |
 
@@ -53,9 +53,9 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Region | `us-east-1` |
 | Google Cloud access (FCM) | Workload identity federation from the Lambda's AWS role, no key |
 | CI/CD | GitHub Actions |
-| AWS access from CI | OIDC, no stored keys |
+| AWS access from CI | OIDC, no stored keys: one deploy role per GitHub environment, with a permissions boundary on the roles it creates (decisions 70–71) |
 | Local AWS | AWS Emulator 1.0.491, run in Docker from a pinned image (see [WORKFLOW.md](WORKFLOW.md)); Go integration tests run against it (decisions 59 and 65) |
-| Cost control | AWS budget alarm |
+| Cost control | AWS Budgets: $10 a month, email alerts (decision 72); API throttling (decision 67) |
 | Domain | None; API Gateway and CloudFront default URLs |
 
 ## Observability

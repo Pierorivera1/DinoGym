@@ -2,6 +2,9 @@
 
 resource "aws_iam_role" "api" {
   name = "${local.name}-api"
+  # The ceiling on what this role can ever do, whatever policy is put on it.
+  # Created by infra/bootstrap; the deploy role may only create roles that carry it.
+  permissions_boundary = var.permissions_boundary
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -37,7 +40,7 @@ resource "aws_iam_role_policy" "api" {
       {
         Effect   = "Allow"
         Action   = "ssm:GetParameters"
-        Resource = [for p in aws_ssm_parameter.secret : p.arn]
+        Resource = local.secret_arns
       },
     ]
   })

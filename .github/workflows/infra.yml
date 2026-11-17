@@ -1,0 +1,78 @@
+# The "Pull request" stage of docs/WORKFLOW.md: start the pinned AWS Emulator,
+# run the Go integration tests against it, and apply, re-plan and destroy the
+# Terraform on it. The steps live in infra/emulator/check.sh, which the laptop
+# runs too, so this file only prepares the runner.
+name: Infra
+
+# Pull requests, and deploy.yml calls it before every deploy so nothing reaches
+# AWS without passing it. Path filtered so an Android-only change does not
+# start the emulator.
+on:
+  pull_request:
+    paths:
+      - "api/**"
+      - "backend/**"
+      - "infra/**"
+      - ".github/workflows/infra.yml"
+  workflow_call:
+  workflow_dispatch:
+
+# A newer push to the same branch or pull request cancels the run that is still going.
+concurrency:
+  # github.workflow is the caller's name when deploy.yml calls this file, so a
+  # deploy never shares a group with a pull request run.
+  group: infra-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  emulator:
+    name: Emulator checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+
+      # The same version the roots require (decision 18). Without the wrapper,
+      # terraform's own exit codes reach the script (plan -detailed-exitcode).
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.17.2
+          terraform_wrapper: false
+
+      # The emulator image is built from a pinned Dockerfile, so the same
+      # Dockerfile always gives the same image. Caching it skips the 340 MB
+      # package download from downloads.aws.com on most runs.
+      - name: Restore the emulator image
+        id: image
+        uses: actions/cache@v6
+        with:
+          path: ${{ runner.temp }}/aws-emulator.tar
+          key: aws-emulator-${{ hashFiles('infra/emulator/Dockerfile', 'infra/emulator/start.sh') }}
+
+      - name: Load the emulator image
+        if: steps.image.outputs.cache-hit == 'true'
+        run: docker load -i "$RUNNER_TEMP/aws-emulator.tar"
+
+      # Builds the image when it was not cached.
+      - name: Start the emulator
+        run: infra/emulator/start.sh
+
+      # actions/cache uploads the file at the end of the job.
+      - name: Save the emulator image
+        if: steps.image.outputs.cache-hit != 'true'
+        run: docker save -o "$RUNNER_TEMP/aws-emulator.tar" "$(docker inspect --format '{{.Config.Image}}' aws-emulator)"
+
+      - name: Integration tests and Terraform on the emulator
+        run: infra/emulator/check.sh
+
+      - name: Emulator log
+        if: failure()
+        run: docker logs aws-emulator

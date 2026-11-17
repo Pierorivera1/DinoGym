@@ -54,7 +54,7 @@ jobs:
           go generate ./...
           git diff --exit-code -- .
 
-      # Also vets the emulator tests, which only run on the laptop until task 18.
+      # Also vets the emulator tests, which run in infra.yml.
       - name: Vet
         run: |
           go vet ./...
@@ -63,6 +63,6 @@ jobs:
       - name: Test
         run: go test -p 2 ./...
 
-      # The Lambda binary (decision 63). Built only to prove it compiles; task 18 deploys it.
+      # The Lambda binary (decision 63). Built only to prove it compiles; deploy.yml builds and deploys it.
       - name: Build the Lambda binary
         run: GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o bootstrap ./cmd/api
