@@ -22,11 +22,6 @@ As of 2026-11-16. Remove an item when it is done or decided, and record decision
 ## Still to decide
 
 - [ ] The owner reviews the second mock batch (Programs, Exercises, Stats, Settings) and the body weight mock: they are on the canvas and were built from without approval (decisions 41 and 49). Also not drawn at all: the Stats PROGRESS list (decision 47) and the licences screen (decision 46)
-- [ ] The sync design: how conflicts between devices are resolved
-- [ ] The DynamoDB data model
-- [ ] The AWS region
-- [ ] Where secrets live (session signing key, Grafana token). Likely SSM Parameter Store, which is not in STACK.md yet
-- [ ] How the backend authenticates to FCM without a long-lived service account key (Google workload identity federation from AWS)
 
 ## To verify later
 
@@ -43,4 +38,5 @@ As of 2026-11-16. Remove an item when it is done or decided, and record decision
 
 ## State of the build
 
+- Task 12 decided the cloud items: sync (51), DynamoDB model (52), region (53), secrets (54), FCM auth (55). Still open in sync: concurrent pushes taking change numbers out of order (decision 51, task 21).
 - Part 1 (tasks 1–10) and Part 2 (task 11) are done; progress is tracked in [TASKS.md](TASKS.md). The first release is tagged from `main` as described in [RELEASE.md](RELEASE.md). `docs/design/references/` (third-party art) is git-ignored and stays local.

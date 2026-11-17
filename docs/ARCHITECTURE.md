@@ -84,7 +84,4 @@ After step 8, in the order of decision 31: body weight, sign-in and sync, starte
 
 ### Before the cloud work starts
 
-These are open in [OPEN-ITEMS.md](OPEN-ITEMS.md) and block sign-in and sync, not the steps above:
-
-- The sync design, the DynamoDB data model, the AWS region and where secrets live.
-- The AWS Emulator, which needs Docker running. Docker needs `sudo` once to start the service and add the user to the `docker` group; the agent asks for the password at that point.
+The cloud items are decided: sync (decision 51), the DynamoDB model (52), the region (53), secrets (54) and FCM auth (55). Docker and the AWS Emulator are tasks 13 and 14.

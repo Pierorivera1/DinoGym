@@ -368,3 +368,44 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Why:** The owner and his likely users are Latin American, and one word per idea keeps the app predictable.
 - **Rejected:** Neutral Spanish that avoids regional words (it reads stiff); mixing entreno, entrenamiento and sesión.
 - **Left open:** `EMPEZAR %1$s` has no shorter natural verb, so the cut-off label at 130% font size needs a layout fix (OPEN-ITEMS).
+
+## 51. Sync: newest edit per row wins, pulled by a server change number (2026-11-16)
+
+- **Decision:** Devices sync whole rows. A device pushes the rows it changed; the server keeps a pushed row only if its `updatedAt` is newer than the stored one (a conditional write). A deletion is a row with `deletedAt` set, so it travels like any edit and wins the same way. Every row the server accepts gets the next number from a per-user counter. A device pulls "every row after number N" and stores the last number it saw as its cursor.
+- **Details:**
+  - `updatedAt` is written by the device. The server refuses a time more than a few minutes in its future, so one phone with a wrong clock cannot win every conflict forever.
+  - On equal `updatedAt`, a deletion wins; otherwise the stored row stays.
+  - Applying the same pulled row twice changes nothing, so retries are safe.
+  - The rows already have the needed shape: UUID keys, `updatedAt`, soft delete (decision 36). `local_flag` and the theme never sync.
+- **Why:** One user on a few personal devices rarely edits the same row on two of them before syncing, and logged sets are mostly only added. Whole-row last-writer-wins is simple to build, test and explain. Ordering the pull by a server number, not by timestamps, means a device never misses a row because of clock drift.
+- **Rejected:** Field-by-field merging and CRDTs (far more work for conflicts that will almost never happen); pulling by `updatedAt` (device clocks drift, so rows would be skipped); asking the user to resolve conflicts (no one wants a merge dialog mid-workout).
+- **Known risk, settled in task 21:** two pushes from the same user landing at once can take numbers 5 and 6 and commit 6 first, so a pull in between would skip 5. Task 21 decides the fix (handling one user's pushes one at a time, or re-reading a window behind the cursor) and tests it.
+
+## 52. DynamoDB: one table, keyed by user (2026-11-16)
+
+- **Decision:** One on-demand table.
+  - Synced rows: partition key `USER#<userId>`, sort key `<TYPE>#<uuid>` (for example `SESSION#…`, `SET#…`, `WEIGHIN#…`; preferences use `PREF#<key>`). The item holds the row's fields, `updatedAt`, `deletedAt` and its change number.
+  - Per-user counter for change numbers (decision 51): `USER#<userId>` / `META`.
+  - Sync index (GSI1): partition `USER#<userId>`, sort key the change number. A pull is one Query on it.
+  - Google account to user: `GOOGLE#<sub>` / `USER`. Sessions and shared routines (`SHARE#<id>`) get their exact shape in tasks 20 and 23.
+- **Why:** Every access is "this user's rows" or "this user's rows since N", which one table with one index answers. On-demand billing costs nothing when idle, which fits the budget (decision 6), and the always-free allowance covers this size.
+- **Rejected:** A table per entity (more Terraform, no access pattern needs it); provisioned capacity (pays for idle throughput).
+
+## 53. AWS region: us-east-1 (2026-11-16)
+
+- **Decision:** Staging and prod run in `us-east-1` (N. Virginia).
+- **Why:** The owner lives in Peru. Measured from the laptop (TCP connect to the DynamoDB endpoint, three tries each): `sa-east-1` about 90 ms, `us-east-1` about 97 ms, `us-east-2` about 110 ms. The difference to São Paulo is too small to feel in an app that syncs in the background, while São Paulo prices are higher and new services and features reach `us-east-1` first.
+- **Rejected:** `sa-east-1` (São Paulo): closest, but costs more for no felt gain.
+
+## 54. Secrets in SSM Parameter Store (2026-11-16)
+
+- **Decision:** The backend's secrets (the session signing key, the Grafana Cloud token) are SecureString parameters in SSM Parameter Store, standard tier, encrypted with the AWS-managed `aws/ssm` key. The Lambda reads them at cold start. Terraform creates each parameter with a placeholder value and ignores later changes to it; the owner sets the real value once with the AWS CLI, so the secret never enters Terraform state or git.
+- **Why:** Standard parameters are free, and the AWS-managed key avoids KMS charges. This adds a service that was not in STACK.md; it is now listed there.
+- **Rejected:** Secrets Manager ($0.40 per secret per month; its automatic rotation is not needed here); Lambda environment variables set from Terraform (the value would sit in state and in the console); putting the value in Terraform (state would hold it).
+
+## 55. FCM without a stored key: Google workload identity federation (2026-11-16)
+
+- **Decision:** The reminder Lambda authenticates to Firebase Cloud Messaging through Google workload identity federation. A workload identity pool in the `dinogym-3870b` Google Cloud project trusts the Lambda's AWS role. The Lambda exchanges its own short-lived AWS credentials for a short-lived Google token that impersonates a service account allowed only to send FCM messages. No service-account key is ever created.
+- **Why:** The project allows no long-lived keys anywhere (CLAUDE.md). A downloaded service-account JSON is exactly such a key, and it would need storing and rotating.
+- **Rejected:** A service-account JSON stored in SSM.
+- **Later:** setting up the pool needs the Terraform Google provider or `gcloud`, which is recorded when task 24 builds it.
