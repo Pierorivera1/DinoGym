@@ -29,6 +29,7 @@ The findings below were **run and checked on 2026-11-17 with version 1.0.491**. 
 | EventBridge Scheduler: create a schedule, deliver to SQS | Works, and schedules **fire on time**. Creation needs an existing role that Scheduler may assume; delivery needs `sqs:SendMessage` on that role, or it is dropped with `AccessDenied` in the emulator log |
 | Lambda: create, configure, mark `Active` | Works for any runtime, so Terraform can manage our function |
 | Terraform (AWS provider **6.22.0**): DynamoDB table, SQS queue, S3 bucket, IAM role and policy, schedule | `apply`, a second `plan` with no changes, and `destroy` all work. Probe config: [../infra/emulator/terraform-check/](../infra/emulator/terraform-check/) |
+| Terraform for our stack (task 17): the above plus API Gateway HTTP API (route, `$default` stage, throttling), Lambda with JSON logging, CloudWatch log group, SSM SecureString, DynamoDB point-in-time recovery and deletion protection | Same: `apply`, an empty second `plan`, drift reverted, `destroy`. Checked 2026-11-17. Config: [../infra/envs/emulator/](../infra/envs/emulator/) ([../infra/README.md](../infra/README.md)) |
 
 ### What does not work
 

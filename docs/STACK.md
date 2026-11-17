@@ -48,7 +48,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 
 | Concern | Choice |
 |---|---|
-| Infrastructure as code | Terraform, remote state in S3; AWS provider pinned to 6.22.0 (decision 58) |
+| Infrastructure as code | Terraform 1.17.2: one module, one root per environment, state in S3 locked with S3's own lock file (decision 66); AWS provider pinned to 6.22.0 (decision 58) |
 | Environments | Emulator, staging (real AWS), prod (real AWS) |
 | Region | `us-east-1` |
 | Google Cloud access (FCM) | Workload identity federation from the Lambda's AWS role, no key |
