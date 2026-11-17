@@ -25,7 +25,7 @@ Order agreed 2026-11-16. Tasks 1–10 are planned in detail; from task 11 on the
 
 - [x] **12. Decide the open cloud items.** Sync conflict design, DynamoDB data model, AWS region, where secrets live, keyless auth to Firebase Cloud Messaging. Decisions 51–55.
 - [x] **13. Docker.** Docker starts on demand (`docker.socket`) and the user is in the `docker` group, so no sudo is needed (decision 56).
-- [ ] **14. AWS Emulator.** Install and pin a version; check Terraform against it and how DynamoDB, SQS, S3 and EventBridge Scheduler behave ([WORKFLOW.md](WORKFLOW.md)).
+- [x] **14. AWS Emulator.** Pinned 1.0.491 in Docker; DynamoDB, SQS, S3, Scheduler and Terraform checked, the Go Lambda cannot run ([WORKFLOW.md](WORKFLOW.md), decisions 57–59, [report](reports/aws-emulator/aws-emulator-report.pdf)).
 - [ ] **15. OpenAPI contract** for the API; it generates the Kotlin client.
 - [ ] **16. Go backend skeleton.** Runs locally against the emulator, with OpenTelemetry.
 - [ ] **17. Terraform**, proven on the emulator first.

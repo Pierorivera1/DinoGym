@@ -30,6 +30,7 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Why:** The budget forces serverless, where startup time is what users feel. Go starts in about a tenth of a second on Lambda with a small memory footprint; a JVM often takes one to several seconds. Go is also common in cloud/DevOps roles.
 - **Rejected:** Kotlin (Ktor), first recommended for sharing models with the app. Dropped once the budget was known. Python and TypeScript were also offered.
 - **Cost of the choice:** No code shared with the app. An OpenAPI contract that generates the Kotlin client replaces it.
+- **Added 2026-11-17, why not Python or TypeScript:** both start about as fast as Go on Lambda, so speed was not the reason. Go was preferred for a single static binary with nothing to install or bundle, compile-time type checks, and its weight in DevOps tooling (Docker, Kubernetes and Terraform are written in Go). The known cost: the AWS Emulator runs only Python and Node.js Lambda code, so our Lambda wrapper cannot run locally (decision 14, [WORKFLOW.md](WORKFLOW.md)); the handlers and their AWS calls still can.
 
 ## 6. Under $10 a month, always on
 
@@ -80,6 +81,7 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Why:** Catch wrong AWS usage before anything costs money, keep control of the budget, and have a current, honest story for recruiters and LinkedIn.
 - **Accepted limit:** The emulator cannot run the Go Lambda, route API Gateway or SQS to it, or check IAM. So the whole app is not "deployed" to the emulator, and a real staging stage is still required.
 - **What we do not claim:** That the emulator proves reliability.
+- **Corrected 2026-11-17 (task 14):** "cannot check IAM" is mostly true, but EventBridge Scheduler does check the role's identity policy when it delivers: a schedule whose role lacked `sqs:SendMessage` was dropped with `AccessDenied`. Most other calls are not checked. See [WORKFLOW.md](WORKFLOW.md).
 
 ## 15. Local CPU limits
 
@@ -416,3 +418,23 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Why:** Docker only runs the AWS Emulator here (STACK.md). A daemon that is not running costs nothing on a laptop that runs hot, and the agent cannot type a sudo password for every command.
 - **Rejected:** Starting `docker.service` at every boot (runs when not needed); rootless Docker (removes the root-equivalent risk of the `docker` group, but adds setup and differs from how CI runs Docker; acceptable to skip on a single-user laptop).
 - **Known risk:** membership of the `docker` group is equivalent to root on this machine.
+
+## 57. AWS Emulator: pinned, verified, run with limits (2026-11-17)
+
+- **Decision:** Task 14 runs the AWS Emulator **1.0.491** (LTS) from our own image, `infra/emulator/Dockerfile`: Amazon Linux 2023 pinned by digest, and the RPM pinned by version and SHA-256 (`ADD --checksum`). Before pinning, the package's GPG signature was verified against the AWS key whose fingerprint the docs publish. `infra/emulator/start.sh` publishes the port on `127.0.0.1` only, caps memory at 2 GB with no swap, turns telemetry off and stops the emulator after an hour without an API call. `infra/emulator/env.sh` points one shell at it and unsets real AWS credentials. The results are in [WORKFLOW.md](WORKFLOW.md) and the report in [reports/aws-emulator/](reports/aws-emulator/).
+- **Why:** The emulator is released several times a day (1.0.492 and 1.0.497 came out the same day as 1.0.491), so `LTS/latest` would change test results without any change of ours. Checksums make a changed download fail the build instead of being used. The run limits follow the laptop rules and keep it off the network.
+- **Rejected:** Installing `LTS/latest` as the docs show; building from source (about 100 GB and a long compile); publishing the port on all interfaces.
+- **Cost:** Security fixes only go into the latest release, so the pin must be bumped on purpose (steps in WORKFLOW.md). The image takes 2 GB of disk.
+
+## 58. Terraform AWS provider pinned to 6.22.0 (2026-11-17)
+
+- **Decision:** Our Terraform pins `hashicorp/aws` to exactly 6.22.0, for both the emulator and real AWS, so the same configuration is applied in every stage.
+- **Why:** From 6.23.0 the provider reads S3 bucket tags through S3 Control, whose requests go to `<account-id>.127.0.0.1`; that name does not resolve, so every `aws_s3_bucket` fails on the emulator (aws/aws-emulator#56, open). Tested: 6.73.0 failed on the bucket; 6.22.0 applied all six probe resources, planned no changes afterwards, and destroyed cleanly.
+- **Rejected:** The latest provider with S3 kept out of the emulator stage (two code paths, and S3 untested before staging); the latest provider with no Terraform apply on the emulator at all (loses the check that stage 2 exists for).
+- **Revisit:** when #56 is fixed, move to the current provider. 6.22.0 is about a year old and gets no fixes.
+
+## 59. Emulator checks become Go integration tests (2026-11-17)
+
+- **Decision:** The manual checks from task 14 (the DynamoDB sync rules, SQS, S3, Scheduler delivery) become Go integration tests in task 16, run against the emulator in CI from task 18.
+- **Why:** The checks then live next to the code they protect and use the same AWS SDK the backend uses. No new language or tool is added.
+- **Rejected:** A Bash script with the AWS CLI (would duplicate what the Go tests check); a Python script with boto3 (adds a tool not in STACK.md for the same result).

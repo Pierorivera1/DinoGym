@@ -48,13 +48,13 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 
 | Concern | Choice |
 |---|---|
-| Infrastructure as code | Terraform, remote state in S3 |
+| Infrastructure as code | Terraform, remote state in S3; AWS provider pinned to 6.22.0 (decision 58) |
 | Environments | Emulator, staging (real AWS), prod (real AWS) |
 | Region | `us-east-1` |
 | Google Cloud access (FCM) | Workload identity federation from the Lambda's AWS role, no key |
 | CI/CD | GitHub Actions |
 | AWS access from CI | OIDC, no stored keys |
-| Local AWS | AWS Emulator, run in Docker (see [WORKFLOW.md](WORKFLOW.md)) |
+| Local AWS | AWS Emulator 1.0.491, run in Docker from a pinned image (see [WORKFLOW.md](WORKFLOW.md)) |
 | Cost control | AWS budget alarm |
 | Domain | None; API Gateway and CloudFront default URLs |
 

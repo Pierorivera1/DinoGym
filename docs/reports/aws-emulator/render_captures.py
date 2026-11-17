@@ -15,6 +15,8 @@ TITLES = {
     "08-scheduler-fire": "EventBridge Scheduler: firing, denied, then delivered",
     "09-lambda-go": "Lambda: the Go function is stored but cannot run",
     "10-lambda-python": "Lambda: a Python function runs",
+    "11-terraform-6.73": "Terraform, AWS provider 6.73.0: the S3 bucket fails",
+    "12-terraform-6.22": "Terraform, AWS provider 6.22.0: apply, no drift, destroy",
 }
 
 CSS = """

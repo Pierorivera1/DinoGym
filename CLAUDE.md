@@ -53,7 +53,7 @@ Do not claim the emulator proves reliability, security or performance. It proves
 
 - OS: Arch Linux (Omarchy). Packages install with `pacman`.
 - Installed: Docker (starts on demand through `docker.socket`; the user is in the `docker` group, so no sudo), AWS CLI v2, GitHub CLI (authenticated), Android Studio, Go and Terraform (both mise, decisions 18 and 37).
-- Not installed yet: the AWS Emulator (Docker route in [docs/WORKFLOW.md](docs/WORKFLOW.md)).
+- AWS Emulator 1.0.491 in Docker: `infra/emulator/start.sh`, then `source infra/emulator/env.sh` ([docs/WORKFLOW.md](docs/WORKFLOW.md)).
 - AWS CLI has no credentials yet. They are not needed until the staging step.
 - The previous app is version 1, renamed on GitHub to `Pierorivera1/Old-DinoGym` (local clone: `~/Projects/OLD-DinoGym`). Do not change it. This project takes over the name `Pierorivera1/DinoGym`.
 
