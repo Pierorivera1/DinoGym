@@ -409,3 +409,10 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Why:** The project allows no long-lived keys anywhere (CLAUDE.md). A downloaded service-account JSON is exactly such a key, and it would need storing and rotating.
 - **Rejected:** A service-account JSON stored in SSM.
 - **Later:** setting up the pool needs the Terraform Google provider or `gcloud`, which is recorded when task 24 builds it.
+
+## 56. Docker starts on demand; the user is in the `docker` group (2026-11-17)
+
+- **Decision:** `docker.socket` is enabled instead of `docker.service`, so the Docker daemon starts the first time something calls it. The owner's user is in the `docker` group, so Docker, lazydocker and the agent run without sudo.
+- **Why:** Docker only runs the AWS Emulator here (STACK.md). A daemon that is not running costs nothing on a laptop that runs hot, and the agent cannot type a sudo password for every command.
+- **Rejected:** Starting `docker.service` at every boot (runs when not needed); rootless Docker (removes the root-equivalent risk of the `docker` group, but adds setup and differs from how CI runs Docker; acceptable to skip on a single-user laptop).
+- **Known risk:** membership of the `docker` group is equivalent to root on this machine.
