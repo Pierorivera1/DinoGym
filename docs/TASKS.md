@@ -28,7 +28,7 @@ Order agreed 2026-11-16. Tasks 1–10 are planned in detail; from task 11 on the
 - [x] **14. AWS Emulator.** Pinned 1.0.491 in Docker; DynamoDB, SQS, S3, Scheduler and Terraform checked, the Go Lambda cannot run ([WORKFLOW.md](WORKFLOW.md), decisions 57–59, [report](reports/aws-emulator/aws-emulator-report.pdf)).
 - [x] **15. OpenAPI contract** for the API; it generates the Kotlin client and the Go server interfaces ([api/openapi.yaml](../api/openapi.yaml), decisions 60–62).
 - [x] **16. Go backend skeleton.** Runs locally against the emulator, with OpenTelemetry.
-- [ ] **17. Terraform**, proven on the emulator first.
+- [x] **17. Terraform**, proven on the emulator first ([infra/](../infra/README.md), decisions 66–67).
 - [ ] **18. Pipeline.** Pull request → emulator tests; merge → staging on real AWS; approval → prod. OIDC, no stored keys, AWS budget alarm.
 - [ ] **19. First real AWS setup.** `aws login`, staging and prod, under $10 a month.
 
