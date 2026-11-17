@@ -4,18 +4,24 @@
 # runs too, so this file only prepares the runner.
 name: Infra
 
+# Pull requests, and deploy.yml calls it before every deploy so nothing reaches
+# AWS without passing it. Path filtered so an Android-only change does not
+# start the emulator.
 on:
   pull_request:
-  push:
     paths:
       - "api/**"
       - "backend/**"
       - "infra/**"
       - ".github/workflows/infra.yml"
+  workflow_call:
+  workflow_dispatch:
 
 # A newer push to the same branch or pull request cancels the run that is still going.
 concurrency:
-  group: infra-${{ github.ref }}
+  # github.workflow is the caller's name when deploy.yml calls this file, so a
+  # deploy never shares a group with a pull request run.
+  group: infra-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
