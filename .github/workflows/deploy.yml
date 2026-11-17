@@ -1,0 +1,178 @@
+# Deploys the backend from main: staging first, then prod after a person
+# approves (docs/WORKFLOW.md, stages 3 and 4). The Lambda zip is built once, so
+# prod runs exactly the binary that passed staging's smoke test.
+#
+# AWS access is OIDC only (infra/bootstrap): each job asks GitHub for a token
+# and swaps it for an hour of credentials on its environment's deploy role.
+#
+# Off until task 19 creates the AWS side. Every job checks the repository
+# variable DEPLOY_ENABLED, so pushes skip cleanly instead of failing. A
+# repository variable is used because a job's `if` cannot see environment
+# variables: those load only once the job has started in its environment.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "api/**"
+      - "backend/**"
+      - "infra/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build the Lambda zip
+    if: vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+
+      # Reproducible zip (decision 66), so an unchanged commit plans no change.
+      - name: Build
+        run: infra/scripts/build-lambda.sh
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: lambda-zip
+          path: backend/bin/api.zip
+          if-no-files-found: error
+          # Must outlive the wait for prod's approval, which GitHub caps at 30 days.
+          retention-days: 30
+
+  staging:
+    name: Staging
+    needs: build
+    if: vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Holds AWS_DEPLOY_ROLE_ARN, and is the `sub` the staging role trusts.
+    environment: staging
+    # One deploy per environment at a time. Never cancel one in progress: a
+    # Terraform apply stopped halfway leaves a held lock and half-made resources.
+    # A newer run waits; if a third arrives, it replaces the one waiting.
+    concurrency:
+      group: deploy-staging
+      cancel-in-progress: false
+    permissions:
+      id-token: write # ask GitHub for the OIDC token
+      contents: read
+    defaults:
+      run:
+        working-directory: infra/envs/staging
+    env:
+      TF_IN_AUTOMATION: "true"
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: lambda-zip
+          path: backend/bin
+
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.17.2 # decision 18
+          # Plain terraform, so `terraform output -raw` prints only the value.
+          terraform_wrapper: false
+
+      - name: Init
+        run: terraform init -input=false -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}"
+
+      # Apply exactly the plan that was printed, not a second, fresh one.
+      - name: Plan
+        run: terraform plan -input=false -out=tfplan
+
+      - name: Apply
+        run: terraform apply -input=false tfplan
+
+      # The emulator cannot run the Go Lambda or route API Gateway to it
+      # (docs/WORKFLOW.md), so this is the first real proof of that path.
+      - name: Smoke test
+        run: |
+          url="$(terraform output -raw api_url)"
+          url="${url%/}/health"
+          for try in 1 2 3 4 5 6; do
+            code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$url" || true)"
+            echo "try $try: $url -> $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "::error::$url did not answer 200"
+          exit 1
+
+  prod:
+    name: Prod
+    needs: staging
+    if: vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # The approval gate: the prod environment requires a reviewer, so this job
+    # waits for the owner before it gets the token the prod role trusts.
+    environment: prod
+    concurrency:
+      group: deploy-prod
+      cancel-in-progress: false
+    permissions:
+      id-token: write
+      contents: read
+    defaults:
+      run:
+        working-directory: infra/envs/prod
+    env:
+      TF_IN_AUTOMATION: "true"
+    steps:
+      - uses: actions/checkout@v7
+
+      # The same zip staging deployed and tested.
+      - uses: actions/download-artifact@v8
+        with:
+          name: lambda-zip
+          path: backend/bin
+
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.17.2
+          terraform_wrapper: false
+
+      - name: Init
+        run: terraform init -input=false -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}"
+
+      - name: Plan
+        run: terraform plan -input=false -out=tfplan
+
+      - name: Apply
+        run: terraform apply -input=false tfplan
+
+      - name: Smoke test
+        run: |
+          url="$(terraform output -raw api_url)"
+          url="${url%/}/health"
+          for try in 1 2 3 4 5 6; do
+            code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$url" || true)"
+            echo "try $try: $url -> $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "::error::$url did not answer 200"
+          exit 1

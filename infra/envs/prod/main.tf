@@ -27,11 +27,15 @@ provider "aws" {
   }
 }
 
+data "aws_caller_identity" "current" {}
+
 module "dinogym" {
   source       = "../../modules/dinogym"
   env          = "prod"
   lambda_zip   = "${path.root}/../../../backend/bin/api.zip"
   protect_data = true
+  # Created by infra/bootstrap. The deploy role cannot create the API role without it.
+  permissions_boundary = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/dinogym-prod-boundary"
 }
 
 output "api_url" {

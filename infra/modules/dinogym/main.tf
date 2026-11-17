@@ -1,5 +1,5 @@
 # DinoGym backend for one environment: the DynamoDB table, the Go Lambda behind
-# an API Gateway HTTP API, and the SSM parameters for its secrets.
+# an API Gateway HTTP API, and access to its secrets in SSM.
 
 locals {
   name = "dinogym-${var.env}"
@@ -39,17 +39,16 @@ resource "aws_dynamodb_table" "main" {
   }
 }
 
-# Decision 54: Terraform creates each secret with a placeholder and never
-# touches the value again. The owner sets it once with the AWS CLI, so it stays
-# out of state and git.
-resource "aws_ssm_parameter" "secret" {
-  for_each = toset(["session-signing-key", "grafana-token"])
+# Decision 54: the secrets are SSM SecureString parameters that the owner
+# creates with the AWS CLI (infra/README.md). Terraform does not manage them,
+# because the AWS provider reads a parameter's decrypted value into state on
+# every refresh. It only grants the Lambda access to them, by name.
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
 
-  name  = "/${local.name}/${each.key}"
-  type  = "SecureString"
-  value = "unset"
-
-  lifecycle {
-    ignore_changes = [value]
-  }
+locals {
+  secret_arns = [
+    for s in ["session-signing-key", "grafana-token"] :
+    "arn:aws:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter/${local.name}/${s}"
+  ]
 }
