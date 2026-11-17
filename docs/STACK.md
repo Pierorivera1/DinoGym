@@ -12,7 +12,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Local storage | Room 3 with the bundled SQLite driver (replaces version 1's JSON file) |
 | Background sync | WorkManager |
 | Dependency injection | Hilt |
-| Networking | Ktor client, generated from the OpenAPI contract |
+| Networking | Ktor 3 client, generated from the OpenAPI contract into `android/api-client` (OpenAPI Generator, decision 60) |
 | Sign-in | Google one-tap through Android Credential Manager |
 | Push | Firebase Cloud Messaging |
 | Crash reports | Firebase Crashlytics |
@@ -33,7 +33,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Auth | The backend verifies the Google ID token and issues its own sessions |
 | Secrets | SSM Parameter Store, SecureString, standard tier |
 | Sync | Newest edit per row wins; devices pull by a server change number |
-| API contract | OpenAPI, the source for the Kotlin client |
+| API contract | OpenAPI 3.0.3 in `api/openapi.yaml`, the source for the Kotlin client and the Go server (oapi-codegen); linted with Redocly CLI in CI (decisions 60–61) |
 
 ## Web
 
