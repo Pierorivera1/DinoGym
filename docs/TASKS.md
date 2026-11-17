@@ -29,8 +29,8 @@ Order agreed 2026-11-16. Tasks 1–10 are planned in detail; from task 11 on the
 - [x] **15. OpenAPI contract** for the API; it generates the Kotlin client and the Go server interfaces ([api/openapi.yaml](../api/openapi.yaml), decisions 60–62).
 - [x] **16. Go backend skeleton.** Runs locally against the emulator, with OpenTelemetry.
 - [x] **17. Terraform**, proven on the emulator first ([infra/](../infra/README.md), decisions 66–67).
-- [ ] **18. Pipeline.** Pull request → emulator tests; merge → staging on real AWS; approval → prod. OIDC, no stored keys, AWS budget alarm.
-- [ ] **19. First real AWS setup.** `aws login`, staging and prod, under $10 a month.
+- [x] **18. Pipeline.** Pull request → emulator tests; merge → staging on real AWS; approval → prod. OIDC, no stored keys, AWS budget alarm (decisions 68–73). The deploy jobs stay off until task 19.
+- [ ] **19. First real AWS setup.** `aws login`, apply `infra/bootstrap`, set up the GitHub environments and variables ([infra/README.md](../infra/README.md)), first staging and prod deploy, under $10 a month.
 
 ## Part 4: cloud features (order from decision 31)
 

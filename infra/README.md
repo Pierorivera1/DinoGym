@@ -13,15 +13,11 @@ Terraform for the DinoGym backend (decisions 66–67).
 
 ## On the emulator
 
+The pull request checks (`.github/workflows/infra.yml`) are one script, which the laptop runs the same way: Terraform format and validate, the Go integration tests, then apply, an empty re-plan and destroy of `envs/emulator`.
+
 ```bash
-infra/emulator/start.sh
-source infra/emulator/env.sh
-infra/scripts/build-lambda.sh
-cd infra/envs/emulator
-terraform init
-terraform apply
-terraform plan      # must say "No changes"
-terraform destroy
+infra/emulator/start.sh      # once, if it is not up
+infra/emulator/check.sh
 ```
 
 The emulator creates every resource, but cannot run the Lambda, route API Gateway to it, or check IAM. Those are proven in staging.
@@ -74,9 +70,10 @@ Add `--overwrite` to change a value later.
 
 `.github/workflows/deploy.yml` runs on every push to `main` that touches `api/`, `backend/`, `infra/` or the workflow, and by hand from the Actions tab:
 
-1. **build** builds `api.zip` once and uploads it as an artifact.
-2. **staging** signs in as `dinogym-deploy-staging` through OIDC, runs `terraform plan -out` and applies that plan in `envs/staging`, then calls `<api_url>/health` until it answers 200 (about a minute at most).
-3. **prod** waits for the owner's approval on the `prod` GitHub environment, then does the same in `envs/prod` with the same zip.
+1. **checks** runs `infra.yml`, the same emulator checks as a pull request. `main` has no branch protection, so this is what stops an unchecked merge from deploying.
+2. **build** builds `api.zip` once and uploads it as an artifact.
+3. **staging** signs in as `dinogym-deploy-staging` through OIDC, runs `terraform plan -out` and applies that plan in `envs/staging`, then calls `<api_url>/health` until it answers 200 (about a minute at most).
+4. **prod** waits for the owner's approval on the `prod` GitHub environment, then does the same in `envs/prod` with the same zip.
 
 Each environment deploys one run at a time, and a running apply is never cancelled. Until the repository variable `DEPLOY_ENABLED` is `true`, every job is skipped.
 

@@ -19,14 +19,24 @@ on:
       - "backend/**"
       - "infra/**"
       - ".github/workflows/deploy.yml"
+      - ".github/workflows/infra.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
+  # The same emulator checks as a pull request. main has no branch protection,
+  # so a merge does not prove they passed; running them here means nothing
+  # reaches AWS without them.
+  checks:
+    name: Emulator checks
+    if: vars.DEPLOY_ENABLED == 'true'
+    uses: ./.github/workflows/infra.yml
+
   build:
     name: Build the Lambda zip
+    needs: checks
     if: vars.DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15

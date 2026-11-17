@@ -7,7 +7,8 @@ As of 2026-11-17. Remove an item when it is done or decided, and record decision
 - [x] Install Go (mise, 1.27.4, decision 37)
 - [x] Install Terraform (mise, v1.17.2)
 - [ ] Run `aws login` (only needed from the staging stage on)
-- [ ] Create the Terraform state bucket once, by hand, before the first real apply (task 19, decision 66)
+- [ ] Task 19: apply `infra/bootstrap` with `aws login` and move its state into the bucket, create the `staging` and `prod` GitHub environments (main only; `prod` with you as reviewer), set the variables and `DEPLOY_ENABLED`. Exact commands in [../infra/README.md](../infra/README.md)
+- [ ] Before tasks 20 and 26 read them: create `/dinogym-<env>/session-signing-key` and `/dinogym-<env>/grafana-token` with `aws ssm put-parameter --type SecureString` (decision 69)
 - [x] Create a Firebase project: `DinoGym`, project ID `dinogym-3870b`. The Android app is added to it later, once the package name and signing key exist.
 - [x] Create a Grafana Cloud account (free tier). Tokens are created later, when observability is wired up.
 - [ ] Back up the release signing key, `~/.config/dinogym/` (both files), to a password manager. Without it no update installs over the app ([RELEASE.md](RELEASE.md), decision 45)
@@ -18,6 +19,8 @@ As of 2026-11-17. Remove an item when it is done or decided, and record decision
 
 ## To verify later
 
+- [ ] First staging deploy (task 19): the deploy role's permissions are enough for Terraform, and the permissions boundary conditions accept the API role and refuse one without the boundary. The emulator does not evaluate IAM (decisions 70–71)
+- [ ] First CI runs: the emulator image cache in `infra.yml` saves time; if not, remove it (decision 68)
 - [ ] AWS provider 6.22.0 is pinned because of aws/aws-emulator#56 (decision 58). Move to the current provider once it is fixed
 - [ ] Bump the pinned AWS Emulator version from time to time; security fixes only reach the latest release (decision 57)
 
@@ -34,7 +37,8 @@ As of 2026-11-17. Remove an item when it is done or decided, and record decision
 
 ## State of the build
 
-- Task 17: Terraform in `infra/` describes the backend for staging and prod: the table, the Go Lambda, the HTTP API and the SSM parameters (decisions 66–67). It applies, plans clean and destroys on the emulator. Nothing exists on real AWS yet: the state bucket and the first apply are task 19, the deploy pipeline task 18.
+- Task 18: pull requests run the emulator checks (`infra/emulator/check.sh`); `deploy.yml` deploys staging, then prod after approval, through OIDC (decisions 68–73). `infra/bootstrap` holds the state bucket, the OIDC provider, the deploy roles, the permissions boundaries and the budget. The deploy jobs are skipped until `DEPLOY_ENABLED` is set in task 19, so neither workflow has reached AWS yet.
+- Task 17: Terraform in `infra/` describes the backend for staging and prod: the table, the Go Lambda and the HTTP API (decisions 66–67; the SSM parameters were taken out in decision 69). It applies, plans clean and destroys on the emulator. Nothing exists on real AWS yet: the state bucket and the first apply are task 19, the deploy pipeline task 18.
 - Task 16: the Go API (`backend/`) runs as one binary on the laptop and on Lambda, with OpenTelemetry (decisions 63–64). Its DynamoDB store applies the sync rules and is tested on the emulator, as are SQS, S3 and Scheduler (decision 65). Sign-in and sync still answer 501 until tasks 20 and 21. The integration tests run only on the laptop until CI starts the emulator in task 18.
 - Task 15: the API contract is `api/openapi.yaml`. It generates the Kotlin client (`android/api-client`) and the Go server interfaces (`backend/internal/api`); see decisions 60–62. Token formats for `/auth/*` are settled in task 20.
 - Task 14: the AWS Emulator 1.0.491 runs in Docker; DynamoDB, SQS, S3, Scheduler and Terraform (provider 6.22.0) work on it; the Go Lambda cannot run on it ([WORKFLOW.md](WORKFLOW.md)).
