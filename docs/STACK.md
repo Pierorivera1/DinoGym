@@ -24,7 +24,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Concern | Choice |
 |---|---|
 | Language | Go |
-| Compute | AWS Lambda, deployed as a zipped binary (no Docker image) |
+| Compute | AWS Lambda, deployed as a zipped binary (no Docker image). The same binary runs as a local HTTP server (decision 63) |
 | HTTP entry | API Gateway (HTTP API) |
 | Database | DynamoDB |
 | Files | S3 |
@@ -62,7 +62,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 
 | Concern | Choice |
 |---|---|
-| Instrumentation | OpenTelemetry in the Go code |
+| Instrumentation | OpenTelemetry Go SDK in the backend, exported over OTLP/HTTP and flushed after every Lambda invocation (decision 64) |
 | Backend for traces, metrics, logs | Grafana Cloud free tier |
 | Dashboards and alerts | Defined in Terraform |
 | App crashes | Firebase Crashlytics |

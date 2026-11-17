@@ -28,6 +28,7 @@ captures/
 
 # Go
 /backend/bin/
+/backend/bootstrap
 *.test
 *.out
 

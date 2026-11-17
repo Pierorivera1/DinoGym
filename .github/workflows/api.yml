@@ -33,7 +33,7 @@ jobs:
         run: npx --yes @redocly/cli@2.76.0 lint --config api/redocly.yaml api/openapi.yaml
 
   backend:
-    name: Go code matches the contract
+    name: Go backend
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -59,3 +59,7 @@ jobs:
 
       - name: Test
         run: go test -p 2 ./...
+
+      # The Lambda binary (decision 63). Built only to prove it compiles; task 18 deploys it.
+      - name: Build the Lambda binary
+        run: GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o bootstrap ./cmd/api
