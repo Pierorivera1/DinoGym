@@ -1,10 +1,12 @@
-# Builds the Android app, runs its unit tests and lint on every push.
+# Builds the Android app, runs its unit tests (and the API client's) and lint on every push.
 name: Android
 
 on:
   push:
     paths:
       - "android/**"
+      # The API client in :api-client is generated from the contract (decision 60).
+      - "api/openapi.yaml"
       - ".github/workflows/android.yml"
 
 # A newer push to the same branch cancels the run that is still going.
@@ -41,6 +43,9 @@ jobs:
       - name: Unit tests
         run: ./gradlew :app:testDebugUnitTest
 
+      - name: API client tests
+        run: ./gradlew :api-client:test
+
       - name: Lint
         run: ./gradlew :app:lintDebug
 
@@ -52,6 +57,8 @@ jobs:
           path: |
             android/app/build/reports/
             android/app/build/test-results/
+            android/api-client/build/reports/
+            android/api-client/build/test-results/
           if-no-files-found: ignore
 
   # Database and UI tests need a real Android runtime. They run only here, on an

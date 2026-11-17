@@ -1,0 +1,7 @@
+# Lint rules for the API contract (decision 61). Run from the repository root:
+#   npx --yes @redocly/cli@2.76.0 lint --config api/redocly.yaml api/openapi.yaml
+extends:
+  - recommended-strict
+rules:
+  # /health has no client error to report; every other operation declares 400 and 401.
+  operation-4xx-response: off

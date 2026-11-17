@@ -33,3 +33,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "DinoGym"
 include(":app")
+include(":api-client")

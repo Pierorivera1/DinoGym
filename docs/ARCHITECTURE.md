@@ -10,7 +10,7 @@ Written 2026-11-16 (decisions 34–37). This covers the first daily-usable versi
 | Debug build | `applicationIdSuffix = ".debug"`, so a debug build and a release build can also coexist |
 | minSdk | 26 (same as version 1) |
 | compileSdk / targetSdk | 37 / 36. The current AndroidX libraries need compileSdk 37 (decision 38) |
-| Modules | One: `:app` (decision 35) |
+| Modules | `:app` (decision 35), plus `:api-client`, the generated API client (decision 60) |
 | Versions | Gradle version catalog `android/gradle/libs.versions.toml`, latest stable at scaffold time, pinned |
 | JDK for Gradle | 21, pinned in `android/gradle/gradle-daemon-jvm.properties`; Gradle downloads it if missing (decision 38) |
 | Gradle limits | [android/gradle.properties](../android/gradle.properties). Do not raise them |
