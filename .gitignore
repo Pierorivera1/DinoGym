@@ -15,6 +15,8 @@ google-services.json
 *.tfstate
 *.tfstate.*
 *.tfvars
+# infra/bootstrap's first apply keeps state local through one (infra/README.md)
+*_override.tf
 crash.log
 
 # Android / Gradle
