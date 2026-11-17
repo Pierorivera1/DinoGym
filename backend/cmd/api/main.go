@@ -2,9 +2,10 @@
 // server on the laptop and as the Lambda function behind API Gateway
 // (decision 63): it checks for the Lambda runtime at start.
 //
-// Local run, against the AWS Emulator once the API uses AWS (WORKFLOW.md):
+// Local run, against the AWS Emulator (WORKFLOW.md). With AWS_ENDPOINT_URL on
+// this machine, the binary creates its DynamoDB table there at start:
 //
-//	source infra/emulator/env.sh
+//	infra/emulator/start.sh && source infra/emulator/env.sh
 //	DINOGYM_TELEMETRY=console go run ./cmd/api
 package main
 
@@ -14,16 +15,21 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 
 	"github.com/Pierorivera1/DinoGym/backend/internal/config"
 	"github.com/Pierorivera1/DinoGym/backend/internal/lambdahttp"
 	"github.com/Pierorivera1/DinoGym/backend/internal/server"
+	"github.com/Pierorivera1/DinoGym/backend/internal/store"
 	"github.com/Pierorivera1/DinoGym/backend/internal/telemetry"
 )
 
@@ -48,7 +54,11 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	handler := server.New(log).Handler()
+	st, err := newStore(ctx, cfg, log)
+	if err != nil {
+		return err
+	}
+	handler := server.New(log, st).Handler()
 
 	// Lambda sets AWS_LAMBDA_RUNTIME_API for the runtime client.
 	if os.Getenv("AWS_LAMBDA_RUNTIME_API") != "" {
@@ -93,4 +103,32 @@ func serveLocal(cfg config.Config, log *slog.Logger, tel *telemetry.Telemetry, h
 		return nil
 	}
 	return err
+}
+
+// newStore connects to DynamoDB. Every AWS call gets a span (otelaws). On the
+// laptop pointed at the emulator, it also creates the table; staging and prod
+// get it from Terraform (task 17).
+func newStore(ctx context.Context, cfg config.Config, log *slog.Logger) (*store.Store, error) {
+	awsCfg, err := awsconfig.LoadDefaultConfig(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("load AWS config: %w", err)
+	}
+	otelaws.AppendMiddlewares(&awsCfg.APIOptions)
+	st := store.New(dynamodb.NewFromConfig(awsCfg), cfg.Table)
+
+	if cfg.Env != "local" {
+		return st, nil
+	}
+	endpoint := os.Getenv("AWS_ENDPOINT_URL")
+	if u, err := url.Parse(endpoint); endpoint == "" || err != nil || (u.Hostname() != "127.0.0.1" && u.Hostname() != "localhost") {
+		log.Warn("no local AWS endpoint; storage calls will fail. Run: source infra/emulator/env.sh", "AWS_ENDPOINT_URL", endpoint)
+		return st, nil
+	}
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+	if err := st.CreateTable(ctx); err != nil {
+		return nil, err
+	}
+	log.Info("table ready on the emulator", "table", cfg.Table, "endpoint", endpoint)
+	return st, nil
 }

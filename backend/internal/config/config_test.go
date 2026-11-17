@@ -14,7 +14,7 @@ func TestDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := Config{Env: "local", Addr: "127.0.0.1:8080", LogLevel: slog.LevelDebug, Telemetry: "none"}
+	want := Config{Env: "local", Addr: "127.0.0.1:8080", LogLevel: slog.LevelDebug, Telemetry: "none", Table: "dinogym"}
 	if c != want {
 		t.Fatalf("got %+v, want %+v", c, want)
 	}

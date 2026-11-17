@@ -18,7 +18,7 @@ import (
 
 func serve(t *testing.T, method, path, body string) (*httptest.ResponseRecorder, api.Error) {
 	t.Helper()
-	h := New(slog.New(slog.NewTextHandler(io.Discard, nil))).Handler()
+	h := New(slog.New(slog.NewTextHandler(io.Discard, nil)), nil).Handler()
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest(method, path, strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")

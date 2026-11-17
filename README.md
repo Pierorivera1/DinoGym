@@ -4,7 +4,7 @@ An offline-first Android workout tracker for gym and calisthenics training, with
 
 This is version 2, a full rebuild. Version 1 lives at [Old-DinoGym](https://github.com/Pierorivera1/Old-DinoGym).
 
-**Status:** the app is in daily use (tasks 1–11); the cloud backend is being built, starting from the API contract in [api/openapi.yaml](api/openapi.yaml). Progress is in [docs/TASKS.md](docs/TASKS.md).
+**Status:** the app is in daily use (tasks 1–11); the cloud backend is being built: the API contract is [api/openapi.yaml](api/openapi.yaml), and the Go API in [backend/](backend/) runs locally against the AWS Emulator. Progress is in [docs/TASKS.md](docs/TASKS.md).
 
 | Area | Stack |
 |---|---|
