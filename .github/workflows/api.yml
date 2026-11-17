@@ -1,0 +1,61 @@
+# Checks the API contract and the Go code generated from it (decision 60).
+# The Kotlin client generated from the same file is built and tested in android.yml.
+name: API
+
+on:
+  push:
+    paths:
+      - "api/**"
+      - "backend/**"
+      - ".github/workflows/api.yml"
+
+concurrency:
+  group: api-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: Lint the contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      # Pinned to a release at least a week old (decision 61).
+      - name: Lint api/openapi.yaml
+        run: npx --yes @redocly/cli@2.76.0 lint --config api/redocly.yaml api/openapi.yaml
+
+  backend:
+    name: Go code matches the contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+
+      # The generated server is committed. Regenerating must change nothing, or
+      # someone edited the contract without running `go generate`.
+      - name: Generated code is up to date
+        run: |
+          go generate ./...
+          git diff --exit-code -- .
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test -p 2 ./...
