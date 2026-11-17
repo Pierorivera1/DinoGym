@@ -4,7 +4,7 @@ Terraform for the DinoGym backend (decisions 66–67).
 
 | Path | What |
 |---|---|
-| `modules/dinogym` | One environment: DynamoDB table, Go Lambda, API Gateway HTTP API, SSM parameters |
+| `modules/dinogym` | One environment: DynamoDB table, Go Lambda, API Gateway HTTP API, access to the SSM secrets |
 | `envs/emulator` | The staging stack on the local AWS Emulator, local state |
 | `envs/staging`, `envs/prod` | Real AWS, state in S3, deployed by `.github/workflows/deploy.yml` |
 | `bootstrap` | Applied once by hand: the state bucket, GitHub OIDC and the two deploy roles, the $10 budget alert |
@@ -32,6 +32,7 @@ The emulator creates every resource, but cannot run the Lambda, route API Gatewa
 
 - `dinogym-tfstate-<account-id>`: the state bucket for every root. Versioned (old versions kept 90 days), SSE-S3, public access blocked, plain HTTP denied. It cannot be deleted while it holds state.
 - GitHub's OIDC provider and two roles, `dinogym-deploy-staging` and `dinogym-deploy-prod`. Each trusts only a job of `Pierorivera1/DinoGym` running in the GitHub environment of the same name, and may manage only resources named `dinogym-<env>…` plus its own state file. API Gateway is the exception: its ARNs hold random IDs, not names, so both roles can manage any HTTP API in the account.
+- `dinogym-<env>-boundary`: a permissions boundary allowing only what the API needs (its logs, its table, reading its two secrets). A deploy role may create a role or add permissions to one only if the role carries this boundary, may never remove a boundary, and cannot change the boundaries or the deploy roles. So a deploy role cannot make itself a more powerful role. `envs/staging` and `envs/prod` attach it to the API role; `envs/emulator` does not.
 - `dinogym-monthly`: an AWS Budgets alert at $10 a month that emails at 50% and 100% actual, and at 100% forecast. The first two budgets in an account are free.
 
 Terraform cannot keep its state in a bucket it has not created yet, so the first apply keeps state on the laptop, then moves it into the new bucket under `bootstrap/terraform.tfstate`. In a shell signed in with `aws login` (not `env.sh`):
@@ -61,11 +62,13 @@ terraform init -backend-config="bucket=<state bucket>"
 terraform plan
 ```
 
-The SSM parameters are created as `unset`. Set each real value once; Terraform never reads or overwrites it:
+Terraform does not create the secrets (decision 54): the AWS provider would read each decrypted value into state. It only lets the Lambda read `/dinogym-<env>/session-signing-key` and `/dinogym-<env>/grafana-token`. Create each one with the AWS CLI before the code reads it (tasks 20 and 26):
 
 ```bash
-aws ssm put-parameter --overwrite --type SecureString --name /dinogym-staging/session-signing-key --value "$(openssl rand -base64 48)"
+aws ssm put-parameter --type SecureString --name /dinogym-staging/session-signing-key --value "$(openssl rand -base64 48)"
 ```
+
+Add `--overwrite` to change a value later.
 
 ## Deploys from CI
 

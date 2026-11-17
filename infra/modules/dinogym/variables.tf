@@ -29,3 +29,9 @@ variable "throttle_burst" {
   type        = number
   default     = 20
 }
+
+variable "permissions_boundary" {
+  description = "ARN of the managed policy that caps the API role (dinogym-<env>-boundary, from infra/bootstrap). Null on the emulator, which has no bootstrap."
+  type        = string
+  default     = null
+}

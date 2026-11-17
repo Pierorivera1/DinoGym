@@ -99,26 +99,60 @@ resource "aws_iam_role_policy" "deploy" {
         Resource = "arn:aws:lambda:us-east-1:${local.account_id}:function:dinogym-${each.key}-*"
       },
 
-      # The Lambda's own role and its inline policy.
+      # The Lambda's own role. Anything that creates a role or adds permissions
+      # to one is allowed only when the role carries this environment's
+      # boundary (boundary.tf), so no role made here can exceed what the API needs.
       {
-        Sid    = "LambdaRole"
+        Sid    = "RoleGrantOnlyWithBoundary"
         Effect = "Allow"
         Action = [
           "iam:CreateRole",
-          "iam:DeleteRole",
+          "iam:PutRolePolicy",
+          "iam:AttachRolePolicy",
+          "iam:PutRolePermissionsBoundary",
+        ]
+        Resource  = "arn:aws:iam::${local.account_id}:role/dinogym-${each.key}-*"
+        Condition = { StringEquals = { "iam:PermissionsBoundary" = aws_iam_policy.boundary[each.key].arn } }
+      },
+      # Reading, removing permissions, tagging and deleting cannot raise a
+      # role's permissions, so these need no condition.
+      {
+        Sid    = "RoleManage"
+        Effect = "Allow"
+        Action = [
           "iam:GetRole",
+          "iam:DeleteRole",
           "iam:UpdateRole",
           "iam:UpdateAssumeRolePolicy",
           "iam:TagRole",
           "iam:UntagRole",
-          "iam:PutRolePolicy",
           "iam:GetRolePolicy",
           "iam:DeleteRolePolicy",
+          "iam:DetachRolePolicy",
           "iam:ListRolePolicies",
           "iam:ListAttachedRolePolicies",
           "iam:ListInstanceProfilesForRole",
         ]
         Resource = "arn:aws:iam::${local.account_id}:role/dinogym-${each.key}-*"
+      },
+      # Explicit denies win over any allow, now or added later. Removing a
+      # boundary would lift the ceiling, so it is never allowed.
+      {
+        Sid      = "NeverRemoveBoundary"
+        Effect   = "Deny"
+        Action   = "iam:DeleteRolePermissionsBoundary"
+        Resource = "*"
+      },
+      # The deploy roles cannot change the boundaries or the deploy roles
+      # themselves; only the owner, through this bootstrap, can.
+      {
+        Sid    = "NeverTouchBootstrap"
+        Effect = "Deny"
+        Action = "iam:*"
+        Resource = [
+          "arn:aws:iam::${local.account_id}:policy/dinogym-*-boundary",
+          "arn:aws:iam::${local.account_id}:role/dinogym-deploy-*",
+        ]
       },
       # Lambda checks that whoever creates the function may hand it this role.
       # Only the API's role, and only to Lambda.
@@ -155,29 +189,8 @@ resource "aws_iam_role_policy" "deploy" {
         Resource = "*"
       },
 
-      # The secrets' parameters (decision 54). Terraform writes the placeholder
-      # and reads the parameter back on every plan.
-      {
-        Sid    = "Parameters"
-        Effect = "Allow"
-        Action = [
-          "ssm:PutParameter",
-          "ssm:GetParameter",
-          "ssm:GetParameters",
-          "ssm:DeleteParameter",
-          "ssm:AddTagsToResource",
-          "ssm:RemoveTagsFromResource",
-          "ssm:ListTagsForResource",
-        ]
-        Resource = "arn:aws:ssm:us-east-1:${local.account_id}:parameter/dinogym-${each.key}/*"
-      },
-      # DescribeParameters cannot be limited to a path: it lists them.
-      {
-        Sid      = "ParameterList"
-        Effect   = "Allow"
-        Action   = "ssm:DescribeParameters"
-        Resource = "*"
-      },
+      # No SSM access: the owner creates the secrets by hand (decision 54), and
+      # Terraform only names them in the Lambda's policy.
 
       # API Gateway's ARNs hold the API's random ID, not its name, so this
       # cannot be limited to dinogym-<env>-api: it covers every HTTP API in the
