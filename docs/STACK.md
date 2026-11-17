@@ -31,6 +31,8 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Queues | SQS |
 | Scheduled jobs | EventBridge Scheduler (reminders, weekly summaries) |
 | Auth | The backend verifies the Google ID token and issues its own sessions |
+| Secrets | SSM Parameter Store, SecureString, standard tier |
+| Sync | Newest edit per row wins; devices pull by a server change number |
 | API contract | OpenAPI, the source for the Kotlin client |
 
 ## Web
@@ -48,6 +50,8 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 |---|---|
 | Infrastructure as code | Terraform, remote state in S3 |
 | Environments | Emulator, staging (real AWS), prod (real AWS) |
+| Region | `us-east-1` |
+| Google Cloud access (FCM) | Workload identity federation from the Lambda's AWS role, no key |
 | CI/CD | GitHub Actions |
 | AWS access from CI | OIDC, no stored keys |
 | Local AWS | AWS Emulator, run in Docker (see [WORKFLOW.md](WORKFLOW.md)) |

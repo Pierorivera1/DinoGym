@@ -23,7 +23,7 @@ Order agreed 2026-11-16. Tasks 1–10 are planned in detail; from task 11 on the
 
 ## Part 3: cloud foundations (before sign-in)
 
-- [ ] **12. Decide the open cloud items.** Sync conflict design, DynamoDB data model, AWS region, where secrets live, keyless auth to Firebase Cloud Messaging. Each one recorded in DECISIONS.md.
+- [x] **12. Decide the open cloud items.** Sync conflict design, DynamoDB data model, AWS region, where secrets live, keyless auth to Firebase Cloud Messaging. Decisions 51–55.
 - [ ] **13. Docker.** Start the service and add the user to the `docker` group (needs the owner's sudo password).
 - [ ] **14. AWS Emulator.** Install and pin a version; check Terraform against it and how DynamoDB, SQS, S3 and EventBridge Scheduler behave ([WORKFLOW.md](WORKFLOW.md)).
 - [ ] **15. OpenAPI contract** for the API; it generates the Kotlin client.
