@@ -1,0 +1,28 @@
+$ grep -A1 'hashicorp/aws"' .terraform.lock.hcl | tail -1
+  version     = "6.22.0"
+
+$ terraform apply -auto-approve -no-color 2>&1 | grep -E 'Creation complete|Apply complete|Error'
+aws_iam_role.scheduler: Creation complete after 0s [id=dinogym-tfcheck-scheduler]
+aws_s3_bucket.files: Creation complete after 0s [id=dinogym-tfcheck-files]
+aws_dynamodb_table.main: Creation complete after 5s [id=dinogym-tfcheck]
+aws_sqs_queue.jobs: Creation complete after 25s [id=https://sqs.us-east-1.amazonaws.com/000000000000/dinogym-tfcheck-jobs]
+aws_iam_role_policy.scheduler_send: Creation complete after 0s [id=dinogym-tfcheck-scheduler:send]
+aws_scheduler_schedule.weekly: Creation complete after 0s [id=default/dinogym-tfcheck-weekly]
+Apply complete! Resources: 6 added, 0 changed, 0 destroyed.
+
+$ terraform plan -detailed-exitcode -no-color > /dev/null; echo "plan exit code: $? (0 = no changes)"
+plan exit code: 0 (0 = no changes)
+
+$ terraform destroy -auto-approve -no-color 2>&1 | grep -E 'Destruction complete|Destroy complete|Error'
+aws_scheduler_schedule.weekly: Destruction complete after 0s
+aws_s3_bucket.files: Destruction complete after 0s
+aws_iam_role_policy.scheduler_send: Destruction complete after 0s
+aws_iam_role.scheduler: Destruction complete after 0s
+aws_sqs_queue.jobs: Destruction complete after 1s
+aws_dynamodb_table.main: Destruction complete after 3s
+Destroy complete! Resources: 6 destroyed.
+
+$ aws dynamodb list-tables --query TableNames; aws s3 ls; aws scheduler list-schedules --query 'Schedules[].Name'
+[]
+[]
+

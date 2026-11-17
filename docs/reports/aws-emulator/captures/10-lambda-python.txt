@@ -1,0 +1,11 @@
+$ cat docs/reports/aws-emulator/pylambda/handler.py
+def handler(event, context):
+    return {"hello": "from python", "got": event}
+
+$ aws lambda create-function --function-name py-hello --runtime python3.12 --handler handler.handler --role arn:aws:iam::000000000000:role/dinogym-lambda --zip-file fileb://docs/reports/aws-emulator/pylambda/fn.zip --query '[FunctionName,Runtime]' --output text && aws lambda wait function-active-v2 --function-name py-hello && echo active
+py-hello	python3.12
+active
+
+$ aws lambda invoke --function-name py-hello --cli-binary-format raw-in-base64-out --payload '{"x":1}' /tmp/out.json --query StatusCode && cat /tmp/out.json
+200
+{"hello": "from python", "got": {"x": 1}}

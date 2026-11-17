@@ -1,0 +1,11 @@
+$ grep -A1 'hashicorp/aws"' .terraform.lock.hcl | tail -1
+  version     = "6.73.0"
+
+$ terraform apply -auto-approve -no-color 2>&1 | grep -E 'Creation complete|Error:|operation error'
+aws_iam_role.scheduler: Creation complete after 0s [id=dinogym-tfcheck-scheduler]
+aws_dynamodb_table.main: Creation complete after 6s [id=dinogym-tfcheck]
+aws_sqs_queue.jobs: Creation complete after 25s [id=https://sqs.us-east-1.amazonaws.com/000000000000/dinogym-tfcheck-jobs]
+aws_iam_role_policy.scheduler_send: Creation complete after 0s [id=dinogym-tfcheck-scheduler:send]
+aws_scheduler_schedule.weekly: Creation complete after 0s [id=default/dinogym-tfcheck-weekly]
+Error: listing tags for S3 (Simple Storage) Bucket (dinogym-tfcheck-files): operation error S3 Control: ListTagsForResource, https response error StatusCode: 0, RequestID: , HostID: , request send failed, Get "https://000000000000.127.0.0.1:9297/v20180820/tags/arn%3Aaws%3As3%3A%3A%3Adinogym-tfcheck-files": dial tcp: lookup 000000000000.127.0.0.1: no such host
+

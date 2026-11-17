@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DinoGym: AWS Emulator Report</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  :root { --ink:#1b1f24; --muted:#5b6470; --line:#d9dde3; --accent:#1f6f5c; --bad:#b4372f; --warn:#9a6a00; --soft:#f4f6f8; }
+  body { font-family: "Inter", "Noto Sans", "DejaVu Sans", sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.5; margin: 0; }
+  h1 { font-size: 24pt; margin: 0 0 4px; letter-spacing: -0.3px; }
+  h2 { font-size: 15pt; margin: 26px 0 8px; padding-bottom: 4px; border-bottom: 2px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 11.5pt; margin: 16px 0 6px; break-after: avoid; }
+  p { margin: 6px 0; }
+  ul, ol { margin: 6px 0; padding-left: 20px; }
+  li { margin: 2px 0; }
+  code { font-family: "JetBrainsMono Nerd Font", monospace; font-size: 9pt; background: var(--soft); padding: 1px 4px; border-radius: 3px; }
+  .sub { color: var(--muted); font-size: 11pt; margin-bottom: 18px; }
+  .meta { color: var(--muted); font-size: 9pt; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 9.5pt; break-inside: avoid; }
+  th, td { border: 1px solid var(--line); padding: 5px 7px; text-align: left; vertical-align: top; }
+  th { background: var(--soft); }
+  .ok { color: var(--accent); font-weight: 600; }
+  .no { color: var(--bad); font-weight: 600; }
+  .mid { color: var(--warn); font-weight: 600; }
+  figure { margin: 10px 0 14px; break-inside: avoid; }
+  figure img { width: 100%; display: block; }
+  figcaption { color: var(--muted); font-size: 9pt; margin-top: 2px; }
+  .box { background: var(--soft); border-left: 4px solid var(--accent); padding: 8px 12px; margin: 10px 0; break-inside: avoid; }
+  .box.bad { border-left-color: var(--bad); }
+  .cover { break-after: page; }
+  .page { break-before: page; }
+  .toc li { margin: 1px 0; }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <h1>The AWS Emulator in DinoGym</h1>
+  <div class="sub">What it is for, how it was set up, what we tested, what went wrong, and why the Go Lambda does not run on it</div>
+  <p class="meta">Tasks 13–14 of DinoGym, 15–17 November 2026 · Emulator version 1.0.491 (LTS) · Terraform 1.17.2, AWS provider 6.22.0 · Laptop: Arch Linux, Docker 29.9.2</p>
+
+  <h2>Summary</h2>
+  <p>DinoGym's backend will run on AWS for under $10 a month. Before anything is created on real AWS, every change is first proven against the <b>AWS Emulator</b>, a free local program that serves the AWS APIs. This report covers installing it, pinning it, and testing it against each AWS service the backend will use.</p>
+  <table>
+    <tr><th>What we need</th><th>Result on the emulator</th></tr>
+    <tr><td>DynamoDB: the table from decision 52, "newest edit wins" writes (decision 51), pull by change number</td><td class="ok">Works, with the same errors as AWS</td></tr>
+    <tr><td>SQS: send, receive, delete</td><td class="ok">Works</td></tr>
+    <tr><td>S3: bucket, upload, download</td><td class="ok">Works</td></tr>
+    <tr><td>EventBridge Scheduler: create a schedule and have it deliver on time</td><td class="ok">Works, and it checks the role's permissions</td></tr>
+    <tr><td>Lambda written in Go</td><td class="no">Stored but cannot run: only Python and Node.js run</td></tr>
+    <tr><td>Lambda written in Python (for comparison)</td><td class="ok">Runs</td></tr>
+    <tr><td>Terraform: table, queue, bucket, role, schedule</td><td class="mid">Works with AWS provider 6.22.0; the S3 bucket fails on 6.23.0 and later</td></tr>
+  </table>
+  <div class="box"><b>Verdict.</b> The emulator does its job well: it proves that our AWS calls and configuration are correct, at no cost and without an AWS account. It cannot run our Go code, and it does not prove security, reliability or performance. The staging environment on real AWS stays.</div>
+
+  <h3>Contents</h3>
+  <ol class="toc">
+    <li>Why an emulator at all</li>
+    <li>Getting Docker ready</li>
+    <li>Installing and pinning the emulator</li>
+    <li>Testing the services, and Terraform</li>
+    <li>Why the Go Lambda does not run</li>
+    <li>Why the backend is in Go anyway</li>
+    <li>What went wrong</li>
+    <li>Mistakes we could have made, and how we avoided them</li>
+    <li>Is it good or bad?</li>
+    <li>What is next</li>
+  </ol>
+  <p class="meta">About the screenshots: each terminal image was drawn from the real output of the commands, recorded when they were run on 17 November 2026 (files in <code>docs/reports/aws-emulator/captures/</code>). They are drawn from that text, not screen grabs of a window, so long commands wrap neatly. Only the colours and the window frame were added.</p>
+</section>
+
+<h2>1. Why an emulator at all</h2>
+<p>Three project rules make an emulator worth having (decisions 6 and 14):</p>
+<ul>
+  <li><b>Budget.</b> AWS spend must stay under $10 a month. Mistakes on real AWS (a wrong table, a forgotten resource) cost money and are slow to find.</li>
+  <li><b>Nothing reaches real AWS untested.</b> The pipeline is: laptop → pull request → staging on real AWS → prod. The first two stages use the emulator.</li>
+  <li><b>No long-lived keys.</b> The emulator needs no AWS account and no credentials, so the pull-request tests in GitHub Actions can run without any AWS access.</li>
+</ul>
+<p>What it can and cannot prove matters as much. The emulator serves the AWS APIs locally: you create a table, it remembers it; you send an invalid request, it returns the same validation error AWS would. So it proves that <b>our code and configuration use the AWS APIs correctly</b>. It is not AWS: it keeps everything in memory, is not built for load, and does not enforce permissions the way AWS does. It does not prove security, reliability or performance. Staging on real AWS covers those.</p>
+<p>Why this emulator in particular: AWS released it in September 2026 as an official, free tool with published fidelity scores (how closely it matches AWS). Decision 14 chose it partly because it is new and current, which makes a better story for a resume project. <i>Gap:</i> the decisions log does not record an alternative that was considered and rejected; that is worth adding.</p>
+
+<h2>2. Getting Docker ready (task 13)</h2>
+<p>AWS publishes the emulator only as RPM and Debian packages. The laptop runs Arch Linux, so the documented route is a Docker container. Docker was installed but not running, and using it needed <code>sudo</code>.</p>
+<ol>
+  <li>The owner ran <code>sudo systemctl enable --now docker.socket</code>. Docker now starts the first time something calls it, instead of running all the time on a laptop that overheats easily (decision 56).</li>
+  <li>The owner ran <code>sudo usermod -aG docker "$USER"</code>, so Docker works without sudo for the owner, lazydocker and the agent.</li>
+</ol>
+<p><b>What went wrong:</b> it still did not work for the agent, twice. A process gets its group list when it starts. The group was added at 23:08, but the T3 Code session had started at 23:00, after the reboot at 22:59. So the agent's shell had no <code>docker</code> group, and <code>newgrp docker</code> in the owner's terminal did not help other programs. The fix was to log out and back in. After that, <code>docker run --rm hello-world</code> worked.</p>
+<p><b>Trade-off we accepted:</b> being in the <code>docker</code> group is effectively root on that machine. Rootless Docker avoids that, but it needs more setup and differs from how CI runs Docker. For a single-user laptop we accepted the risk and wrote it down.</p>
+
+<h2>3. Installing and pinning the emulator</h2>
+<h3>Pinning a version</h3>
+<p>The docs install from <code>…/LTS/latest/…</code>. That address changes with every release, and this emulator is released several times a day: we pinned 1.0.491 (published 13:15 UTC on 17 November), and 1.0.492 and 1.0.497 came out the same day. A pull request test that passes today could fail tomorrow for no reason in our code. So we install one fixed version from its own URL (<code>aws-emulator-1.0.491-1-x86_64.rpm</code>, found through the versions list <code>LTS/versions.json</code>) and upgrade on purpose. The docs warn that security fixes go only into the latest release, so the pin needs to be bumped from time to time.</p>
+
+<h3>Checking that the download is genuine</h3>
+<p>Before using the package, we checked AWS's signature on it. The key's fingerprint matches the one printed in the AWS docs (<code>98BC F336 A3BE 53B7 34E9 67C5 2E5B F49B D940 F624</code>), and gpg reports a good signature. The warning about the key not being "certified" is expected: it means we have not personally vouched for the key, and the fingerprint check replaces that.</p>
+<figure><img src="screenshots/01-verify.png"><figcaption>Figure 1. Signature and checksum of the pinned package.</figcaption></figure>
+
+<h3>Building the image</h3>
+<p>AWS does not publish a container image, so <code>infra/emulator/Dockerfile</code> builds one from Amazon Linux 2023. Both inputs are pinned by checksum: the base image by its digest, and the RPM by its SHA-256 (<code>ADD --checksum=…</code>). If either file ever changes on the server, the build fails instead of quietly using something else. The build took 32 seconds. The image uses 1.98 GB on disk.</p>
+<figure><img src="screenshots/02-image.png"><figcaption>Figure 2. The built image and the version inside it.</figcaption></figure>
+
+<h3>Running it safely</h3>
+<p><code>infra/emulator/start.sh</code> runs the container in the background with these settings:</p>
+<ul>
+  <li><b>Reachable only from this laptop.</b> The port is published as <code>127.0.0.1:9297</code>, so no other machine on the network can reach it.</li>
+  <li><b>2 GB of memory, no swap.</b> This follows the laptop's resource limits.</li>
+  <li><b>Telemetry off.</b> It is on by default.</li>
+  <li><b>Stops itself after one hour without any request</b> (<code>--idle-timeout 3600</code>). We found this option in the program's own <code>-h</code> help, so a forgotten emulator cannot run all day.</li>
+</ul>
+<p><code>infra/emulator/env.sh</code> points one terminal's AWS CLI at the emulator. It also clears any real AWS credentials from that terminal, because they would take priority over the emulator's.</p>
+<figure><img src="screenshots/03-start.png"><figcaption>Figure 3. Running, bound to 127.0.0.1 only, idle at 186 MiB and 0% CPU, and answering as the fake account 000000000000.</figcaption></figure>
+
+<h2 class="page">4. Testing the services</h2>
+<h3>DynamoDB: the database design</h3>
+<p>We created the table exactly as decision 52 describes: one table, partition key <code>PK</code>, sort key <code>SK</code>, and a second index <code>GSI1</code> on the change number, billed per request. The first mistake showed up immediately. The table starts in the <code>CREATING</code> state, just as on AWS, and writing to it straight away fails with <code>ResourceNotFoundException</code>. Waiting with <code>aws dynamodb wait table-exists</code> fixes it. Our Go code will need the same wait.</p>
+<figure><img src="screenshots/04-dynamodb-mistake.png"><figcaption>Figure 4. Writing too early fails; waiting for ACTIVE fixes it.</figcaption></figure>
+<p>Then the sync rules from decision 51:</p>
+<ol>
+  <li>A per-user counter hands out change numbers 1, 2, …</li>
+  <li>A weigh-in edited at time 1000 is stored.</li>
+  <li>A late phone pushes an older edit, made at time 900. The conditional write (<code>attribute_not_exists(PK) OR updatedAt &lt; :u</code>) rejects it with <code>ConditionalCheckFailedException</code>, so the newer data survives.</li>
+  <li>A newer edit, made at time 2000, replaces it.</li>
+  <li>A device that asks for "every change after 0" gets the newest version of the row. A device that is up to date asks for "after 2" and gets nothing.</li>
+</ol>
+<figure><img src="screenshots/05-dynamodb-sync.png"><figcaption>Figure 5. "Newest edit wins" and pulling by change number, working as designed.</figcaption></figure>
+
+<h3>SQS and S3</h3>
+<p>Both worked on the first try: send, receive and delete a job message; create a bucket, upload a file and read it back. One detail: the queue URL looks like a real AWS one (<code>sqs.us-east-1.amazonaws.com</code>), but requests still go to the emulator, because <code>AWS_ENDPOINT_URL</code> overrides the address.</p>
+<figure><img src="screenshots/06-sqs-s3.png"><figcaption>Figure 6. A job message through SQS, and a file through S3.</figcaption></figure>
+
+<h3>EventBridge Scheduler: reminders</h3>
+<p>Creating a weekly "pull day" reminder (Mondays 07:00, Lima time) first failed with a <code>ValidationException</code>, because the role it should use did not exist. Real AWS makes the same check. After we created the role with a trust policy for <code>scheduler.amazonaws.com</code>, the schedule was created.</p>
+<figure><img src="screenshots/07-scheduler-role.png"><figcaption>Figure 7. The schedule needs an existing role that Scheduler is allowed to assume.</figcaption></figure>
+<p>Then the bigger question: does a schedule actually <i>fire</i>? We set a one-time schedule a few seconds ahead and waited on the queue. It fired on the second, but the message never arrived: the emulator's log shows <code>AccessDenied</code>, because the role was not allowed to send to the queue. After we attached a policy allowing <code>sqs:SendMessage</code>, the next schedule delivered <code>fired</code> at its exact time.</p>
+<figure><img src="screenshots/08-scheduler-fire.png"><figcaption>Figure 8. Fired on time, denied for missing permission, delivered once the permission was added.</figcaption></figure>
+<div class="box"><b>A surprise worth knowing.</b> The docs and our own decision 14 say the emulator does not check permissions (IAM). On this path it did: it refused a delivery that no policy allowed. That is a good thing, but it is not full IAM. Most calls are not checked, so the emulator still cannot be used to test security.</div>
+
+<h3 class="page">Lambda: Go versus Python</h3>
+<p>We built the smallest possible Go Lambda (about 30 lines, standard library only; source in <code>docs/reports/aws-emulator/golambda/</code>), packaged it the way AWS expects (a Linux binary named <code>bootstrap</code> in a zip), and deployed it with the <code>provided.al2023</code> runtime. The emulator accepted it and marked it <code>Active</code>. Invoking it failed:</p>
+<figure><img src="screenshots/09-lambda-go.png"><figcaption>Figure 9. The Go function is created and Active, but cannot be invoked.</figcaption></figure>
+<p>To make sure the problem was Go and not our setup, we deployed a two-line Python function the same way. It ran and returned its answer.</p>
+<figure><img src="screenshots/10-lambda-python.png"><figcaption>Figure 10. Same role, same emulator: Python runs.</figcaption></figure>
+
+<h3>Terraform</h3>
+<p>Stage 2 of the pipeline is meant to apply our Terraform to the emulator, so we tested a small configuration with one of each resource we need: the DynamoDB table with its index, the SQS queue, an S3 bucket, the Scheduler role and its policy, and the weekly schedule (<code>infra/emulator/terraform-check/</code>). With the current AWS provider, 6.73.0, five resources were created, but the bucket failed:</p>
+<figure><img src="screenshots/11-terraform-6.73.png"><figcaption>Figure 11. Provider 6.73.0: the bucket's tag read goes to <code>000000000000.127.0.0.1</code>, which does not exist.</figcaption></figure>
+<p><b>Why:</b> since provider 6.23.0, Terraform reads a bucket's tags through a different AWS API, <b>S3 Control</b>. The SDK always puts the account ID in front of the host name for S3 Control (<code>000000000000.127.0.0.1</code>). That name does not resolve, and no setting turns the prefix off. The emulator docs list S3 Control as unreachable, and the problem is reported as issue #56 on <code>aws/aws-emulator</code> (open). The reported workaround is a provider older than 6.23.0. With <b>6.22.0</b> the full cycle works: all six resources are created, a second <code>plan</code> finds no changes (no drift), and <code>destroy</code> leaves nothing behind.</p>
+<figure><img src="screenshots/12-terraform-6.22.png"><figcaption>Figure 12. Provider 6.22.0: apply, no changes on re-plan, destroy, empty.</figcaption></figure>
+<p><b>Choice made (decision 58):</b> pin the provider to 6.22.0 for every stage, emulator and real AWS, so one configuration is applied everywhere. The cost is a provider about a year old with no fixes; we move to the current one when #56 is fixed. Two other things we saw: creating the SQS queue takes about 25 seconds, because the provider waits for the queue's settings to settle; and 6.73.0 warns that <code>range_key</code> is deprecated in favour of <code>key_schema</code>, which matters when we upgrade.</p>
+
+<h2>5. Why the Go Lambda does not run</h2>
+<h3>How Go runs on real Lambda</h3>
+<p>Lambda has "managed runtimes" for languages that need an interpreter or a virtual machine: Python, Node.js, Java and others. Go is different. It compiles to a single native program, so it needs no language runtime. AWS's Go guide says to deploy Go with an <b>OS-only runtime</b> (<code>provided.al2023</code>). The old <code>go1.x</code> runtime is deprecated. With an OS-only runtime, Lambda starts your <code>bootstrap</code> program, and that program asks Lambda's <b>Runtime API</b> (a small local HTTP server) for the next event and posts back the answer. Our test function does exactly that.</p>
+
+<h3>Why the emulator cannot do it</h3>
+<ul>
+  <li><b>It runs only Python and Node.js.</b> The emulator's error message says so: "The runtime provided.al2023 is not supported by this emulator, which runs the Python and node runtimes."</li>
+  <li><b>AWS's own issue tracker confirms it.</b> Issue #3 on <code>aws/aws-emulator</code> (open, "container support for compute services") says Lambda "runs functions packaged as Zip files on the Python and Node.js runtimes. Container images and other runtimes don't run." A comment there reports the same error for <code>provided.al2023</code> on version 1.0.336, and names Go and Rust as the languages affected.</li>
+  <li><b>Why only those two</b> (our reading of the issue, not an AWS statement): a comment describes the emulator running ZIP packages "by an embedded interpreter". Python and JavaScript can be run by an interpreter built into the emulator. A Go binary is a native program: running it needs the emulator to launch a separate process and serve the Runtime API to it, and the emulator does not do that. The issue asks for exactly this, by pointing to AWS's separate <i>Lambda Runtime Interface Emulator</i>, which does serve that API.</li>
+</ul>
+<p>So the answer to "does it only support Python and Node?" is <b>yes, for running code</b>. For managing functions (create, configure, version, permissions) every runtime is accepted, which is why Terraform can still manage our Go function on the emulator.</p>
+
+<h3>What we do about it</h3>
+<ul>
+  <li><b>Test the Go logic directly.</b> The handler is ordinary Go. Tests call it as a function, with its AWS calls going to the emulator. This covers our code and our AWS usage, which is most of what can go wrong.</li>
+  <li><b>Test the Lambda path on staging.</b> Staging on real AWS covers API Gateway → Lambda, SQS → Lambda and real permissions. This was already planned in decision 14.</li>
+  <li><b>Optional later:</b> AWS's Lambda Runtime Interface Emulator can run the Go binary locally, in Docker. It is not in STACK.md, so adding it would need its own decision.</li>
+</ul>
+
+<h2 class="page">6. Why the backend is in Go anyway</h2>
+<p>Since Python and Node.js would run on the emulator, it is fair to ask whether Go was the right choice. Decision 5, as recorded:</p>
+<ul>
+  <li><b>Decision:</b> Go.</li>
+  <li><b>Why:</b> The $10 budget forces serverless, where cold start (the time to start a function that was idle) is what users feel. Go starts in about a tenth of a second on Lambda with a small memory footprint; a JVM (Kotlin) often takes one to several seconds. Go is also common in cloud and DevOps roles.</li>
+  <li><b>Rejected:</b> Kotlin with Ktor, first recommended so the app and backend could share data models, and dropped once the budget was known. Python and TypeScript were also offered.</li>
+  <li><b>Cost:</b> no code shared with the Android app. An OpenAPI contract that generates the Kotlin client replaces it.</li>
+</ul>
+<h3>The options not chosen, compared</h3>
+<p>The decision log recorded Kotlin's rejection clearly but gave no reason for Python and TypeScript; the reasons below have now been added to decision 5. The comparison is our analysis, so the owner can defend the choice in an interview.</p>
+<table>
+  <tr><th></th><th>Go (chosen)</th><th>Kotlin / Ktor</th><th>Python</th><th>TypeScript (Node.js)</th></tr>
+  <tr><td>Cold start on Lambda</td><td class="ok">Very fast; native binary</td><td class="no">Slowest; JVM start-up</td><td class="ok">Fast</td><td class="ok">Fast</td></tr>
+  <tr><td>Memory needed (Lambda bills memory × time)</td><td class="ok">Low</td><td class="no">High</td><td class="mid">Low to medium</td><td class="mid">Low to medium</td></tr>
+  <tr><td>Deployment</td><td class="ok">One static binary; nothing to install</td><td class="mid">Fat JAR</td><td class="mid">Packages must match Lambda's Linux</td><td class="mid">node_modules or a bundler</td></tr>
+  <tr><td>Type safety</td><td class="ok">Compiled, static types</td><td class="ok">Strong</td><td class="no">Optional (type hints)</td><td class="ok">Static types, checked when compiled to JS</td></tr>
+  <tr><td>Shares code with the Android app</td><td class="no">No (OpenAPI instead)</td><td class="ok">Yes</td><td class="no">No</td><td class="no">No</td></tr>
+  <tr><td>Fit for DevOps roles</td><td class="ok">Strong: Docker, Kubernetes, Terraform are written in Go</td><td class="mid">Weak</td><td class="ok">Strong for scripting and automation</td><td class="mid">Medium</td></tr>
+  <tr><td>Runs on the AWS Emulator</td><td class="no">No</td><td class="no">No</td><td class="ok">Yes</td><td class="ok">Yes</td></tr>
+</table>
+<p><b>Is Go still right?</b> Yes. The emulator gap affects only the thin layer that receives a Lambda event. The business logic and every AWS call can still be tested against the emulator. A real staging stage was always required for the Lambda path. Python or TypeScript would have closed that one gap, but would have given up Go's single-binary deployment and compile-time checks, and its fit with the DevOps side of the resume. Kotlin was the only option clearly worse on the main constraint (cost and cold start).</p>
+<p><b>Honest point for interviews:</b> Go's cold-start lead is large over the JVM and small over Python and Node.js. The stronger reasons against those two are deployment simplicity, type safety and career fit, not speed.</p>
+
+<h2>7. What went wrong</h2>
+<table>
+  <tr><th>Problem</th><th>Cause</th><th>Fix</th></tr>
+  <tr><td>Docker said "permission denied" after joining the group (twice)</td><td>Group membership only applies to processes started after it; the session predated the change</td><td>Log out and back in</td></tr>
+  <tr><td>The pinned URL was not obvious; guesses returned 403</td><td>Versioned files are named <code>aws-emulator-&lt;version&gt;-1-x86_64.rpm</code>, and the version in the HTTP headers (1.0.491.1) is not the one used in the file name (1.0.491)</td><td>Read the docs' versioning page and <code>versions.json</code></td></tr>
+  <tr><td>DynamoDB writes failed with <code>ResourceNotFoundException</code></td><td>The table was still <code>CREATING</code></td><td>Wait for <code>ACTIVE</code>; the Go code must do the same</td></tr>
+  <tr><td>Schedule creation failed with <code>ValidationException</code></td><td>The role did not exist</td><td>Create the role with a trust policy for Scheduler</td></tr>
+  <tr><td>A schedule fired but nothing arrived</td><td>The role had no <code>sqs:SendMessage</code> permission</td><td>Attach a policy for that one queue</td></tr>
+  <tr><td>A false "it fired" while recording this report</td><td>An earlier SQS message, read but not deleted, became visible again after the 30-second visibility timeout and was mistaken for the schedule's message</td><td>Empty the queue before the test; check the message body, not only that something arrived</td></tr>
+  <tr><td>The first recording of the signature and Go steps failed</td><td>The agent's temporary folder was cleaned between steps</td><td>Keep inputs in a lasting folder; Go source now lives in the repository</td></tr>
+  <tr><td>Terraform failed on the S3 bucket</td><td>AWS provider 6.23.0 and later read bucket tags through S3 Control, which the emulator cannot be reached for (issue #56)</td><td>Pin the provider to 6.22.0 (decision 58)</td></tr>
+  <tr><td>The Go Lambda cannot be invoked</td><td>The emulator runs only Python and Node.js</td><td>Section 5</td></tr>
+</table>
+
+<h2>8. Mistakes we could have made, and how we avoided them</h2>
+<ul>
+  <li><b>Opening the emulator to the network.</b> <code>-p 9297:9297</code> publishes it on every network interface. We publish <code>127.0.0.1:9297</code> only and checked it with <code>ss</code>.</li>
+  <li><b>Installing "latest".</b> Releases come several times a day, so tests would change under us. We pinned 1.0.491.</li>
+  <li><b>Trusting the download blindly.</b> We verified AWS's signature and the key's fingerprint, and pinned SHA-256 checksums in the Dockerfile.</li>
+  <li><b>Sending test calls to real AWS.</b> If <code>AWS_ENDPOINT_URL</code> is missing, the CLI and SDKs call real AWS with whatever credentials they find. <code>env.sh</code> sets every variable and removes real credentials, and <code>aws sts get-caller-identity</code> must show account <code>000000000000</code> before anything else.</li>
+  <li><b>Leaving emulator settings in a real-AWS shell.</b> <code>AWS_DISABLE_HOST_PREFIX_INJECTION</code> breaks some calls on real AWS. The settings apply only to the terminal where <code>env.sh</code> is sourced.</li>
+  <li><b>Using <code>localhost</code> instead of <code>127.0.0.1</code>.</b> Some SDKs then put the S3 bucket name in the host name, and the emulator rejects those requests. We use the IP.</li>
+  <li><b>Building the emulator from source.</b> That needs about 100 GB of disk and a long multi-core compile, which would break the laptop's CPU rule. We used AWS's signed package.</li>
+  <li><b>Forgetting that state is in memory.</b> Stopping the container deletes everything. Tests must create what they need, which also gives each run a clean start.</li>
+  <li><b>Claiming too much.</b> Passing on the emulator proves our API usage, not security, reliability or performance. Scheduler's permission check is not full IAM.</li>
+  <li><b>Overheating the laptop.</b> 2 GB memory cap, an idle timeout, one container at a time, and a Go build limited to <code>-p 2</code>.</li>
+</ul>
+
+<h2>9. Is it good or bad?</h2>
+<table>
+  <tr><th>Good</th><th>Bad or limited</th></tr>
+  <tr><td>
+    <ul>
+      <li>Free, no AWS account, no credentials: ideal for pull-request tests in CI</li>
+      <li>Starts in about a second; 186 MiB idle; 0% CPU when unused</li>
+      <li>Same validation errors and resource states as AWS (<code>CREATING</code>, <code>ConditionalCheckFailedException</code>, the Scheduler role check)</li>
+      <li>Scheduler really fires on time, and checks the role's permission when delivering</li>
+      <li>Terraform applies, re-plans with no drift, and destroys cleanly (provider 6.22.0)</li>
+      <li>Signed packages, versioned URLs, and published fidelity scores</li>
+    </ul>
+  </td><td>
+    <ul>
+      <li>Cannot run Go (or any native) Lambda code</li>
+      <li>Breaks <code>aws_s3_bucket</code> on current Terraform AWS providers, so the provider must stay on 6.22.0 for now</li>
+      <li>Permissions are mostly not checked; it cannot test security</li>
+      <li>Everything is in memory and lost on stop</li>
+      <li>Very new (September 2026) and released several times a day, so it must be pinned and upgraded on purpose</li>
+      <li>Behaviour is checked against AWS mainly in <code>us-west-2</code>; we use <code>us-east-1</code></li>
+      <li>2 GB image on disk; telemetry on by default</li>
+    </ul>
+  </td></tr>
+</table>
+<p><b>Overall: good, for the job we gave it.</b> It is a fast, free first check of how we use AWS, and it already caught four real problems before any money was spent: the wait for a table to be ready, the missing Scheduler role, the missing send permission, and the Terraform provider version that cannot create buckets on it. It does not replace staging on real AWS. The project never planned for it to.</p>
+
+<h2>10. What is next</h2>
+<ol>
+  <li>Task 15: the OpenAPI contract for the API, which generates the Kotlin client.</li>
+  <li>Task 16: the Go backend skeleton. The checks in section 4 become its Go integration tests against the emulator (decision 59).</li>
+  <li>Task 17: the real Terraform, on provider 6.22.0, applied to the emulator first.</li>
+  <li>Task 18: CI runs the emulator, the integration tests and the Terraform apply on every pull request.</li>
+</ol>
+<p>Recorded in the docs: WORKFLOW.md (the tested findings), decisions 57 (pinned emulator), 58 (pinned provider) and 59 (Go integration tests), a correction to decision 14 (Scheduler checks the delivery permission), and the missing Python and TypeScript reasons added to decision 5.</p>
+
+<p class="meta" style="margin-top:24px">Sources: AWS Emulator user guide (getting started, Docker, versioning, pointing your SDK, what is the emulator); <code>aws-emulator</code> GitHub issues #3 and #56 and the releases page; AWS Lambda developer guide, "Building Lambda functions with Go"; DinoGym docs/DECISIONS.md (decisions 5, 6, 13, 14, 51, 52, 56–59) and docs/WORKFLOW.md.</p>
+</body>
+</html>

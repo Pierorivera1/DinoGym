@@ -1,0 +1,19 @@
+$ cd docs/reports/aws-emulator/golambda && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bootstrap . && file bootstrap | cut -d, -f1-2
+bootstrap: ELF 64-bit LSB executable, x86-64
+
+$ cd docs/reports/aws-emulator/golambda && ls -l fn.zip | awk '{print $5, $9}'
+4919523 fn.zip
+
+$ aws lambda create-function --function-name go-hello --runtime provided.al2023 --architectures x86_64 --handler bootstrap --role arn:aws:iam::000000000000:role/dinogym-lambda --zip-file fileb://docs/reports/aws-emulator/golambda/fn.zip --query '[FunctionName,Runtime,State]' --output text
+go-hello	provided.al2023	Pending
+
+$ aws lambda wait function-active-v2 --function-name go-hello && aws lambda get-function --function-name go-hello --query 'Configuration.State' --output text
+Active
+
+$ aws lambda invoke --function-name go-hello --cli-binary-format raw-in-base64-out --payload '{"x":1}' /tmp/out.json
+
+aws: [ERROR]: An error occurred (InvalidRuntimeException) when calling the Invoke operation (reached max retries: 2): The runtime provided.al2023 is not supported by this emulator, which runs the Python and node runtimes.
+
+Additional error details:
+Type: Service
+

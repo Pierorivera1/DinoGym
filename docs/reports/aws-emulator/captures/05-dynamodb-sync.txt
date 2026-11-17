@@ -1,0 +1,22 @@
+$ aws dynamodb update-item --table-name dinogym --key '{"PK":{"S":"USER#u1"},"SK":{"S":"META"}}' --update-expression 'ADD seq :one' --expression-attribute-values '{":one":{"N":"1"}}' --return-values UPDATED_NEW --query Attributes.seq.N --output text
+1
+
+$ aws dynamodb put-item --table-name dinogym --item '{"PK":{"S":"USER#u1"},"SK":{"S":"WEIGHIN#a1"},"kg":{"N":"72.4"},"updatedAt":{"N":"1000"},"GSI1PK":{"S":"USER#u1"},"GSI1SK":{"N":"1"}}' --condition-expression 'attribute_not_exists(PK) OR updatedAt < :u' --expression-attribute-values '{":u":{"N":"1000"}}' && echo stored
+stored
+
+$ aws dynamodb update-item --table-name dinogym --key '{"PK":{"S":"USER#u1"},"SK":{"S":"META"}}' --update-expression 'ADD seq :one' --expression-attribute-values '{":one":{"N":"1"}}' --return-values UPDATED_NEW --query Attributes.seq.N --output text
+2
+
+$ aws dynamodb put-item --table-name dinogym --item '{"PK":{"S":"USER#u1"},"SK":{"S":"WEIGHIN#a1"},"kg":{"N":"99.9"},"updatedAt":{"N":"900"},"GSI1PK":{"S":"USER#u1"},"GSI1SK":{"N":"2"}}' --condition-expression 'attribute_not_exists(PK) OR updatedAt < :u' --expression-attribute-values '{":u":{"N":"900"}}' && echo stored
+
+aws: [ERROR]: An error occurred (ConditionalCheckFailedException) when calling the PutItem operation: The conditional request failed
+
+$ aws dynamodb put-item --table-name dinogym --item '{"PK":{"S":"USER#u1"},"SK":{"S":"WEIGHIN#a1"},"kg":{"N":"72.1"},"updatedAt":{"N":"2000"},"GSI1PK":{"S":"USER#u1"},"GSI1SK":{"N":"2"}}' --condition-expression 'attribute_not_exists(PK) OR updatedAt < :u' --expression-attribute-values '{":u":{"N":"2000"}}' && echo stored
+stored
+
+$ aws dynamodb query --table-name dinogym --index-name GSI1 --key-condition-expression 'GSI1PK = :p AND GSI1SK > :n' --expression-attribute-values '{":p":{"S":"USER#u1"},":n":{"N":"0"}}' --query 'Items[].[SK.S,kg.N,updatedAt.N,GSI1SK.N]' --output text
+WEIGHIN#a1	72.1	2000	2
+
+$ aws dynamodb query --table-name dinogym --index-name GSI1 --key-condition-expression 'GSI1PK = :p AND GSI1SK > :n' --expression-attribute-values '{":p":{"S":"USER#u1"},":n":{"N":"2"}}' --query Count
+0
+

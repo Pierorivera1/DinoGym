@@ -1,0 +1,19 @@
+$ curl -fsSLO https://downloads.aws.com/aws-emulator/packages/aws-emulator/LTS/aws-emulator-1.0.491-1-x86_64.rpm
+$ curl -fsSLO https://downloads.aws.com/aws-emulator/packages/aws-emulator/LTS/aws-emulator-1.0.491-1-x86_64.rpm.sig
+$ curl -fsSLo aws-publishing.asc https://downloads.aws.com/keys/gpg/current.asc && gpg --import aws-publishing.asc
+
+$ gpg --fingerprint ssm-publishing@amazon.com
+pub   rsa4096 2026-07-20 [SC]
+      98BC F336 A3BE 53B7 34E9  67C5 2E5B F49B D940 F624
+uid           [ unknown] SSM Publishing <ssm-publishing@amazon.com>
+
+$ gpg --verify aws-emulator-1.0.491-1-x86_64.rpm.sig aws-emulator-1.0.491-1-x86_64.rpm
+gpg: Signature made Tue 17 Nov 2026 08:27:39 AM -05
+gpg:                using RSA key 98BCF336A3BE53B734E967C52E5BF49BD940F624
+gpg: Good signature from "SSM Publishing <ssm-publishing@amazon.com>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 98BC F336 A3BE 53B7 34E9  67C5 2E5B F49B D940 F624
+
+$ sha256sum aws-emulator-1.0.491-1-x86_64.rpm
+2a0be8455d14e1051c3414093302de010bdf36dd165d665164d22f8317ee72c2  aws-emulator-1.0.491-1-x86_64.rpm

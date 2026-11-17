@@ -1,0 +1,18 @@
+$ aws sqs create-queue --queue-name dinogym-jobs --query QueueUrl --output text
+https://sqs.us-east-1.amazonaws.com/000000000000/dinogym-jobs
+
+$ aws sqs send-message --queue-url https://sqs.us-east-1.amazonaws.com/000000000000/dinogym-jobs --message-body '{"type":"weekly-summary","userId":"u1"}' --query MessageId --output text
+0f809aa6-366b-406c-84ac-89e31fcd8196
+
+$ aws sqs receive-message --queue-url https://sqs.us-east-1.amazonaws.com/000000000000/dinogym-jobs --wait-time-seconds 1 --query 'Messages[].Body' --output text
+{"type":"weekly-summary","userId":"u1"}
+
+$ aws s3 mb s3://dinogym-test
+make_bucket: dinogym-test
+
+$ echo 'hola dinocito' | aws s3 cp - s3://dinogym-test/routines/hello.txt && aws s3 ls s3://dinogym-test --recursive
+2026-11-17 15:58:38         14 routines/hello.txt
+
+$ aws s3 cp s3://dinogym-test/routines/hello.txt -
+hola dinocito
+

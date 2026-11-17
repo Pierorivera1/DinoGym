@@ -1,0 +1,28 @@
+$ aws sqs purge-queue --queue-url https://sqs.us-east-1.amazonaws.com/000000000000/dinogym-jobs && echo queue emptied
+queue emptied
+
+$ aws scheduler create-schedule --name fire-test --schedule-expression 'at(2026-11-17T21:00:06)' --flexible-time-window Mode=OFF --target '{"Arn":"arn:aws:sqs:us-east-1:000000000000:dinogym-jobs","RoleArn":"arn:aws:iam::000000000000:role/dinogym-scheduler","Input":"fired"}' --query ScheduleArn --output text
+arn:aws:scheduler:us-east-1:000000000000:schedule/default/fire-test
+
+$ date -u +%T; aws sqs receive-message --queue-url https://sqs.us-east-1.amazonaws.com/000000000000/dinogym-jobs --wait-time-seconds 20 --query 'Messages[].Body' --output text; date -u +%T
+20:59:55
+None
+21:00:15
+
+$ docker logs aws-emulator 2>&1 | grep 'Scheduler invocation failed' | tail -1   # shown formatted
+2026-11-17T21:00:06.191390Z WARN
+an EventBridge Scheduler invocation failed and its schedule names no dead-letter queue
+code: AccessDenied
+detail: User: arn:aws:sts::000000000000:assumed-role/dinogym-scheduler/ffffffffffff4ffc8000000000000003 is not authorized to perform: sqs:sendmessage on resource: arn:aws:sqs:us-east-1:000000000000:dinogym-jobs because no identity-based policy allows the sqs:sendmessage action
+
+$ aws iam put-role-policy --role-name dinogym-scheduler --policy-name send --policy-document '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"sqs:SendMessage","Resource":"arn:aws:sqs:us-east-1:000000000000:dinogym-jobs"}]}' && echo policy attached
+policy attached
+
+$ aws scheduler create-schedule --name fire-test-2 --schedule-expression 'at(2026-11-17T21:00:28)' --flexible-time-window Mode=OFF --target '{"Arn":"arn:aws:sqs:us-east-1:000000000000:dinogym-jobs","RoleArn":"arn:aws:iam::000000000000:role/dinogym-scheduler","Input":"fired"}' --query ScheduleArn --output text
+arn:aws:scheduler:us-east-1:000000000000:schedule/default/fire-test-2
+
+$ date -u +%T; aws sqs receive-message --queue-url https://sqs.us-east-1.amazonaws.com/000000000000/dinogym-jobs --wait-time-seconds 20 --query 'Messages[].Body' --output text; date -u +%T
+21:00:17
+fired
+21:00:28
+
