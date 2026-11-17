@@ -1,0 +1,8 @@
+# oapi-codegen settings for the Go server (decision 60). Regenerate with `go generate ./...`.
+package: api
+output: api.gen.go
+generate:
+  models: true
+  std-http-server: true
+  strict-server: true
+  embedded-spec: true
