@@ -1,0 +1,9 @@
+$ docker image ls dinogym/aws-emulator
+IMAGE                          ID             DISK USAGE   CONTENT SIZE   EXTRA
+dinogym/aws-emulator:1.0.491   4967abc63f4f       1.98GB          568MB        
+
+$ docker run --rm dinogym/aws-emulator:1.0.491 -v
+Version: 1.0.491
+Release date: 2026.11.17
+Commit: f0662ce0fb8558c9eeb2e86c9d9f327069e9cee2
+

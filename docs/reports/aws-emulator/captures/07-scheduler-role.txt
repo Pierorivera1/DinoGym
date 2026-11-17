@@ -1,0 +1,13 @@
+$ aws scheduler create-schedule --name pull-day-u1 --schedule-expression 'cron(0 7 ? * MON *)' --schedule-expression-timezone America/Lima --flexible-time-window Mode=OFF --target '{"Arn":"arn:aws:sqs:us-east-1:000000000000:dinogym-jobs","RoleArn":"arn:aws:iam::000000000000:role/dinogym-scheduler","Input":"reminder"}'
+
+aws: [ERROR]: An error occurred (ValidationException) when calling the CreateSchedule operation: The execution role you provide must allow AWS EventBridge Scheduler to assume the role.
+
+$ aws iam create-role --role-name dinogym-scheduler --assume-role-policy-document '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"scheduler.amazonaws.com"},"Action":"sts:AssumeRole"}]}' --query Role.Arn --output text
+arn:aws:iam::000000000000:role/dinogym-scheduler
+
+$ aws scheduler create-schedule --name pull-day-u1 --schedule-expression 'cron(0 7 ? * MON *)' --schedule-expression-timezone America/Lima --flexible-time-window Mode=OFF --target '{"Arn":"arn:aws:sqs:us-east-1:000000000000:dinogym-jobs","RoleArn":"arn:aws:iam::000000000000:role/dinogym-scheduler","Input":"reminder"}' --output text
+arn:aws:scheduler:us-east-1:000000000000:schedule/default/pull-day-u1
+
+$ aws scheduler get-schedule --name pull-day-u1 --query '[State,ScheduleExpression,ScheduleExpressionTimezone]' --output text
+ENABLED	cron(0 7 ? * MON *)	America/Lima
+
