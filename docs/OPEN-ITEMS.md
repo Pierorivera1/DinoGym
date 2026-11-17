@@ -6,7 +6,7 @@ As of 2026-11-16. Remove an item when it is done or decided, and record decision
 
 - [x] Install Go (mise, 1.27.4, decision 37)
 - [x] Install Terraform (mise, v1.17.2)
-- [ ] Install the AWS Emulator (Docker route in [WORKFLOW.md](WORKFLOW.md)). Docker is installed but the service is stopped and the user is not in the `docker` group; this needs `sudo` once. Not needed until the cloud work
+- [ ] Install the AWS Emulator (Docker route in [WORKFLOW.md](WORKFLOW.md)). Docker works without sudo (task 13); this is task 14
 - [ ] Run `aws login` (only needed from the staging stage on)
 - [x] Create a Firebase project: `DinoGym`, project ID `dinogym-3870b`. The Android app is added to it later, once the package name and signing key exist.
 - [x] Create a Grafana Cloud account (free tier). Tokens are created later, when observability is wired up.
