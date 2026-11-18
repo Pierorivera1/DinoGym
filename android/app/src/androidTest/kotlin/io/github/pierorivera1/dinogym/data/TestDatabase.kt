@@ -5,6 +5,7 @@ import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
 import io.github.pierorivera1.dinogym.data.local.DinoDatabase
+import io.github.pierorivera1.dinogym.data.local.SyncTracking
 import io.github.pierorivera1.dinogym.data.repository.CycleWriter
 import io.github.pierorivera1.dinogym.data.repository.ExerciseRepository
 import io.github.pierorivera1.dinogym.data.repository.HistoryRepository
@@ -41,6 +42,7 @@ class TestDatabase {
 
     val db: DinoDatabase = Room.inMemoryDatabaseBuilder(context, DinoDatabase::class.java)
         .setDriver(BundledSQLiteDriver())
+        .addCallback(SyncTracking.callback)
         .build()
 
     private val cycleWriter = CycleWriter(db.programDao(), clock)

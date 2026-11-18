@@ -75,6 +75,9 @@ class SessionManager @Inject constructor(
         .map { it?.let { session -> Account(session.displayName, session.email) } }
         .distinctUntilChanged()
 
+    /** The signed-in DinoGym user id, or null when signed out. Sync follows it (task 21). */
+    val userId: Flow<String?> = store.session.map { it?.userId }.distinctUntilChanged()
+
     /**
      * Exchanges a Google [idToken] for a DinoGym session and stores it with the [displayName]
      * and [email] from Google. Safe to retry: every sign-in starts a new session family.
@@ -100,13 +103,19 @@ class SessionManager @Inject constructor(
      * A valid access token, refreshing it first when it expires within [EXPIRY_SKEW_MILLIS].
      * Callers that get [AccessTokenResult.SignedOut] stop syncing; the ACCOUNT card already
      * shows the signed-out state, since the session is gone from the store.
+     *
+     * [rejected] is a token the API just answered 401 to (task 21): if it is still the stored
+     * one, it is refreshed even though the phone's clock says it is valid. If another caller
+     * already refreshed it, the newer token comes back and nothing is sent, so the
+     * single-flight and never-twice rules still hold.
      */
-    suspend fun accessToken(): AccessTokenResult = mutex.withLock {
+    suspend fun accessToken(rejected: String? = null): AccessTokenResult = mutex.withLock {
         val session = store.read() ?: return AccessTokenResult.SignedOut
         when {
             // A refresh was sent and the app stopped before storing its answer.
             session.refreshPending -> endSession()
-            clock.millis() < session.accessTokenExpiresAt - EXPIRY_SKEW_MILLIS ->
+            session.accessToken != rejected &&
+                clock.millis() < session.accessTokenExpiresAt - EXPIRY_SKEW_MILLIS ->
                 AccessTokenResult.Token(session.accessToken)
             else -> refresh(session)
         }

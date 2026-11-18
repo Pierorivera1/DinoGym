@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Sign-in (task 20) and, later, sync. Everything else works without a connection. -->
+    <!-- Sign-in (task 20) and sync (task 21). Everything else works without a connection. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- The ACCOUNT card's "Offline" row and SYNC NOW (task 21). -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- Rest timer (timer/). The rest screen asks for this at runtime on Android 13+. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -35,6 +38,19 @@
         <receiver
             android:name=".timer.RestOverReceiver"
             android:exported="false" />
+
+        <!-- WorkManager starts on first use with DinoGymApp's configuration (the sync worker's
+             factory), not from its default startup initializer. -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
     </application>
 
 </manifest>

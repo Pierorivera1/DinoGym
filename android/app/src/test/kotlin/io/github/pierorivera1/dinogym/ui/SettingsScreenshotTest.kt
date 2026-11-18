@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onRoot
 import com.github.takahirom.roborazzi.captureRoboImage
 import io.github.pierorivera1.dinogym.ui.settings.AccountError
 import io.github.pierorivera1.dinogym.ui.settings.AccountUiState
+import io.github.pierorivera1.dinogym.ui.settings.SyncRowState
 import io.github.pierorivera1.dinogym.ui.settings.FontLicences
 import io.github.pierorivera1.dinogym.ui.settings.LicencesScreen
 import io.github.pierorivera1.dinogym.ui.settings.SettingsActions
@@ -68,7 +69,46 @@ class SettingsScreenshotTest {
     @Config(qualifiers = SPANISH)
     fun accountSignedInDaySpanish() = capture("settings_account_signed_in_es_day", ThemeMode.DAY) {
         SettingsScreen(
-            SettingsUiState(ThemeMode.DAY, "2.0.0", 1, AccountUiState.SignedIn("Piero", "piero@example.com")),
+            SettingsUiState(
+                ThemeMode.DAY,
+                "2.0.0",
+                1,
+                AccountUiState.SignedIn("Piero", "piero@example.com", sync = SyncRowState.Synced(minutesAgo = 2)),
+            ),
+            SettingsActions.None,
+        )
+    }
+
+    /** Mock 3: offline with changes waiting, SYNC NOW disabled. */
+    @Test
+    fun accountOfflineNightEnglish() = capture("settings_account_offline_en_night", ThemeMode.NIGHT) {
+        SettingsScreen(
+            SettingsUiState(
+                ThemeMode.SYSTEM,
+                "2.0.0",
+                1,
+                AccountUiState.SignedIn(
+                    "Piero",
+                    "piero@example.com",
+                    sync = SyncRowState.Offline(pending = 3),
+                    canSyncNow = false,
+                    pendingChanges = 3,
+                ),
+            ),
+            SettingsActions.None,
+        )
+    }
+
+    @Test
+    @Config(qualifiers = SPANISH)
+    fun accountSyncFailedDaySpanish() = capture("settings_account_sync_failed_es_day", ThemeMode.DAY) {
+        SettingsScreen(
+            SettingsUiState(
+                ThemeMode.DAY,
+                "2.0.0",
+                1,
+                AccountUiState.SignedIn("Piero", "piero@example.com", sync = SyncRowState.Failed(pending = 1), pendingChanges = 1),
+            ),
             SettingsActions.None,
         )
     }
@@ -80,7 +120,14 @@ class SettingsScreenshotTest {
                 ThemeMode.SYSTEM,
                 "2.0.0",
                 1,
-                AccountUiState.SignedIn("Piero", "piero@example.com", confirmingSignOut = true),
+                AccountUiState.SignedIn(
+                    "Piero",
+                    "piero@example.com",
+                    confirmingSignOut = true,
+                    sync = SyncRowState.Offline(pending = 3),
+                    canSyncNow = false,
+                    pendingChanges = 3,
+                ),
             ),
             SettingsActions.None,
         )

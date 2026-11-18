@@ -23,6 +23,8 @@ As of 2026-11-17. Remove an item when it is done or decided, and record decision
 - [ ] Bump the pinned AWS Emulator version from time to time; security fixes only reach the latest release (decision 57)
 - [ ] On staging: a full 500-row push finishes well inside the Lambda's 10 s timeout, and a 3,000-row first upload is not throttled (10 requests a second, decision 67). The emulator cannot show either (decisions 86–87)
 
+- [ ] On a phone, for sync (task 21): sync between the phone and a second device or a reinstall; first-sign-in upload of the full history; airplane mode → changes waiting → back online → synced
+- [ ] A second phone or a reinstall that signs in gets two copies of the seeded program, since every install seeds it with new ids (decision 90). Delete one by hand, or give seed rows fixed ids
 - [ ] On a phone: Back handling in a workout, the notification permission prompt, the rest alarm and its sound with the screen off, resume after the app is killed, the scroll picker. None of these can be checked on the laptop
 - [ ] On a phone, for the Exercises screens: drag to reorder, keyboard and focus, and that edits reach the database
 - [ ] With the system font at 130%, long button labels are cut off (`EMPEZAR PULL` shows as `EMPEZAR`). No shorter Spanish verb exists, so this needs a layout fix
@@ -36,7 +38,7 @@ As of 2026-11-17. Remove an item when it is done or decided, and record decision
 
 ## State of the build
 
-- Task 21, backend half: `/sync/push` and `/sync/pull` work on the laptop and the emulator for every synced table, with the cursor rule of decision 86 and the handlers of decision 87. Not yet deployed or run on staging. The app does not sync yet (the Android half of task 21).
+- Task 21: the backend's `/sync/push` and `/sync/pull` work on the laptop and the emulator (decisions 86–87). The app tracks changes with SQLite triggers, pushes and pulls through WorkManager while signed in, uploads the whole history on the first sign-in, and shows the sync row in Settings › ACCOUNT (decisions 88–91). Checked with JVM tests and CI's instrumented tests; not yet tried on a phone against staging.
 - Task 20: the backend verifies Google ID tokens and issues sessions (decisions 79–80). The app signs in from Settings › ACCOUNT through Credential Manager, keeps the session encrypted with a Keystore key, and refreshes it under the rules of decision 83 (decisions 81–84). Debug builds use staging, release builds prod. Nothing else in the app needs an account.
 - Task 19: the bootstrap is applied on real AWS (us-east-1) as the IAM user `piero-admin-dinogym`, its state is in the bucket, and the `staging` and `prod` GitHub environments and variables are set. Staging is deployed by `deploy.yml` and answers `/health`; prod deploys after the owner approves the run (decisions 74–78). The AWS side is torn down on 2027-02-01 (decision 76).
 - Task 18: pull requests run the emulator checks (`infra/emulator/check.sh`); `deploy.yml` deploys staging, then prod after approval, through OIDC (decisions 68–73). `infra/bootstrap` holds the state bucket, the OIDC provider, the deploy roles, the permissions boundaries and the budget. The deploy jobs are skipped until `DEPLOY_ENABLED` is set in task 19, so neither workflow has reached AWS yet.

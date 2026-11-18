@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
@@ -58,6 +59,7 @@ data class SettingsActions(
     val onAskSignOut: () -> Unit = {},
     val onCancelSignOut: () -> Unit = {},
     val onConfirmSignOut: () -> Unit = {},
+    val onSyncNow: () -> Unit = {},
 ) {
     companion object {
         /** No-op actions, for screenshot tests. */
@@ -141,10 +143,17 @@ fun SettingsScreen(
             Spacer(Modifier.weight(1f))
             TextBox(stringResource(R.string.settings_bubble), showMascot = true, modifier = Modifier.fillMaxWidth())
         }
-        if ((state.account as? AccountUiState.SignedIn)?.confirmingSignOut == true) {
+        val signedIn = state.account as? AccountUiState.SignedIn
+        if (signedIn?.confirmingSignOut == true) {
+            val pending = signedIn.pendingChanges
             ConfirmSheet(
                 title = stringResource(R.string.account_sign_out_title),
-                message = stringResource(R.string.account_sign_out_body),
+                // With unsynced changes, say they wait for the next sign-in (mock `Account.dc.html`).
+                message = if (pending > 0) {
+                    pluralStringResource(R.plurals.account_sign_out_body_pending, pending, pending)
+                } else {
+                    stringResource(R.string.account_sign_out_body)
+                },
                 confirmLabel = stringResource(R.string.account_sign_out),
                 onConfirm = actions.onConfirmSignOut,
                 onDismiss = actions.onCancelSignOut,

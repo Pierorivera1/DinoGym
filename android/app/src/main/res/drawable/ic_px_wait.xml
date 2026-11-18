@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 16x16 pixel icon "wait" (hourglass), redrawn from Account.dc.html (I.wait). Tinted in code; the fill is a placeholder. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M2,1h12v1h-12zM2,2h12v1h-12zM3,3h1v1h-1zM12,3h1v1h-1zM4,4h1v1h-1zM11,4h1v1h-1zM5,5h1v1h-1zM10,5h1v1h-1zM6,6h1v1h-1zM9,6h1v1h-1zM7,7h2v1h-2zM6,8h1v1h-1zM9,8h1v1h-1zM5,9h1v1h-1zM7,9h2v1h-2zM10,9h1v1h-1zM4,10h1v1h-1zM6,10h4v1h-4zM11,10h1v1h-1zM3,11h1v1h-1zM5,11h6v1h-6zM12,11h1v1h-1zM2,12h12v1h-12zM2,13h12v1h-12z" />
+</vector>

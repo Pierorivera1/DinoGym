@@ -24,6 +24,7 @@ io.github.pierorivera1.dinogym
 ├── domain/     pure Kotlin: models and rules (cycle, pre-fill, set-1 bests). No Android imports
 ├── data/       Room database, DAOs, repositories, first-run seed data;
 │               account/: sign-in, the encrypted session and token refresh (task 20)
+│               sync/: change tracking, push and pull, WorkManager scheduling (task 21)
 ├── timer/      rest timer: end time, countdown notification and alarm (decision 42)
 └── ui/
     ├── theme/      DinoTheme tokens, fonts, shapes (from DESIGN.md)
@@ -51,11 +52,25 @@ Every table uses a text UUID primary key plus `updatedAt` and a nullable `delete
 | `weigh_in` | measuredAt, weightKg (database version 2, decision 49) |
 | `preference` | key (primary key instead of a UUID), value. Synced user settings such as the goal weight |
 
-- `local_flag` is one extra, local-only table (key, value). It records that the first-run seed has run (decision 40) and is never synced.
+- `local_flag` is one extra, local-only table (key, value). It records that the first-run seed has run (decision 40) and, since task 21, the sync cursor, the account the phone last synced with and the last sync result. It is never synced.
+- `sync_pending` (seq, tableName, rowId) and `sync_inbox` (tableName, rowId, json) are local-only sync tables (database version 3, decisions 88–89). Triggers on the nine synced tables fill `sync_pending`.
 - A workout in progress is a `session` with no `endedAt`. Sets are written as they are logged, so a workout survives the app being killed, as in version 1.
 - Completing, skipping or marking a rest day done moves `program.currentStep` on (decision 29).
 - Progress is not stored. It is a query over set 1 of each finished session, keeping the days set 1 beat the previous best (decision 28).
 - The owner's program (WISHLIST.md) is inserted on first run.
+
+### Sync (task 21)
+
+Decisions 51, 62, 86–91. Offline first: no screen waits on sync, and everything works signed out.
+
+1. **Tracking.** Every insert or update of a synced row fires a trigger that writes `(table, id)` with a new `seq` into `sync_pending`. Theme (DataStore) and `local_flag` never sync.
+2. **When.** `SyncController` follows the signed-in user. Signed in: a periodic run every 6 hours, a run 60 s after any change, and one right after sign-in and on SYNC NOW (WorkManager unique works, network required). Signed out: all cancelled; pending marks stay.
+3. **Account.** The first sign-in, or a different account than last time, marks every row pending and resets the cursor to 0, so the whole history goes up.
+4. **Push.** Pending rows, parents first, in batches of ≤ 500 rows and ≈ 900 KB. `accepted`/`stale` clear the entry if it was not changed again since; `rejected` stays for a later run.
+5. **Pull.** Pages of 1000 from the stored cursor until `hasMore` is false. Each page and its cursor commit in one transaction; rows apply parents first by the merge rule (newer `updatedAt` wins, deletion wins a tie); a row whose parent has not arrived waits in `sync_inbox`.
+6. **Errors.** 401 → refresh once and retry once; offline, 429, 5xx → retry later with backoff; 400 or a second 401 → "Sync failed" until a later run works.
+
+Code: `data/sync/` (engine, rules, Room store, scheduling), `data/local/SyncTracking.kt` and `SyncDao.kt`, the sync row in `ui/settings/AccountSection.kt`.
 
 ### Testing
 

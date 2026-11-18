@@ -8,6 +8,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import io.github.pierorivera1.dinogym.data.local.ALL_MIGRATIONS
 import io.github.pierorivera1.dinogym.data.local.DinoDatabase
 import io.github.pierorivera1.dinogym.data.local.MIGRATION_1_2
+import io.github.pierorivera1.dinogym.data.local.MIGRATION_2_3
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -71,6 +72,27 @@ class DinoDatabaseMigrationTest {
         db.close()
     }
 
+    @Test
+    fun migrate2To3KeepsRowsAndAddsTheSyncTables() = runTest {
+        helper.createDatabase(2).apply {
+            execSQL("INSERT INTO weigh_in (id, measuredAt, weightKg, updatedAt, deletedAt) VALUES ('w1', 1, 78.3, 1, NULL)")
+            close()
+        }
+
+        val db = helper.runMigrationsAndValidate(3, listOf(MIGRATION_2_3))
+
+        db.prepare("SELECT weightKg FROM weigh_in WHERE id = 'w1'").use { statement ->
+            statement.step()
+            assertEquals(78.3, statement.getDouble(0), 0.0)
+        }
+        db.prepare("SELECT COUNT(*) FROM sync_pending").use { statement ->
+            statement.step()
+            assertEquals("nothing is marked until the first sign-in", 0L, statement.getLong(0))
+        }
+        db.execSQL("INSERT INTO sync_inbox (tableName, rowId, json) VALUES ('set_entry', 'x1', '{}')")
+        db.close()
+    }
+
     /** Every version step has a migration, so a new version without one fails here. */
     @Test
     fun migrateFromFirstVersionToLatest() = runTest {
@@ -79,6 +101,6 @@ class DinoDatabaseMigrationTest {
     }
 
     private companion object {
-        const val LATEST_VERSION = 2
+        const val LATEST_VERSION = 3
     }
 }

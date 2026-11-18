@@ -167,3 +167,31 @@ data class PreferenceEntity(
     val updatedAt: Long,
     val deletedAt: Long? = null,
 )
+
+/**
+ * A synced row changed on this phone since its last successful push (task 21, decision 88).
+ * Filled by SQLite triggers on every synced table (SyncTracking.kt), so no write path can
+ * forget it. One entry per changed row: a new change replaces the old entry and takes a higher
+ * [seq], so a push clears only the entry it sent, and an edit made during the push stays.
+ * Local-only, never synced.
+ */
+@Entity(tableName = "sync_pending", indices = [Index("tableName", "rowId", unique = true)])
+data class SyncPendingEntity(
+    @PrimaryKey(autoGenerate = true) val seq: Long = 0,
+    /** The table's name, as in the API's `SyncTable`. */
+    val tableName: String,
+    /** The row's id, or a preference's key. */
+    val rowId: String,
+)
+
+/**
+ * A pulled row whose parent row has not arrived yet (task 21, decision 89): a set whose
+ * session is on a later page, or still inside the server's 30-second window (decision 86).
+ * Kept as the JSON of a one-row `ChangeSet` and tried again after every pulled page. Local-only.
+ */
+@Entity(tableName = "sync_inbox", primaryKeys = ["tableName", "rowId"])
+data class SyncInboxEntity(
+    val tableName: String,
+    val rowId: String,
+    val json: String,
+)
