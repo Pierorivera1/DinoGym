@@ -186,7 +186,7 @@ paths:
         Stores an immutable snapshot of a routine or of a program with its
         routines (decision 96). Nothing about the user is in the snapshot, and
         later edits of the original do not change it; sharing again makes a new
-        link. The app builds the link `https://<share host>/r/<id>` itself.
+        link, returned as `url`.
 
         The snapshot is limited to 64 KiB of JSON (`413 share_too_large`), and
         each user may publish 20 shares a day, UTC (`429 too_many_shares`).
@@ -802,7 +802,12 @@ components:
       properties:
         id:
           type: string
-          description: The share's id. The link is `https://<share host>/r/<id>`.
+          description: The share's id, 22 URL-safe characters.
+        url:
+          type: string
+          description: |
+            The public link, `https://<distribution>.cloudfront.net/r/<id>`.
+            Left out while the environment has no share page yet.
 
     Share:
       type: object

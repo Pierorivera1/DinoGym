@@ -33,6 +33,9 @@ type Server struct {
 	store Store
 	auth  *auth.Service
 	now   func() time.Time
+	// shareBaseURL is https://<distribution>.cloudfront.net; empty when the
+	// environment has no share page, and then POST /shares returns no url.
+	shareBaseURL string
 }
 
 var (
@@ -44,6 +47,12 @@ var (
 // and signs users in with a.
 func New(log *slog.Logger, st Store, a *auth.Service) *Server {
 	return &Server{log: log, store: st, auth: a, now: time.Now}
+}
+
+// WithShareBaseURL sets the base of shared links (decision 100) and returns s.
+func (s *Server) WithShareBaseURL(base string) *Server {
+	s.shareBaseURL = base
+	return s
 }
 
 func (s *Server) GetHealth(context.Context, api.GetHealthRequestObject) (api.GetHealthResponseObject, error) {

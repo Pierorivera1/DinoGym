@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"reflect"
 	"strings"
@@ -99,6 +100,10 @@ func runSharesSuite(t *testing.T, newStore func(t *testing.T) Store) {
 		id := e.mustShare(e.alice, sent)
 		if !shareIDPattern.MatchString(id) {
 			t.Fatalf("id %q is not 22 URL-safe characters", id)
+		}
+		// newSyncEnv has no share base URL, so no link comes back.
+		if _, created, _ := e.createShare(e.alice, sent); created.Url != nil {
+			t.Fatalf("url %q without a share base URL", *created.Url)
 		}
 		code, h, raw, got := e.getShare(id)
 		if code != http.StatusOK {
@@ -228,5 +233,15 @@ func runSharesSuite(t *testing.T, newStore func(t *testing.T) Store) {
 		}
 		// The cap is per user.
 		e.mustShare(e.bob, routineSnapshot())
+	})
+
+	t.Run("the link uses the share base URL", func(t *testing.T) {
+		a := testAuth(t)
+		h := New(slog.New(slog.DiscardHandler), newStore(t), a).WithShareBaseURL("https://d123.cloudfront.net").Handler()
+		e := &syncEnv{t: t, h: h, alice: bearerFor(t, a, "good-id-token")}
+		_, created, _ := e.createShare(e.alice, routineSnapshot())
+		if created.Url == nil || *created.Url != "https://d123.cloudfront.net/r/"+created.Id {
+			t.Fatalf("url %v for id %q", created.Url, created.Id)
+		}
 	})
 }

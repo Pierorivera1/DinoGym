@@ -83,7 +83,12 @@ func (s *Server) CreateShare(ctx context.Context, req api.CreateShareRequestObje
 	}
 	// No ids or names in the logs: the kind and size are enough.
 	s.log.DebugContext(ctx, "share created", "kind", req.Body.Kind, "routines", len(req.Body.Routines), "bytes", len(snap))
-	return api.CreateShare201JSONResponse{Id: id}, nil
+	created := api.CreateShare201JSONResponse{Id: id}
+	if s.shareBaseURL != "" {
+		u := s.shareBaseURL + "/r/" + id
+		created.Url = &u
+	}
+	return created, nil
 }
 
 // checkSnapshot returns what is wrong with a snapshot beyond its schema, or

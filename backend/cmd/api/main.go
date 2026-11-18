@@ -81,7 +81,7 @@ func run() error {
 		log.Warn("DINOGYM_GOOGLE_CLIENT_ID is not set; sign-in with Google will fail")
 	}
 	svc := auth.NewService(tokens, auth.NewGoogle(cfg.GoogleClientID), st)
-	handler := server.New(log, st, svc).Handler()
+	handler := server.New(log, st, svc).WithShareBaseURL(cfg.ShareBaseURL).Handler()
 
 	// Lambda sets AWS_LAMBDA_RUNTIME_API for the runtime client.
 	if os.Getenv("AWS_LAMBDA_RUNTIME_API") != "" {

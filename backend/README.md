@@ -41,6 +41,7 @@ Without `env.sh` it still starts, with a warning, and storage calls fail ([../do
 | `DINOGYM_GOOGLE_CLIENT_ID` | none; required in staging and prod | Web OAuth client ID that Google ID tokens must be issued to |
 | `DINOGYM_SESSION_KEY_PARAM` | none | SSM parameter holding the session signing key (set by Terraform) |
 | `DINOGYM_SESSION_KEY` | a random key in `local` | The signing key itself, at least 32 bytes; laptop only. Never set both this and `_PARAM` |
+| `DINOGYM_SHARE_BASE_URL` | none | Base of shared links, `https://<distribution>.cloudfront.net` (set by Terraform). Without it `POST /shares` returns no `url` |
 
 ### Sign in locally
 
@@ -87,7 +88,7 @@ curl -s -X POST 127.0.0.1:8080/shares -H 'Authorization: Bearer <access token>' 
 curl -s 127.0.0.1:8080/shares/<id>
 ```
 
-- **Publish:** `201` with the 22-character id. A routine share has exactly one routine and no program; a program's cycle must use every routine and point at no missing one; `repMin` ≤ `repMax`. Over 64 KiB is `413 share_too_large`; a user's 21st share in a UTC day is `429 too_many_shares`.
+- **Publish:** `201` with the 22-character id and, when `DINOGYM_SHARE_BASE_URL` is set, the link `url`. A routine share has exactly one routine and no program; a program's cycle must use every routine and point at no missing one; `repMin` ≤ `repMax`. Over 64 KiB is `413 share_too_large`; a user's 21st share in a UTC day is `429 too_many_shares`.
 - **Read:** public, `Cache-Control: public, max-age=3600`; an unknown or malformed id is `404 not_found`.
 - Logs carry the kind and size, never names.
 
