@@ -40,3 +40,26 @@ variable "google_client_id" {
   description = "Web OAuth client ID that Google ID tokens must be issued to (decision 80). Not secret: it is in every ID token."
   type        = string
 }
+
+variable "app_links" {
+  description = <<-EOT
+    Android apps that may open this environment's /r/* links directly (App Links,
+    decision 99): package name and the SHA-256 fingerprints of its signing
+    certificates. The first package is also the one the web page's
+    "Open in DinoGym" button opens. Fingerprints are public: they are in every APK.
+  EOT
+  type = list(object({
+    package_name             = string
+    sha256_cert_fingerprints = list(string)
+  }))
+  validation {
+    condition     = length(var.app_links) > 0
+    error_message = "app_links needs at least one app."
+  }
+}
+
+variable "releases_url" {
+  description = "Where people without the app get it: the GitHub Releases page (decision 8)."
+  type        = string
+  default     = "https://github.com/Pierorivera1/DinoGym/releases/latest"
+}

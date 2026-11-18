@@ -42,7 +42,8 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Language | TypeScript |
 | Framework | React |
 | Hosting | S3 behind CloudFront |
-| Pages | Logged-in dashboard, and public pages for shared routines |
+| Pages | Logged-in dashboard (React, task 25), and public pages for shared routines. The shared routine page is the exception: one static HTML file with plain JavaScript and CSS and no build step (`web/share/`, decision 98) |
+| Edge logic | One CloudFront Function serves the shared routine page for every `/r/<id>` link (decision 100) |
 
 ## Infrastructure and delivery
 

@@ -18,6 +18,9 @@ on:
       - "api/**"
       - "backend/**"
       - "infra/**"
+      # The shared link page, and the app font it serves (infra/modules/dinogym/web.tf).
+      - "web/**"
+      - "android/app/src/main/res/font/pixelify_sans.ttf"
       - ".github/workflows/deploy.yml"
       - ".github/workflows/infra.yml"
   workflow_dispatch:
@@ -126,6 +129,28 @@ jobs:
           echo "::error::$url did not answer 200"
           exit 1
 
+      # The shared-link side through real CloudFront (decision 101): the page,
+      # assetlinks.json from S3 through origin access control, and the API
+      # answering through the /shares/* behaviour (a made-up id is a 404 from
+      # the Lambda, not a 403 from CloudFront or S3).
+      - name: Smoke test the shared links
+        run: |
+          web="$(terraform output -raw web_url)"
+          id=AAAAAAAAAAAAAAAAAAAAAA
+          check() { # check <path> <expected status> <grep pattern in body>
+            for try in 1 2 3 4 5 6; do
+              code="$(curl -s -o body.txt -w '%{http_code}' --max-time 10 "$web$1" || true)"
+              echo "try $try: $web$1 -> $code"
+              if [ "$code" = "$2" ] && grep -q "$3" body.txt; then return 0; fi
+              sleep 10
+            done
+            echo "::error::$web$1 did not answer $2 with $3"
+            exit 1
+          }
+          check "/r/$id" 200 'data-package='
+          check "/.well-known/assetlinks.json" 200 'package_name'
+          check "/shares/$id" 404 '"not_found"'
+
   prod:
     name: Prod
     needs: staging
@@ -186,3 +211,25 @@ jobs:
           done
           echo "::error::$url did not answer 200"
           exit 1
+
+      # The shared-link side through real CloudFront (decision 101): the page,
+      # assetlinks.json from S3 through origin access control, and the API
+      # answering through the /shares/* behaviour (a made-up id is a 404 from
+      # the Lambda, not a 403 from CloudFront or S3).
+      - name: Smoke test the shared links
+        run: |
+          web="$(terraform output -raw web_url)"
+          id=AAAAAAAAAAAAAAAAAAAAAA
+          check() { # check <path> <expected status> <grep pattern in body>
+            for try in 1 2 3 4 5 6; do
+              code="$(curl -s -o body.txt -w '%{http_code}' --max-time 10 "$web$1" || true)"
+              echo "try $try: $web$1 -> $code"
+              if [ "$code" = "$2" ] && grep -q "$3" body.txt; then return 0; fi
+              sleep 10
+            done
+            echo "::error::$web$1 did not answer $2 with $3"
+            exit 1
+          }
+          check "/r/$id" 200 'data-package='
+          check "/.well-known/assetlinks.json" 200 'package_name'
+          check "/shares/$id" 404 '"not_found"'

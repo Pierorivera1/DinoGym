@@ -7,7 +7,8 @@
 # 1. Terraform format, and `validate` of the staging and prod roots (no AWS calls).
 # 2. The Go integration tests against the emulator.
 # 3. The staging stack on the emulator: apply, a second plan that must report
-#    no changes, then destroy.
+#    no changes, the shared-link checks against the CloudFront distribution
+#    the emulator serves, then destroy.
 #
 # It sources env.sh itself, so the calling shell is never pointed at the
 # emulator, and it refuses to start when the emulator is not healthy.
@@ -71,6 +72,33 @@ trap cleanup EXIT
 # disagree about what was created. 1: error. Only 0 passes.
 step "terraform plan must report no changes"
 "${TF[@]}" plan -detailed-exitcode -input=false
+
+# The emulator serves the distribution on a port inside its container, so
+# these requests run there. They check our configuration (the /r/ rewrite,
+# S3 through origin access control, the API behaviour, HTTPS redirect and
+# headers), not CloudFront itself (docs/WORKFLOW.md).
+step "shared link checks on the emulator's CloudFront"
+web="$("${TF[@]}" output -raw web_url)"
+http_url="http://${web#https://}"
+req() { docker exec aws-emulator curl -sk -o /dev/null -D - "$@" | tr -d '\r'; }
+expect() { # expect <description> <headers> <grep -E pattern>
+  if ! grep -qiE "$3" <<<"$2"; then
+    printf 'FAIL: %s\n%s\n' "$1" "$2" >&2
+    exit 1
+  fi
+  echo "ok: $1"
+}
+id=AAAAAAAAAAAAAAAAAAAAAA
+expect "/r/<id> is the page" "$(req "$web/r/$id")" '^content-type: text/html'
+expect "the page names the debug app" \
+  "$(docker exec aws-emulator curl -sk "$web/r/$id" | grep -o 'data-package="[^"]*"')" 'data-package="io\.github\.pierorivera1\.dinogym\.debug"'
+expect "the page has a CSP" "$(req "$web/r/$id")" "^content-security-policy: default-src 'none'"
+expect "/web/r.js is served" "$(req "$web/web/r.js")" '^HTTP/[0-9.]+ 200'
+expect "assetlinks.json is JSON" "$(req "$web/.well-known/assetlinks.json")" '^content-type: application/json'
+expect "/shares/* goes to API Gateway" "$(req "$web/shares/$id")" '^x-amzn-requestid:'
+expect "publishing cannot go through CloudFront" "$(req -X POST "$web/shares/$id")" '^HTTP/[0-9.]+ 403'
+expect "other paths are not public" "$(req "$web/web/missing")" '^HTTP/[0-9.]+ 403'
+expect "plain HTTP redirects to HTTPS" "$(req "$http_url/r/$id")" '^HTTP/[0-9.]+ 301'
 
 step "terraform destroy"
 "${TF[@]}" destroy -auto-approve -input=false
