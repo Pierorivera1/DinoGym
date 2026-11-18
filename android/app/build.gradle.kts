@@ -21,6 +21,14 @@ android {
         versionCode = 1
         versionName = "2.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // The Web OAuth client ID the backend checks as the Google ID token's audience
+        // (decision 80). Not secret: it is inside every ID token.
+        buildConfigField(
+            "String",
+            "GOOGLE_SERVER_CLIENT_ID",
+            "\"854486518090-7sc6gs4dmbuo5lgsm9ss9g0p0chedm9a.apps.googleusercontent.com\"",
+        )
     }
 
     // Release signing (decision in DECISIONS.md, "Release signing"). The keystore never enters
@@ -42,12 +50,16 @@ android {
         debug {
             // Lets a debug build and a release build install side by side.
             applicationIdSuffix = ".debug"
+            // Staging's HTTP API. Changes if the API is ever recreated (android/README.md).
+            buildConfigField("String", "API_BASE_URL", "\"https://ypn4asfnil.execute-api.us-east-1.amazonaws.com\"")
         }
         release {
             isMinifyEnabled = false
             // Unsigned when no keystore is configured (CI builds on every push, lint), so
             // only the release workflow and the owner's machine produce an installable APK.
             signingConfig = signingConfigs.findByName("release")
+            // Prod's HTTP API. Changes if the API is ever recreated (android/README.md).
+            buildConfigField("String", "API_BASE_URL", "\"https://cm884h7had.execute-api.us-east-1.amazonaws.com\"")
         }
     }
 
@@ -58,7 +70,8 @@ android {
 
     buildFeatures {
         compose = true
-        // BuildConfig.VERSION_NAME and VERSION_CODE, shown in Settings.
+        // BuildConfig.VERSION_NAME and VERSION_CODE, shown in Settings; the API URL and the
+        // Google client ID for sign-in (task 20).
         buildConfig = true
     }
 
@@ -123,8 +136,16 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.coroutines.android)
 
+    // Sign-in (task 20): the generated API client over OkHttp, and Google through Credential Manager.
+    implementation(project(":api-client"))
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.ktor.client.mock)
     // JVM screenshots of Compose UI, without an emulator (Robolectric renders, Roborazzi saves PNGs).
     testImplementation(composeBom)
     testImplementation(libs.androidx.compose.ui.test.junit4)

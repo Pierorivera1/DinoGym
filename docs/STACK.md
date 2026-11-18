@@ -12,8 +12,8 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Local storage | Room 3 with the bundled SQLite driver (replaces version 1's JSON file) |
 | Background sync | WorkManager |
 | Dependency injection | Hilt |
-| Networking | Ktor 3 client, generated from the OpenAPI contract into `android/api-client` (OpenAPI Generator, decision 60) |
-| Sign-in | Google one-tap through Android Credential Manager |
+| Networking | Ktor 3 client on OkHttp, generated from the OpenAPI contract into `android/api-client` (OpenAPI Generator, decisions 60 and 81) |
+| Sign-in | Sign in with Google through Android Credential Manager (`credentials`, `credentials-play-services-auth`, `googleid`); the session is kept encrypted with a Keystore key (decisions 81–83) |
 | Push | Firebase Cloud Messaging |
 | Crash reports | Firebase Crashlytics |
 | Languages | English and Spanish |

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Account (task 20). Copy from Account.dc.html. -->
+<resources>
+    <string name="account_label">CUENTA</string>
+
+    <string name="account_signed_out_title">Respalda y sincroniza</string>
+    <string name="account_signed_out_body">Inicia sesión para respaldar tus entrenos y usarlos en cada celular con el que entrenes. Sin cuenta, todo sigue funcionando en este celular.</string>
+    <string name="account_sign_in">ENTRAR CON GOOGLE</string>
+    <string name="account_signing_in">ENTRANDO…</string>
+    <string name="account_privacy_note">DinoGym solo recibe tu nombre y tu correo de Google.</string>
+
+    <string name="account_error_no_account">No hay una cuenta de Google en este celular. Agrega una en los ajustes de Android y vuelve a intentarlo.</string>
+    <string name="account_error_offline">Sin conexión. Vuelve a intentarlo cuando tengas internet.</string>
+    <string name="account_error_failed">No se pudo iniciar sesión. Vuelve a intentarlo más tarde.</string>
+
+    <string name="account_signed_in_note">Tus entrenos se guardan en este celular. La sincronización con tu cuenta llega en la próxima actualización.</string>
+    <string name="account_sign_out">CERRAR SESIÓN</string>
+
+    <string name="account_sign_out_title">¿CERRAR SESIÓN?</string>
+    <string name="account_sign_out_body">Tus entrenos se quedan en este celular.</string>
+</resources>

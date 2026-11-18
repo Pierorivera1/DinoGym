@@ -53,8 +53,8 @@ paths:
       summary: Exchange a Google ID token for a DinoGym session
       description: |
         The backend verifies the Google ID token, finds or creates the user for its
-        `sub` claim, and issues its own session (decision 10). The token formats are
-        settled in task 20.
+        `sub` claim, and issues its own session (decision 10). Token formats and
+        verification are in decisions 79 and 80.
       tags: [auth]
       security: []
       requestBody:

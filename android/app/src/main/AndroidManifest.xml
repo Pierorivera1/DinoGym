@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Sign-in (task 20) and, later, sync. Everything else works without a connection. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- Rest timer (timer/). The rest screen asks for this at runtime on Android 13+. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- The end-of-rest alarm. USE_EXACT_ALARM (API 33+) is granted at install and cannot be

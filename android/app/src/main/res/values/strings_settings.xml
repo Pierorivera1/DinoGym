@@ -43,6 +43,7 @@
 
     <string name="licence_ofl" translatable="false">SIL Open Font License 1.1</string>
     <string name="licence_apache" translatable="false">Apache License 2.0</string>
+    <string name="licence_android_sdk" translatable="false">Android Software Development Kit License</string>
     <string name="lib_inter" translatable="false">Inter</string>
     <string name="lib_pixelify_sans" translatable="false">Pixelify Sans</string>
     <string name="lib_androidx" translatable="false">AndroidX Core, Activity and Lifecycle</string>
@@ -53,4 +54,7 @@
     <string name="lib_datastore" translatable="false">DataStore</string>
     <string name="lib_kotlin" translatable="false">Kotlin standard library, coroutines and serialization</string>
     <string name="lib_hilt" translatable="false">Dagger and Hilt</string>
+    <string name="lib_ktor" translatable="false">Ktor client and OkHttp</string>
+    <string name="lib_credentials" translatable="false">AndroidX Credential Manager</string>
+    <string name="lib_googleid" translatable="false">Google Identity (Sign in with Google) and Google Play services</string>
 </resources>

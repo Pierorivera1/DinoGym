@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Account (task 20): the ACCOUNT section of Settings and the sign-out dialog. Copy from Account.dc.html. -->
+<resources>
+    <string name="account_label">ACCOUNT</string>
+
+    <!-- Signed out. -->
+    <string name="account_signed_out_title">Back up and sync</string>
+    <string name="account_signed_out_body">Sign in to back up your workouts and use them on every phone you train with. Without an account, everything keeps working on this phone.</string>
+    <string name="account_sign_in">SIGN IN WITH GOOGLE</string>
+    <string name="account_signing_in">SIGNING IN…</string>
+    <string name="account_privacy_note">DinoGym only gets your name and email from Google.</string>
+
+    <!-- Why a sign-in did not finish. Closing Google's sheet shows nothing. -->
+    <string name="account_error_no_account">There is no Google account on this phone. Add one in Android settings, then try again.</string>
+    <string name="account_error_offline">No connection. Try again when you are online.</string>
+    <string name="account_error_failed">Sign-in did not work. Try again later.</string>
+
+    <!-- Signed in. The sync status row and SYNC NOW come with sync (task 21). -->
+    <string name="account_signed_in_note">Your workouts are saved on this phone. Syncing them to your account comes with the next update.</string>
+    <string name="account_sign_out">SIGN OUT</string>
+
+    <!-- Sign-out dialog. -->
+    <string name="account_sign_out_title">SIGN OUT?</string>
+    <string name="account_sign_out_body">Your workouts stay on this phone.</string>
+</resources>

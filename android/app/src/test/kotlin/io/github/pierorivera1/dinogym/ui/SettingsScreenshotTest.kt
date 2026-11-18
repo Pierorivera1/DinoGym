@@ -6,6 +6,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import com.github.takahirom.roborazzi.captureRoboImage
+import io.github.pierorivera1.dinogym.ui.settings.AccountError
+import io.github.pierorivera1.dinogym.ui.settings.AccountUiState
 import io.github.pierorivera1.dinogym.ui.settings.FontLicences
 import io.github.pierorivera1.dinogym.ui.settings.LicencesScreen
 import io.github.pierorivera1.dinogym.ui.settings.SettingsActions
@@ -21,7 +23,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * Renders Settings and the open-source licences in Night/English and Day/Spanish at the
+ * Renders Settings (with the ACCOUNT states of `Account.dc.html`) and the open-source licences in Night/English and Day/Spanish at the
  * mock's size (390×844dp), to compare with `Settings.dc.html` by eye.
  * Output: app/build/outputs/roborazzi/settings_*.png. Nothing is compared automatically.
  */
@@ -43,6 +45,45 @@ class SettingsScreenshotTest {
     @Config(qualifiers = SPANISH)
     fun settingsDaySpanish() = capture("settings_es_day", ThemeMode.DAY) {
         SettingsScreen(SettingsUiState(ThemeMode.DAY, "2.0.0", 1), SettingsActions.None)
+    }
+
+    @Test
+    fun accountSigningInNightEnglish() = capture("settings_account_signing_in_en_night", ThemeMode.NIGHT) {
+        SettingsScreen(
+            SettingsUiState(ThemeMode.SYSTEM, "2.0.0", 1, AccountUiState.SignedOut(signingIn = true)),
+            SettingsActions.None,
+        )
+    }
+
+    @Test
+    @Config(qualifiers = SPANISH)
+    fun accountErrorDaySpanish() = capture("settings_account_error_es_day", ThemeMode.DAY) {
+        SettingsScreen(
+            SettingsUiState(ThemeMode.DAY, "2.0.0", 1, AccountUiState.SignedOut(error = AccountError.NO_GOOGLE_ACCOUNT)),
+            SettingsActions.None,
+        )
+    }
+
+    @Test
+    @Config(qualifiers = SPANISH)
+    fun accountSignedInDaySpanish() = capture("settings_account_signed_in_es_day", ThemeMode.DAY) {
+        SettingsScreen(
+            SettingsUiState(ThemeMode.DAY, "2.0.0", 1, AccountUiState.SignedIn("Piero", "piero@example.com")),
+            SettingsActions.None,
+        )
+    }
+
+    @Test
+    fun accountSignOutDialogNightEnglish() = capture("settings_account_sign_out_en_night", ThemeMode.NIGHT) {
+        SettingsScreen(
+            SettingsUiState(
+                ThemeMode.SYSTEM,
+                "2.0.0",
+                1,
+                AccountUiState.SignedIn("Piero", "piero@example.com", confirmingSignOut = true),
+            ),
+            SettingsActions.None,
+        )
     }
 
     @Test
