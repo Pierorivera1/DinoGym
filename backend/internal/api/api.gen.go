@@ -24,19 +24,19 @@ import (
 
 // Defines values for ExerciseKind.
 const (
-	REPS     ExerciseKind = "REPS"
-	SHOWONLY ExerciseKind = "SHOW_ONLY"
-	TEMPLATE ExerciseKind = "TEMPLATE"
+	ExerciseKindREPS     ExerciseKind = "REPS"
+	ExerciseKindSHOWONLY ExerciseKind = "SHOW_ONLY"
+	ExerciseKindTEMPLATE ExerciseKind = "TEMPLATE"
 )
 
 // Valid indicates whether the value is a known member of the ExerciseKind enum.
 func (e ExerciseKind) Valid() bool {
 	switch e {
-	case REPS:
+	case ExerciseKindREPS:
 		return true
-	case SHOWONLY:
+	case ExerciseKindSHOWONLY:
 		return true
-	case TEMPLATE:
+	case ExerciseKindTEMPLATE:
 		return true
 	default:
 		return false
@@ -60,16 +60,16 @@ func (e HealthStatus) Valid() bool {
 
 // Defines values for ProgramType.
 const (
-	CALISTHENICS ProgramType = "CALISTHENICS"
-	GYM          ProgramType = "GYM"
+	ProgramTypeCALISTHENICS ProgramType = "CALISTHENICS"
+	ProgramTypeGYM          ProgramType = "GYM"
 )
 
 // Valid indicates whether the value is a known member of the ProgramType enum.
 func (e ProgramType) Valid() bool {
 	switch e {
-	case CALISTHENICS:
+	case ProgramTypeCALISTHENICS:
 		return true
-	case GYM:
+	case ProgramTypeGYM:
 		return true
 	default:
 		return false
@@ -91,6 +91,63 @@ func (e PushResultStatus) Valid() bool {
 	case Rejected:
 		return true
 	case Stale:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ShareSnapshotKind.
+const (
+	ShareSnapshotKindProgram ShareSnapshotKind = "program"
+	ShareSnapshotKindRoutine ShareSnapshotKind = "routine"
+)
+
+// Valid indicates whether the value is a known member of the ShareSnapshotKind enum.
+func (e ShareSnapshotKind) Valid() bool {
+	switch e {
+	case ShareSnapshotKindProgram:
+		return true
+	case ShareSnapshotKindRoutine:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SharedExerciseKind.
+const (
+	SharedExerciseKindREPS     SharedExerciseKind = "REPS"
+	SharedExerciseKindSHOWONLY SharedExerciseKind = "SHOW_ONLY"
+	SharedExerciseKindTEMPLATE SharedExerciseKind = "TEMPLATE"
+)
+
+// Valid indicates whether the value is a known member of the SharedExerciseKind enum.
+func (e SharedExerciseKind) Valid() bool {
+	switch e {
+	case SharedExerciseKindREPS:
+		return true
+	case SharedExerciseKindSHOWONLY:
+		return true
+	case SharedExerciseKindTEMPLATE:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SharedProgramType.
+const (
+	SharedProgramTypeCALISTHENICS SharedProgramType = "CALISTHENICS"
+	SharedProgramTypeGYM          SharedProgramType = "GYM"
+)
+
+// Valid indicates whether the value is a known member of the SharedProgramType enum.
+func (e SharedProgramType) Valid() bool {
+	switch e {
+	case SharedProgramTypeCALISTHENICS:
+		return true
+	case SharedProgramTypeGYM:
 		return true
 	default:
 		return false
@@ -382,6 +439,84 @@ type SetEntry struct {
 	WeightKg  *float64  `json:"weightKg,omitempty"`
 }
 
+// Share defines model for Share.
+type Share struct {
+	// CreatedAt When it was published, epoch milliseconds.
+	CreatedAt int64  `json:"createdAt"`
+	Id        string `json:"id"`
+
+	// Snapshot A routine (`kind` routine: exactly one routine, no `program`) or a
+	// program (`kind` program: `program` with its cycle, and the routines the
+	// cycle points to). Exercises are copied into each routine item.
+	Snapshot ShareSnapshot `json:"snapshot"`
+}
+
+// ShareCreated defines model for ShareCreated.
+type ShareCreated struct {
+	// Id The share's id. The link is `https://<share host>/r/<id>`.
+	Id string `json:"id"`
+}
+
+// ShareSnapshot A routine (`kind` routine: exactly one routine, no `program`) or a
+// program (`kind` program: `program` with its cycle, and the routines the
+// cycle points to). Exercises are copied into each routine item.
+type ShareSnapshot struct {
+	Kind     ShareSnapshotKind `json:"kind"`
+	Program  *SharedProgram    `json:"program,omitempty"`
+	Routines []SharedRoutine   `json:"routines"`
+
+	// Version The snapshot format. An app that does not know a newer one asks to be updated.
+	Version int32 `json:"version"`
+}
+
+// ShareSnapshotKind defines model for ShareSnapshot.Kind.
+type ShareSnapshotKind string
+
+// SharedCycleStep One day of the cycle.
+type SharedCycleStep struct {
+	// Routine Index into the snapshot's `routines`. Left out for a rest day.
+	Routine *int32 `json:"routine,omitempty"`
+}
+
+// SharedExercise defines model for SharedExercise.
+type SharedExercise struct {
+	IconKey string             `json:"iconKey"`
+	Kind    SharedExerciseKind `json:"kind"`
+	Name    string             `json:"name"`
+
+	// Template For `TEMPLATE` exercises, for example `3s + {n} pulls + 3s`.
+	Template      *string `json:"template,omitempty"`
+	WeightEnabled bool    `json:"weightEnabled"`
+}
+
+// SharedExerciseKind defines model for SharedExercise.Kind.
+type SharedExerciseKind string
+
+// SharedProgram defines model for SharedProgram.
+type SharedProgram struct {
+	Cycle []SharedCycleStep `json:"cycle"`
+	Name  string            `json:"name"`
+	Type  SharedProgramType `json:"type"`
+}
+
+// SharedProgramType defines model for SharedProgram.Type.
+type SharedProgramType string
+
+// SharedRoutine defines model for SharedRoutine.
+type SharedRoutine struct {
+	Exercises []SharedRoutineExercise `json:"exercises"`
+	Name      string                  `json:"name"`
+}
+
+// SharedRoutineExercise defines model for SharedRoutineExercise.
+type SharedRoutineExercise struct {
+	Exercise    SharedExercise `json:"exercise"`
+	RepMax      int32          `json:"repMax"`
+	RepMin      int32          `json:"repMin"`
+	RestSeconds int32          `json:"restSeconds"`
+	Sets        int32          `json:"sets"`
+}
+
 // SyncTable The table a row belongs to, named as in the app's database.
 type SyncTable string
 
@@ -447,6 +582,9 @@ type SignInWithGoogleJSONRequestBody = GoogleSignInRequest
 // RefreshSessionJSONRequestBody defines body for RefreshSession for application/json ContentType.
 type RefreshSessionJSONRequestBody = RefreshRequest
 
+// CreateShareJSONRequestBody defines body for CreateShare for application/json ContentType.
+type CreateShareJSONRequestBody = ShareSnapshot
+
 // PushChangesJSONRequestBody defines body for PushChanges for application/json ContentType.
 type PushChangesJSONRequestBody = ChangeSet
 
@@ -461,6 +599,12 @@ type ServerInterface interface {
 	// GetHealth Check that the API is up
 	// (GET /health)
 	GetHealth(w http.ResponseWriter, r *http.Request)
+	// CreateShare Publish a routine or program as a public link
+	// (POST /shares)
+	CreateShare(w http.ResponseWriter, r *http.Request)
+	// GetShare Read a shared routine or program
+	// (GET /shares/{shareId})
+	GetShare(w http.ResponseWriter, r *http.Request, shareId string)
 	// PullChanges Get every row stored after a change number
 	// (GET /sync/pull)
 	PullChanges(w http.ResponseWriter, r *http.Request, params PullChangesParams)
@@ -511,6 +655,46 @@ func (siw *ServerInterfaceWrapper) GetHealth(w http.ResponseWriter, r *http.Requ
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetHealth(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateShare operation middleware
+func (siw *ServerInterfaceWrapper) CreateShare(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateShare(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetShare operation middleware
+func (siw *ServerInterfaceWrapper) GetShare(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "shareId" -------------
+	var shareId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "shareId", r.PathValue("shareId"), &shareId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shareId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetShare(w, r, shareId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -705,6 +889,8 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/auth/refresh", wrapper.RefreshSession)
 	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/sync/push", wrapper.PushChanges)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/sync/pull", wrapper.PullChanges)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/shares", wrapper.CreateShare)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/shares/{shareId}", wrapper.GetShare)
 
 	return m
 }
@@ -834,6 +1020,130 @@ func (response GetHealth200JSONResponse) VisitGetHealthResponse(w http.ResponseW
 	return err
 }
 
+type CreateShareRequestObject struct {
+	Body *CreateShareJSONRequestBody
+}
+
+type CreateShareResponseObject interface {
+	VisitCreateShareResponse(w http.ResponseWriter) error
+}
+
+type CreateShare201JSONResponse ShareCreated
+
+func (response CreateShare201JSONResponse) VisitCreateShareResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateShare400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response CreateShare400JSONResponse) VisitCreateShareResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateShare401JSONResponse struct{ UnauthorizedJSONResponse }
+
+func (response CreateShare401JSONResponse) VisitCreateShareResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateShare413JSONResponse Error
+
+func (response CreateShare413JSONResponse) VisitCreateShareResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(413)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateShare429JSONResponse Error
+
+func (response CreateShare429JSONResponse) VisitCreateShareResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(429)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetShareRequestObject struct {
+	ShareId string `json:"shareId"`
+}
+
+type GetShareResponseObject interface {
+	VisitGetShareResponse(w http.ResponseWriter) error
+}
+
+type GetShare200ResponseHeaders struct {
+	CacheControl *string
+}
+
+type GetShare200JSONResponse struct {
+	Body    Share
+	Headers GetShare200ResponseHeaders
+}
+
+func (response GetShare200JSONResponse) VisitGetShareResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response.Body); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if response.Headers.CacheControl != nil {
+		w.Header().Set("Cache-Control", fmt.Sprint(*response.Headers.CacheControl))
+	}
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetShare404JSONResponse Error
+
+func (response GetShare404JSONResponse) VisitGetShareResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 type PullChangesRequestObject struct {
 	Params PullChangesParams
 }
@@ -945,6 +1255,12 @@ type StrictServerInterface interface {
 	// GetHealth Check that the API is up
 	// (GET /health)
 	GetHealth(ctx context.Context, request GetHealthRequestObject) (GetHealthResponseObject, error)
+	// CreateShare Publish a routine or program as a public link
+	// (POST /shares)
+	CreateShare(ctx context.Context, request CreateShareRequestObject) (CreateShareResponseObject, error)
+	// GetShare Read a shared routine or program
+	// (GET /shares/{shareId})
+	GetShare(ctx context.Context, request GetShareRequestObject) (GetShareResponseObject, error)
 	// PullChanges Get every row stored after a change number
 	// (GET /sync/pull)
 	PullChanges(ctx context.Context, request PullChangesRequestObject) (PullChangesResponseObject, error)
@@ -1078,6 +1394,63 @@ func (sh *strictHandler) GetHealth(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// CreateShare operation middleware
+func (sh *strictHandler) CreateShare(w http.ResponseWriter, r *http.Request) {
+	var request CreateShareRequestObject
+
+	var body CreateShareJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateShare(ctx, request.(CreateShareRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateShare")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateShareResponseObject); ok {
+		if err := validResponse.VisitCreateShareResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetShare operation middleware
+func (sh *strictHandler) GetShare(w http.ResponseWriter, r *http.Request, shareId string) {
+	var request GetShareRequestObject
+
+	request.ShareId = shareId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetShare(ctx, request.(GetShareRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetShare")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetShareResponseObject); ok {
+		if err := validResponse.VisitGetShareResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // PullChanges operation middleware
 func (sh *strictHandler) PullChanges(w http.ResponseWriter, r *http.Request, params PullChangesParams) {
 	var request PullChangesRequestObject
@@ -1140,67 +1513,86 @@ func (sh *strictHandler) PushChanges(w http.ResponseWriter, r *http.Request) {
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"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",
+	"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",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,

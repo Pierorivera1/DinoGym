@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
@@ -20,22 +21,29 @@ import (
 // MaxBodyBytes caps a request body. A full push of 500 rows is well under it.
 const MaxBodyBytes = 1 << 20
 
+// Store is everything the handlers keep: synced rows and shares.
+type Store interface {
+	SyncStore
+	ShareStore
+}
+
 // Server answers the API's operations.
 type Server struct {
 	log   *slog.Logger
-	store SyncStore
+	store Store
 	auth  *auth.Service
+	now   func() time.Time
 }
 
 var (
 	_ api.StrictServerInterface = (*Server)(nil)
-	_ SyncStore                 = (*store.Store)(nil)
+	_ Store                     = (*store.Store)(nil)
 )
 
-// New returns a Server that logs to log, keeps synced rows in st and signs
-// users in with a.
-func New(log *slog.Logger, st SyncStore, a *auth.Service) *Server {
-	return &Server{log: log, store: st, auth: a}
+// New returns a Server that logs to log, keeps synced rows and shares in st
+// and signs users in with a.
+func New(log *slog.Logger, st Store, a *auth.Service) *Server {
+	return &Server{log: log, store: st, auth: a, now: time.Now}
 }
 
 func (s *Server) GetHealth(context.Context, api.GetHealthRequestObject) (api.GetHealthResponseObject, error) {
