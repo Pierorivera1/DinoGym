@@ -9,6 +9,7 @@ import io.github.pierorivera1.dinogym.data.local.SyncTracking
 import io.github.pierorivera1.dinogym.data.repository.CycleWriter
 import io.github.pierorivera1.dinogym.data.repository.ExerciseRepository
 import io.github.pierorivera1.dinogym.data.repository.HistoryRepository
+import io.github.pierorivera1.dinogym.data.repository.ProgramInstaller
 import io.github.pierorivera1.dinogym.data.repository.ProgramRepository
 import io.github.pierorivera1.dinogym.data.repository.RoutineRepository
 import io.github.pierorivera1.dinogym.data.repository.WorkoutRepository
@@ -52,7 +53,8 @@ class TestDatabase {
     val exercises = ExerciseRepository(db.exerciseDao(), clock)
     val workouts = WorkoutRepository(db, db.sessionDao(), db.routineDao(), db.exerciseDao(), db.programDao(), clock)
     val history = HistoryRepository(db, db.sessionDao(), db.routineDao(), db.exerciseDao(), db.programDao(), clock)
-    val seeder = FirstRunSeeder(db, SeedStrings(context), clock, CoroutineScope(Dispatchers.IO))
+    val installer = ProgramInstaller(db, clock)
+    val seeder = FirstRunSeeder(db, SeedStrings(context), installer, clock, CoroutineScope(Dispatchers.IO))
 
     fun close() = db.close()
 }

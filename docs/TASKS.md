@@ -36,7 +36,7 @@ Order agreed 2026-11-16. Tasks 1–10 are planned in detail; from task 11 on the
 
 - [x] **20. Sign-in.** Google sign-in on the phone; the backend issues its own sessions (decisions 79–84).
 - [x] **21. Sync** between devices (WorkManager on the phone; API and DynamoDB on the backend). Decisions 86–91.
-- [ ] **22. Starter programs and program builder.** Gym UL/PPL, Calisthenics UL/PPL, 4-day Upper/Lower.
+- [x] **22. Starter programs and program builder.** Gym UL/PPL, Calisthenics UL/PPL, 4-day Upper/Lower (decisions 92–94).
 - [ ] **23. Shareable routines.** A public web link that imports into the app.
 - [ ] **24. Reminders.** EventBridge Scheduler → Lambda → Firebase Cloud Messaging: "today is pull day", weekly summary.
 - [ ] **25. Web dashboard.** React on S3 and CloudFront; history and progress charts after logging in.

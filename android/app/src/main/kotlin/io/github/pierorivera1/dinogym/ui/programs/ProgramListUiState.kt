@@ -2,6 +2,9 @@ package io.github.pierorivera1.dinogym.ui.programs
 
 import io.github.pierorivera1.dinogym.data.repository.ProgramWithCycle
 import io.github.pierorivera1.dinogym.data.repository.RoutineSummary
+import io.github.pierorivera1.dinogym.data.seed.SeedText
+import io.github.pierorivera1.dinogym.data.seed.StarterKey
+import io.github.pierorivera1.dinogym.data.seed.StarterProgram
 import io.github.pierorivera1.dinogym.domain.model.ProgramType
 import io.github.pierorivera1.dinogym.ui.home.CycleCell
 
@@ -12,6 +15,19 @@ data class ProgramListUiState(
     val programs: List<ProgramCardUi> = emptyList(),
     /** By name. */
     val routines: List<RoutineRowUi> = emptyList(),
+    /** The `+ NEW` program sheet is open (decision 92). */
+    val newProgramSheet: Boolean = false,
+    /** The starter programs the sheet offers, in the phone's language. */
+    val starters: List<StarterCardUi> = emptyList(),
+)
+
+/** One starter in the new-program sheet: "GYM · 5 DAYS", its size and its cycle. */
+data class StarterCardUi(
+    val key: StarterKey,
+    val name: String,
+    val routineCount: Int,
+    val exerciseCount: Int,
+    val cycle: List<CycleCell>,
 )
 
 /**
@@ -55,4 +71,15 @@ object ProgramListMapper {
         },
         routines = routines.map { RoutineRowUi(it.routine.id, it.routine.name, it.exerciseCount, it.setCount) },
     )
+
+    /** The sheet's cards, with names from [text] (SeedStrings in the app). No step is current. */
+    fun starters(all: List<StarterProgram>, text: (SeedText) -> String): List<StarterCardUi> = all.map { starter ->
+        StarterCardUi(
+            key = starter.key,
+            name = text(starter.program.name),
+            routineCount = starter.program.routines.size,
+            exerciseCount = starter.program.exercises.size,
+            cycle = starter.program.cycle.map { CycleCell(it?.let(text), isCurrent = false) },
+        )
+    }
 }

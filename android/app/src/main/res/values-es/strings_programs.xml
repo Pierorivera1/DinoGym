@@ -134,4 +134,19 @@
         <item quantity="other">AGREGAR %d EJERCICIOS</item>
     </plurals>
     <string name="picker_tick_some">Marca los ejercicios que quieras agregar.</string>
+
+    <!-- New-program sheet (task 22) -->
+    <string name="programs_new_sheet_title">PROGRAMA NUEVO</string>
+    <string name="programs_new_sheet_help">Empieza con un programa listo y cámbialo cuando quieras, o arma el tuyo.</string>
+    <string name="programs_starters_label">LISTOS PARA USAR</string>
+    <string name="programs_new_empty">PROGRAMA VACÍO</string>
+    <string name="programs_new_empty_meta">Elige tus rutinas y días de descanso</string>
+    <string name="programs_starter_meta">%1$s · %2$s</string>
+    <string name="programs_cd_add_starter">Agregar %1$s</string>
+    <string name="programs_starters_source">Basado en los consejos gratuitos de Jeff Nippard. Los programas de calistenia aplican los mismos principios a ejercicios con el peso corporal.</string>
+    <plurals name="programs_routine_count">
+        <item quantity="one">%d rutina</item>
+        <item quantity="many">%d rutinas</item>
+        <item quantity="other">%d rutinas</item>
+    </plurals>
 </resources>

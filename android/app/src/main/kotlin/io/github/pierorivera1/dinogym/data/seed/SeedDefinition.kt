@@ -37,6 +37,39 @@ enum class SeedText {
     EXERCISE_JUMP_ROPE,
     EXERCISE_NEUTRAL_GRIP_PULL_UP,
     EXERCISE_PUSH_UP,
+
+    // Starter programs (StarterPrograms.kt, task 22)
+    STARTER_GYM_5,
+    STARTER_GYM_4,
+    STARTER_CALISTHENICS_5,
+    STARTER_CALISTHENICS_4,
+
+    EXERCISE_INCLINE_DUMBBELL_PRESS,
+    EXERCISE_CHEST_SUPPORTED_ROW,
+    EXERCISE_LAT_PULLDOWN,
+    EXERCISE_CABLE_LATERAL_RAISE,
+    EXERCISE_OVERHEAD_TRICEPS_EXTENSION,
+    EXERCISE_HACK_SQUAT,
+    EXERCISE_ROMANIAN_DEADLIFT,
+    EXERCISE_SEATED_LEG_CURL,
+    EXERCISE_LEG_EXTENSION,
+    EXERCISE_STANDING_CALF_RAISE,
+    EXERCISE_MACHINE_CHEST_PRESS,
+    EXERCISE_SEATED_CABLE_FLY,
+    EXERCISE_SKULLCRUSHER,
+    EXERCISE_ONE_ARM_DUMBBELL_ROW,
+    EXERCISE_REVERSE_PEC_DECK,
+    EXERCISE_PREACHER_CURL,
+    EXERCISE_LEG_PRESS,
+    EXERCISE_BACK_EXTENSION,
+    EXERCISE_SEATED_CALF_RAISE,
+    EXERCISE_PIKE_PUSH_UP,
+    EXERCISE_NORDIC_CURL_NEGATIVE,
+    EXERCISE_SINGLE_LEG_HIP_THRUST,
+    EXERCISE_SINGLE_LEG_CALF_RAISE,
+    EXERCISE_DIAMOND_PUSH_UP,
+    EXERCISE_INVERTED_ROW,
+    EXERCISE_WALKING_LUNGE,
 }
 
 /** An exercise of the library. [name] identifies it, so an exercise used by two routines is one row. */
@@ -47,12 +80,16 @@ data class SeedExercise(
     val template: SeedText? = null,
 )
 
-/** One line of a routine: "Dips 12 × 3" is `reps = 12, sets = 3`. */
+/**
+ * One line of a routine: "Dips 12 × 3" is `reps = 12, sets = 3`. A range such as 8–12 is
+ * `reps = 8, repMax = 12`; a fixed target leaves [repMax] equal to [reps].
+ */
 data class SeedRoutineItem(
     val exercise: SeedText,
     val sets: Int,
     val reps: Int,
     val restSeconds: Int,
+    val repMax: Int = reps,
 )
 
 data class SeedRoutine(

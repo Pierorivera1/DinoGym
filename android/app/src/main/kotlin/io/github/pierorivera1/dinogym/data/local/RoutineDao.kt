@@ -43,6 +43,9 @@ interface RoutineDao {
     @Query("SELECT * FROM routine WHERE id = :id AND deletedAt IS NULL")
     suspend fun getById(id: String): RoutineEntity?
 
+    @Query("SELECT name FROM routine WHERE deletedAt IS NULL")
+    suspend fun getNames(): List<String>
+
     @Insert
     suspend fun insert(routine: RoutineEntity)
 

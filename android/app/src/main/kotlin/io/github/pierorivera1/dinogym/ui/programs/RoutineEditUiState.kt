@@ -4,8 +4,7 @@ import io.github.pierorivera1.dinogym.data.repository.RoutineDetail
 import io.github.pierorivera1.dinogym.domain.model.Exercise
 import io.github.pierorivera1.dinogym.domain.model.ExerciseIcon
 import io.github.pierorivera1.dinogym.domain.model.ExerciseKind
-import java.text.Normalizer
-import java.util.Locale
+import io.github.pierorivera1.dinogym.domain.rules.TextFold
 
 /** Everything the routine editor shows. Built by [RoutineEditMapper]. */
 data class RoutineEditUiState(
@@ -170,8 +169,7 @@ object PickerRules {
      * Folds text for searching: lower case, accents removed, so "biceps" finds "Curl de
      * bíceps" and "domin" finds "Dominadas".
      */
-    fun fold(text: String): String =
-        Normalizer.normalize(text.lowercase(Locale.ROOT), Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "").trim()
+    fun fold(text: String): String = TextFold.fold(text)
 
     /**
      * The rows to show: active exercises whose name contains [query], plus any ticked

@@ -23,6 +23,7 @@ Decision 16 still applies: a screen is built only after its mock is approved.
 | Program editor (name, type, cycle) | `ProgramEdit.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 7) |
 | Routine editor | `RoutineEdit.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 7) |
 | Exercise picker (sheet) | `ExercisePicker.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 7) |
+| New program (sheet: empty program and starter programs) | `NewProgram.dc.html` | Mocked 2026-11-18, awaiting the owner's review. Built (task 22, decision 92) |
 | Exercise library (active / archived) | `ExerciseLibrary.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
 | Exercise editor (archive and restore) | `ExerciseEdit.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
 | Settings | `Settings.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 10) |

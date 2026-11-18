@@ -694,3 +694,31 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Push details:** batches of at most 500 rows and about 900 KB of JSON (set notes are unbounded); a 413 splits the batch in two. Pull asks for 1000 rows a page until `hasMore` is false. A 401 asks `SessionManager.accessToken(rejected = token)` for a new token once and repeats the call once; the session manager refreshes only if that token is still the stored one, so the single-flight and never-twice rules of decision 83 hold.
 - **Why:** WorkManager runs when the app is closed, survives reboots and waits for a network, which is what offline-first sync needs; nothing in the app waits on it. Unique works with KEEP give the debounce without in-process timers that die with the process.
 - **Rejected:** `hilt-work` and its annotation processor (another dependency and processor for one worker); `REPLACE` for the after-change work (it would cancel a running sync every time a set is logged); a sync on every write (a request per set); expedited work (needs a foreground notification below Android 12).
+
+## 92. Starter programs: four, offered from `+ NEW` on the Programs tab (2026-11-18)
+
+- **Decision:** Task 22 ships four starter programs from TRAINING.md: Gym · 5 days and Calisthenics · 5 days (Upper, Lower, Rest, Push, Pull, Legs, Rest) and Gym · 4 days and Calisthenics · 4 days (Upper, Lower, Rest, Upper, Lower, Rest, Rest). `+ NEW` on YOUR PROGRAMS now opens a NEW PROGRAM sheet: EMPTY PROGRAM (the old behaviour) on top, then one card per starter with its routine and exercise counts and its cycle strip. Tapping a starter copies it in (decision 93) and opens it in the program editor, which is the program builder: the existing cycle and routine editors (task 7) edit a starter like any program.
+  - Where a TRAINING.md row offers a choice, the first option is used (hack squat, machine chest press, push-up, bodyweight squat); the user renames it if they train the other.
+  - Exercises that are the same movement as one in the owner's program use the same name (Dips, Pull-ups, Lateral raises, Bicep curl, Reverse curl, Push-ups, Squats, Bulgarian split squat, Neutral-grip pull-ups, Jump rope), so they reuse his library rows and history.
+  - Icons: the closest existing pixel icon, `GENERIC` where none fits (deadlifts, leg curls, calf raises, flies, extensions). Drawing new icons is left for later.
+  - The sheet names Jeff Nippard only as the source of the advice and says the calisthenics programs apply the same principles (decision 27).
+  - The sheet's mock (`NewProgram.dc.html`) is built before the owner's review, the same exception as decision 41: the owner asked for tasks 22 and 23 in one run and told the AI to make the decisions.
+- **Why:** The 4-day layout exists for people with less time, and both program types use it, so offering it for Gym and Calisthenics costs two list entries and no new routines. Putting the starters behind `+ NEW` means a new user finds them where they would make a program, and nothing changes for someone who never opens the sheet.
+- **Rejected:** A step-by-step builder wizard (the editors already do everything a wizard would, and a second way to edit programs is more to test and explain); showing starters on Home when there is no program (Home already points to Programs, and the first run always seeds the owner's program); replacing the first-run seed with a starter picker (the owner's program is his first data, decision 27).
+
+## 93. Templates are installed as new rows; exercises are matched by name and kind (2026-11-18)
+
+- **Decision:** `ProgramInstaller` copies a `ProgramTemplate` (plain data, no ids) into Room in one transaction. The first-run seed, the starter programs and task 23's shared-link import all go through it.
+  - Every program, routine, cycle step and routine line gets a new random id, so it syncs like any row the user made.
+  - An exercise reuses an existing **active** exercise whose name matches ignoring case, accents and outer spaces, and whose kind (reps, template, show-only) is the same. Otherwise a new exercise is created. Inside one template, an exercise used by several routines is one row.
+  - A routine or program name already taken (same folding) gets a number: `Upper 2`, `Upper 3`.
+  - The new program becomes active only when no program is (decision 48); the first-run seed is always active.
+- **Why:** Matching by name keeps one history per exercise, which is what progress and set-1 bests are built on (decision 28): installing Calisthenics · 5 days on the owner's phone reuses his Dips instead of making a second Dips with no history. Requiring the same kind stops a show-only Jump rope from merging with a logged one. Numbering names keeps two "Upper" routines apart in the Programs list without asking the user anything.
+- **Rejected:** Always creating new exercises (duplicate library rows and split histories); matching archived exercises (the user put them away; bringing them back silently would be surprising); asking the user to merge exercises during an install (a dialog for a choice almost nobody needs); fixed ids for starter rows (two installs would be the same rows, so editing one copy would edit both).
+- **Known gap:** names are matched in the phone's language. A program installed in Spanish on one phone and English on another does not share exercise rows; sync still keeps each phone's rows.
+
+## 94. Starter content lives in code and string resources, resolved when installed (2026-11-18)
+
+- **Decision:** The starter programs are Kotlin data (`data/seed/StarterPrograms.kt`) next to the owner's seed, with every name a key in `strings_seed.xml` (English and Spanish). Names are resolved to the phone's language once, when the program is installed; after that they are user data and can be renamed.
+- **Why:** The same pattern as the first-run seed (decision 40): JVM unit tests check the content against TRAINING.md, a missing translation fails to compile, and no parser or file format is needed.
+- **Rejected:** A JSON asset (a parser and a schema for four fixed programs, and translations would live outside the string resources); fetching starters from the backend (breaks offline first and adds an API for content that changes with app releases anyway).

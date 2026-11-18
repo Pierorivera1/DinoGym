@@ -1,6 +1,6 @@
 # Open items
 
-As of 2026-11-17. Remove an item when it is done or decided, and record decisions in [DECISIONS.md](DECISIONS.md).
+As of 2026-11-18. Remove an item when it is done or decided, and record decisions in [DECISIONS.md](DECISIONS.md).
 
 ## The owner will set up
 
@@ -14,6 +14,7 @@ As of 2026-11-17. Remove an item when it is done or decided, and record decision
 
 ## Still to decide
 
+- [ ] The owner reviews the new-program sheet mock (`NewProgram.dc.html`, task 22), built before review (decision 92)
 - [ ] The owner reviews the second mock batch (Programs, Exercises, Stats, Settings) and the body weight mock: they are on the canvas and were built from without approval (decisions 41 and 49). Also not drawn at all: the Stats PROGRESS list (decision 47) and the licences screen (decision 46)
 
 ## To verify later
@@ -26,6 +27,8 @@ As of 2026-11-17. Remove an item when it is done or decided, and record decision
 - [ ] A second phone or a reinstall that signs in gets two copies of the seeded program, since every install seeds it with new ids (decision 90). Delete one by hand, or give seed rows fixed ids
 - [ ] On a phone: Back handling in a workout, the notification permission prompt, the rest alarm and its sound with the screen off, resume after the app is killed, the scroll picker. None of these can be checked on the laptop
 - [ ] On a phone, for the Exercises screens: drag to reorder, keyboard and focus, and that edits reach the database
+- [ ] On a phone, for task 22: `+ NEW` → a starter → it opens in the program editor, Back closes the sheet, the new program syncs. In Spanish, the compact cycle strip cuts `TREN SUPERIOR` to `TREN SUPE` (also on program cards); shorter routine names or a two-line cell would fix it
+- [ ] Starter exercises without a fitting icon use the generic one (deadlifts, leg curls, calf raises, flies, extensions); draw icons for them (decision 92)
 - [ ] With the system font at 130%, long button labels are cut off (`EMPEZAR PULL` shows as `EMPEZAR`). No shorter Spanish verb exists, so this needs a layout fix
 - [ ] On a phone, for tasks 7–11: drag to reorder in the cycle and routine editors, the exercise picker → exercise editor round trip, editing a past set, the theme switch, the kg keyboard on a weigh-in, Back closing sheets, TalkBack on the new screens
 - [ ] When Night or Day is forced against the phone's dark mode, the window background shows the phone's mode for a moment at launch (decision 46)
@@ -37,6 +40,7 @@ As of 2026-11-17. Remove an item when it is done or decided, and record decision
 
 ## State of the build
 
+- Task 22: `+ NEW` on the Programs tab opens a sheet with an empty program and four starter programs (Gym and Calisthenics, 5 and 4 days, decision 92). Starters, the first-run seed and later imports are installed by `ProgramInstaller`, which reuses library exercises by name and kind (decision 93). Checked with JVM tests and screenshots; the installer's instrumented tests run in CI.
 - Task 21: the backend's `/sync/push` and `/sync/pull` work on the laptop and the emulator (decisions 86–87). The app tracks changes with SQLite triggers, pushes and pulls through WorkManager while signed in, uploads the whole history on the first sign-in, and shows the sync row in Settings › ACCOUNT (decisions 88–91). Checked with JVM tests and CI's instrumented tests; not yet tried on a phone against staging.
 - Task 20: the backend verifies Google ID tokens and issues sessions (decisions 79–80). The app signs in from Settings › ACCOUNT through Credential Manager, keeps the session encrypted with a Keystore key, and refreshes it under the rules of decision 83 (decisions 81–84). Debug builds use staging, release builds prod. Nothing else in the app needs an account.
 - Task 19: the bootstrap is applied on real AWS (us-east-1) as the IAM user `piero-admin-dinogym`, its state is in the bucket, and the `staging` and `prod` GitHub environments and variables are set. Staging is deployed by `deploy.yml` and answers `/health`; prod deploys after the owner approves the run (decisions 74–78). The AWS side is torn down on 2027-02-01 (decision 76).
