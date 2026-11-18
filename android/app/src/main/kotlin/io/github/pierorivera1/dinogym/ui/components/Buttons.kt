@@ -37,7 +37,8 @@ import io.github.pierorivera1.dinogym.ui.theme.steppedBorder
  * The shared body of every pressable pixel component: stepped corners, a [fill], a 2dp
  * [border], the raised bands, and the pressed look (down 2dp, bottom band gone, no ripple).
  * Buttons, stepper buttons and bottom bar tabs are all built on it, so they press the same way.
- * [role] lets a bottom bar tab say it is a tab rather than a button.
+ * [role] lets a bottom bar tab say it is a tab rather than a button. When not [enabled] it
+ * has no bands and ignores taps (the disabled look of `Account.dc.html`).
  */
 @Composable
 internal fun RaisedBox(
@@ -46,6 +47,7 @@ internal fun RaisedBox(
     border: Color,
     modifier: Modifier = Modifier,
     role: Role = Role.Button,
+    enabled: Boolean = true,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val interaction = remember { MutableInteractionSource() }
@@ -55,9 +57,9 @@ internal fun RaisedBox(
             .offset { IntOffset(0, if (pressed) 2.dp.roundToPx() else 0) }
             .clip(SteppedShape)
             .background(fill)
-            .raised(DinoTheme.colors, pressed)
+            .then(if (enabled) Modifier.raised(DinoTheme.colors, pressed) else Modifier)
             .steppedBorder(border)
-            .clickable(interactionSource = interaction, indication = null, role = role, onClick = onClick),
+            .clickable(interactionSource = interaction, indication = null, enabled = enabled, role = role, onClick = onClick),
         contentAlignment = Alignment.Center,
         content = content,
     )
@@ -66,7 +68,8 @@ internal fun RaisedBox(
 /**
  * The main action on a screen (LOG SET, START PULL): `primary` fill, `outline` border,
  * `button` text, and an optional 16x16 [icon] at 2x on the left. 56dp tall by default;
- * pass `Modifier.height(64.dp)` for the larger ones.
+ * pass `Modifier.height(64.dp)` for the larger ones. Disabled ([enabled] false, while a
+ * sign-in runs): `surface` fill, `surface2` border, `muted` text, no bands.
  */
 @Composable
 fun PrimaryButton(
@@ -74,10 +77,17 @@ fun PrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int? = null,
+    enabled: Boolean = true,
 ) {
     val colors = DinoTheme.colors
-    RaisedBox(onClick, colors.primary, colors.outline, modifier.height(56.dp)) {
-        ButtonContent(text, icon, textColor = colors.onPrimary, iconColor = colors.onPrimary)
+    if (enabled) {
+        RaisedBox(onClick, colors.primary, colors.outline, modifier.height(56.dp)) {
+            ButtonContent(text, icon, textColor = colors.onPrimary, iconColor = colors.onPrimary)
+        }
+    } else {
+        RaisedBox(onClick, colors.surface, colors.surface2, modifier.height(56.dp), enabled = false) {
+            ButtonContent(text, icon, textColor = colors.muted, iconColor = colors.muted)
+        }
     }
 }
 

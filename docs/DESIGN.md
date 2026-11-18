@@ -31,7 +31,7 @@ Decision 16 still applies: a screen is built only after its mock is approved.
 | Stats: progress for one exercise | `Progress.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
 | Stats: progress tab (list of exercises with their best) | – | Built without a mock (task 9, decision 47), awaiting the owner's review |
 | Body weight chart and weigh-in entry (Stats › WEIGHT) | `BodyWeight.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 11) |
-| Account: sign-in and sync status (Settings › ACCOUNT, sign-out dialog) | `Account.dc.html` | Approved 2026-11-17 (task 20) |
+| Account: sign-in and sync status (Settings › ACCOUNT, sign-out dialog) | `Account.dc.html` | Approved 2026-11-17. Built (task 20) without the sync row, which is task 21 |
 | Sharing, reminders, web | – | Later |
 
 The build order in [ARCHITECTURE.md](ARCHITECTURE.md) is arranged so the code that has no screen, and the approved screens, are built while the remaining mocks are made.
@@ -162,6 +162,7 @@ These record behaviour shown in the mocks of 2026-11-16 that await review:
 - **Past session:** title is the routine; date, duration and sets under it; trash deletes the session after a dialog (the cycle does not move back). One card per exercise with set chips. Tapping a chip opens a stepper under that card; the value saves as it changes and set-1 changes recompute progress. Tapping the exercise name opens its progress.
 - **Progress:** exercise tile and name; BEST / GAIN / RECORDS panels; the stepped chart of set-1 records over all time (one step per record day, months on the x axis); RECORDS list newest first with `▲ +n`, the first entry marked `FIRST`. With weight, a record is more weight or the same weight with more reps, shown as `20 kg × 8`.
 - **Account (task 20):** sign-in lives only in Settings, as an ACCOUNT section above THEME; there is no first-launch prompt, because everything works without an account. Signed out: a card explaining backup and sync, `SIGN IN WITH GOOGLE` (primary), which opens Android's Credential Manager sheet, and a note that DinoGym only gets the name and email. Signed in: a tile with the initial (no profile photo, so nothing loads from the network), name and email, a sync status row (`success` check and "Synced · 2 min ago", or the hourglass and "Offline · n changes waiting"), `SYNC NOW` (disabled offline) and `SIGN OUT`. Sign out asks first in a dialog; the workouts stay on the phone and unsynced changes are kept for the next sign-in with the same account.
+  - **Built in task 20 without the sync row (decision 84):** the sync status row and `SYNC NOW` come with sync in task 21; until then SIGN OUT is full width and the note says sync arrives in the next update. The sign-out dialog is the app's `ConfirmSheet` with a primary SIGN OUT. Sign-in errors are a `danger` line inside the card; while signing in the button is disabled and reads SIGNING IN…. The cloud icon is `ic_px_cloud`.
 ## Theme setting
 
 The app follows the system dark mode by default: dark is Night, light is Day. Settings can force one.

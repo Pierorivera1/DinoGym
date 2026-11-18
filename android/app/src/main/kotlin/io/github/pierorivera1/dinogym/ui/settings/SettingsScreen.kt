@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pierorivera1.dinogym.R
+import io.github.pierorivera1.dinogym.ui.components.ConfirmSheet
 import io.github.pierorivera1.dinogym.ui.components.PixelIcon
 import io.github.pierorivera1.dinogym.ui.components.SegmentedControl
 import io.github.pierorivera1.dinogym.ui.components.TextBox
@@ -44,6 +45,7 @@ data class SettingsUiState(
     val themeMode: ThemeMode?,
     val versionName: String,
     val versionCode: Int,
+    val account: AccountUiState = AccountUiState.SignedOut(),
 )
 
 /** Settings' taps. The theme is stored as soon as it is picked. */
@@ -52,6 +54,10 @@ data class SettingsActions(
     val onThemeChange: (ThemeMode) -> Unit,
     val onOpenSource: () -> Unit,
     val onOpenLicences: () -> Unit,
+    val onSignIn: () -> Unit = {},
+    val onAskSignOut: () -> Unit = {},
+    val onCancelSignOut: () -> Unit = {},
+    val onConfirmSignOut: () -> Unit = {},
 ) {
     companion object {
         /** No-op actions, for screenshot tests. */
@@ -67,7 +73,8 @@ private val ThemeChoices = listOf(
 )
 
 /**
- * Settings (mock `Settings.dc.html`): top bar with back; THEME (System / Night / Day);
+ * Settings (mock `Settings.dc.html`): top bar with back; ACCOUNT (task 20, `Account.dc.html`)
+ * with its sign-out dialog drawn over the screen; THEME (System / Night / Day);
  * LANGUAGE, read-only because the app follows the phone; ABOUT with the version, the source
  * code link, the open-source licences and the app's MIT licence; the mascot's text box at
  * the bottom. A pushed screen: no bottom bar. Stateless.
@@ -101,6 +108,7 @@ fun SettingsScreen(
                 onBack = actions.onBack,
                 backDescription = stringResource(R.string.settings_back_cd),
             )
+            AccountSection(state.account, actions)
             Field(stringResource(R.string.settings_theme_label)) {
                 SegmentedControl(
                     options = ThemeChoices.map { stringResource(it.second) },
@@ -132,6 +140,16 @@ fun SettingsScreen(
             }
             Spacer(Modifier.weight(1f))
             TextBox(stringResource(R.string.settings_bubble), showMascot = true, modifier = Modifier.fillMaxWidth())
+        }
+        if ((state.account as? AccountUiState.SignedIn)?.confirmingSignOut == true) {
+            ConfirmSheet(
+                title = stringResource(R.string.account_sign_out_title),
+                message = stringResource(R.string.account_sign_out_body),
+                confirmLabel = stringResource(R.string.account_sign_out),
+                onConfirm = actions.onConfirmSignOut,
+                onDismiss = actions.onCancelSignOut,
+                destructive = false,
+            )
         }
     }
 }

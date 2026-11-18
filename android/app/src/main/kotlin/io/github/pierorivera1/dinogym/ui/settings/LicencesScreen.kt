@@ -72,6 +72,10 @@ val LibraryLicences = listOf(
     Licence(R.string.lib_datastore, R.string.licence_apache, url = APACHE_URL),
     Licence(R.string.lib_kotlin, R.string.licence_apache, url = APACHE_URL),
     Licence(R.string.lib_hilt, R.string.licence_apache, url = APACHE_URL),
+    Licence(R.string.lib_ktor, R.string.licence_apache, url = APACHE_URL),
+    Licence(R.string.lib_credentials, R.string.licence_apache, url = APACHE_URL),
+    // googleid and the Google Play services parts it brings are not open source.
+    Licence(R.string.lib_googleid, R.string.licence_android_sdk, url = "https://developer.android.com/studio/terms"),
 )
 
 /**

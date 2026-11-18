@@ -34,7 +34,7 @@ Order agreed 2026-11-16. Tasks 1–10 are planned in detail; from task 11 on the
 
 ## Part 4: cloud features (order from decision 31)
 
-- [ ] **20. Sign-in.** Google sign-in on the phone; the backend issues its own sessions.
+- [x] **20. Sign-in.** Google sign-in on the phone; the backend issues its own sessions (decisions 79–84).
 - [ ] **21. Sync** between devices (WorkManager on the phone; API and DynamoDB on the backend).
 - [ ] **22. Starter programs and program builder.** Gym UL/PPL, Calisthenics UL/PPL, 4-day Upper/Lower.
 - [ ] **23. Shareable routines.** A public web link that imports into the app.
