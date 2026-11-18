@@ -28,7 +28,7 @@ resource "aws_iam_role" "deploy" {
       Condition = {
         StringEquals = {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-          "token.actions.githubusercontent.com:sub" = "repo:${local.github_repo}:environment:${each.key}"
+          "token.actions.githubusercontent.com:sub" = "${local.github_sub_prefix}:environment:${each.key}"
         }
       }
     }]
@@ -204,6 +204,10 @@ resource "aws_iam_role_policy" "deploy" {
           "apigateway:PUT",
           "apigateway:PATCH",
           "apigateway:DELETE",
+          # Creating a tagged stage also needs these, on top of POST
+          # (found by the first staging deploy, decision 78).
+          "apigateway:TagResource",
+          "apigateway:UntagResource",
         ]
         Resource = [
           "arn:aws:apigateway:us-east-1::/apis",

@@ -22,16 +22,31 @@ infra/emulator/check.sh
 
 The emulator creates every resource, but cannot run the Lambda, route API Gateway to it, or check IAM. Those are proven in staging.
 
-## Bootstrap (once, task 19)
+## Bootstrap (once, done in task 19)
 
 `bootstrap/` creates what CI needs before it can deploy anything:
 
 - `dinogym-tfstate-<account-id>`: the state bucket for every root. Versioned (old versions kept 90 days), SSE-S3, public access blocked, plain HTTP denied. It cannot be deleted while it holds state.
-- GitHub's OIDC provider and two roles, `dinogym-deploy-staging` and `dinogym-deploy-prod`. Each trusts only a job of `Pierorivera1/DinoGym` running in the GitHub environment of the same name, and may manage only resources named `dinogym-<env>…` plus its own state file. API Gateway is the exception: its ARNs hold random IDs, not names, so both roles can manage any HTTP API in the account.
+- GitHub's OIDC provider and two roles, `dinogym-deploy-staging` and `dinogym-deploy-prod`. Each trusts only a job of `Pierorivera1/DinoGym` (matched by its owner and repository IDs, decision 77) running in the GitHub environment of the same name, and may manage only resources named `dinogym-<env>…` plus its own state file. API Gateway is the exception: its ARNs hold random IDs, not names, so both roles can manage any HTTP API in the account.
 - `dinogym-<env>-boundary`: a permissions boundary allowing only what the API needs (its logs, its table, reading its two secrets). A deploy role may create a role or add permissions to one only if the role carries this boundary, may never remove a boundary, and cannot change the boundaries or the deploy roles. So a deploy role cannot make itself a more powerful role. `envs/staging` and `envs/prod` attach it to the API role; `envs/emulator` does not.
 - `dinogym-monthly`: an AWS Budgets alert at $10 a month that emails at 50% and 100% actual, and at 100% forecast. The first two budgets in an account are free.
 
-Terraform cannot keep its state in a bucket it has not created yet, so the first apply keeps state on the laptop, then moves it into the new bucket under `bootstrap/terraform.tfstate`. In a shell signed in with `aws login` (not `env.sh`):
+### Signing in on the laptop
+
+Use the IAM user `piero-admin-dinogym` (AdministratorAccess, MFA), never root (decision 74). In a shell where `infra/emulator/env.sh` was not sourced (`echo "$AWS_ENDPOINT_URL"` prints nothing):
+
+```bash
+aws login --profile dinogym                      # opens the browser; region us-east-1
+aws sts get-caller-identity --profile dinogym    # Arn must end in :user/piero-admin-dinogym
+eval "$(aws configure export-credentials --profile dinogym --format env)"
+export AWS_REGION=us-east-1
+```
+
+The pinned AWS provider (6.22.0) cannot read an `aws login` session from the profile, so the `export-credentials` line hands Terraform short-lived keys in that shell's environment only (decision 75). They expire within the hour; run it again when Terraform says the credentials expired. Nothing is written to disk.
+
+### First apply
+
+Terraform cannot keep its state in a bucket it has not created yet, so the first apply keeps state on the laptop, then moves it into the new bucket under `bootstrap/terraform.tfstate`. In the signed-in shell:
 
 ```bash
 cd infra/bootstrap
@@ -49,12 +64,12 @@ Later changes: `terraform init -backend-config="bucket=dinogym-tfstate-<account-
 
 ## On real AWS (from task 19)
 
-After the bootstrap, in a shell without `env.sh`:
+After the bootstrap, in a shell signed in as above:
 
 ```bash
 infra/scripts/build-lambda.sh
 cd infra/envs/staging
-terraform init -backend-config="bucket=<state bucket>"
+terraform init -backend-config="bucket=dinogym-tfstate-<account-id>"
 terraform plan
 ```
 

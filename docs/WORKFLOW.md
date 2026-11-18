@@ -7,7 +7,7 @@ Every change is proven against the AWS Emulator before it reaches real AWS. The 
 1. **Laptop.** The Go API runs as a normal program, with its AWS calls pointed at the emulator. No AWS account is involved.
 2. **Pull request.** GitHub Actions starts the emulator, runs the integration tests against it, and applies, re-plans and destroys the Terraform on it (proven to work with AWS provider 6.22.0, see below). One script, `infra/emulator/check.sh`, run by `.github/workflows/infra.yml` and on the laptop (decision 68).
 3. **Merge.** `.github/workflows/deploy.yml` reruns the emulator checks, builds the Lambda zip once, deploys to staging on real AWS through OIDC and calls `/health` there. This covers what the emulator cannot (decision 73).
-4. **Approval.** The `prod` GitHub environment requires the owner's approval; then the same zip is deployed to prod and smoke-tested. Off until task 19 sets up the AWS side.
+4. **Approval.** The `prod` GitHub environment requires the owner's approval; then the same zip is deployed to prod and smoke-tested.
 
 ## About the AWS Emulator
 

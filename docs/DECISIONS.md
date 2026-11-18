@@ -550,3 +550,34 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Why:** Prod runs exactly the binary that passed staging. Applying the saved plan means what is applied is what was printed. A cancelled apply leaves a held lock and half-made resources. A job's `if` cannot read environment variables (they load once the job starts in its environment), so a repository-level switch is what lets pushes skip cleanly before the AWS side exists.
 - **Rejected:** Building per environment; `apply -auto-approve` without a saved plan; letting the jobs fail until task 19; a workflow_dispatch-only trigger.
 - **Accepted gap:** Prod's plan runs only after approval, so the reviewer approves the commit, not the prod plan. Staging's plan from the same commit is the preview.
+
+## 74. The laptop signs in to AWS as an IAM admin user with MFA, through `aws login` (2026-11-17)
+
+- **Decision:** Root is used only for account settings (root MFA, IAM access to billing). Everything else, including the bootstrap apply, runs as the IAM user `piero-admin-dinogym` with `AdministratorAccess`, console password and MFA, and no access keys. The CLI signs in with `aws login --profile dinogym`, which uses the console sign-in and gives short-lived credentials.
+- **Why:** Root cannot be limited by any policy and its credentials can close the account; an admin user with MFA can be restricted or deleted. `aws login` means no long-lived keys on the laptop (CLAUDE.md).
+- **Rejected:** Root for the bootstrap (works, but the habit is the one to avoid); IAM Identity Center (the standard for many accounts and people, but for one person and one account it adds an organization and a portal without a real security gain); an IAM user with access keys (long-lived keys).
+
+## 75. Terraform gets the `aws login` session through `aws configure export-credentials` (2026-11-17)
+
+- **Decision:** Before running Terraform on the laptop against real AWS, `eval "$(aws configure export-credentials --profile dinogym --format env)"` puts short-lived keys in that shell's environment ([../infra/README.md](../infra/README.md)).
+- **Why:** The pinned AWS provider 6.22.0 (decision 58) fails with "No valid credential sources found" on a profile that holds an `aws login` session (`login_session`); its SDK predates that credential type. The exported keys expire with the session and are never written to disk.
+- **Rejected:** Access keys in `~/.aws/credentials` (long-lived); upgrading the provider (blocked by aws/aws-emulator#56, decision 58).
+
+## 76. The AWS side runs until February 2027, then is torn down (2026-11-17)
+
+- **Decision:** Staging, prod and the bootstrap stay up while the cloud features are built and used, and are destroyed on 2027-02-01 (a calendar reminder exists). Order: set `DEPLOY_ENABLED` to `false`, destroy `envs/prod` and `envs/staging`, delete the SSM parameters, empty the state bucket's object versions, destroy `infra/bootstrap`.
+- **Why:** The project is for learning and showing the work, not a product with users. The account is on the AWS free plan, which ends 2027-03-18 and would need an upgrade to keep running. The app is offline first and release 2.0.0 needs no AWS at all, so nothing the owner uses daily depends on the backend.
+- **Rejected:** Keeping it running indefinitely (cost after the free plan, for no users).
+
+## 77. Deploy roles trust GitHub's immutable subject (2026-11-17)
+
+- **Decision:** The deploy roles' trust condition is `sub = repo:Pierorivera1@176773497/DinoGym@1460291141:environment:<env>`: the owner and repository IDs next to the names, which is what GitHub sends for this repository (`gh api repos/Pierorivera1/DinoGym/actions/oidc/customization/sub` shows `use_immutable_subject: true`).
+- **Why:** Found by the first staging deploy: the name-only subject from decision 70 was refused with "Not authorized to perform sts:AssumeRoleWithWebIdentity". The IDs are also the stronger check: if the repository is renamed or deleted and another one takes the name, its tokens carry different IDs and are refused. That matters here, since this repository took over the name `DinoGym` from version 1.
+- **Rejected:** Turning immutable subjects off for the repository to keep the old condition (weaker); `StringLike` with a wildcard over the IDs (same weakness).
+- **Note:** The emulator does not evaluate trust policies, so only real AWS could catch this (decision 70).
+
+## 78. First real deploy: what staging proved (2026-11-17)
+
+- **Decision:** The deploy roles also get `apigateway:TagResource` and `apigateway:UntagResource`. Creating the tagged `$default` stage was refused without them, even with `apigateway:POST` on `/apis/*`.
+- **Proven on real AWS:** OIDC sign-in into `dinogym-deploy-staging` (after decision 77), a full Terraform apply of `envs/staging` with the deploy role's permissions, `/health` answering 200, and the API role carrying `dinogym-staging-boundary`. IAM's policy simulator (`aws iam simulate-principal-policy`) on the staging deploy role: `iam:CreateRole` is allowed with the staging boundary, implicitly denied with no boundary or with the prod boundary, and `iam:DeleteRolePermissionsBoundary` is explicitly denied (decision 71).
+- **Why record it:** Decisions 70–71 could only say the IAM side was untested; the emulator does not evaluate IAM. This is the first evidence it works.
