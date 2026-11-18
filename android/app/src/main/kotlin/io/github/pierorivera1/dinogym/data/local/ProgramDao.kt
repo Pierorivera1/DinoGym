@@ -33,6 +33,9 @@ interface ProgramDao {
     @Query("SELECT * FROM program WHERE id = :id AND deletedAt IS NULL")
     suspend fun getById(id: String): ProgramEntity?
 
+    @Query("SELECT name FROM program WHERE deletedAt IS NULL")
+    suspend fun getNames(): List<String>
+
     @Insert
     suspend fun insert(program: ProgramEntity)
 

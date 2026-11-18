@@ -138,4 +138,18 @@
         <item quantity="other">ADD %d EXERCISES</item>
     </plurals>
     <string name="picker_tick_some">Tick the exercises to add.</string>
+
+    <!-- New-program sheet (task 22) -->
+    <string name="programs_new_sheet_title">NEW PROGRAM</string>
+    <string name="programs_new_sheet_help">Start from a ready-made program and change anything later, or build your own.</string>
+    <string name="programs_starters_label">READY-MADE</string>
+    <string name="programs_new_empty">EMPTY PROGRAM</string>
+    <string name="programs_new_empty_meta">Pick your routines and rest days</string>
+    <string name="programs_starter_meta">%1$s · %2$s</string>
+    <string name="programs_cd_add_starter">Add %1$s</string>
+    <string name="programs_starters_source">Based on Jeff Nippard\'s free advice. The calisthenics programs apply the same principles to bodyweight exercises.</string>
+    <plurals name="programs_routine_count">
+        <item quantity="one">%d routine</item>
+        <item quantity="other">%d routines</item>
+    </plurals>
 </resources>

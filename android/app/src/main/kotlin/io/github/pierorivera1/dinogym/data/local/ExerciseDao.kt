@@ -25,6 +25,10 @@ interface ExerciseDao {
     @Query("SELECT * FROM exercise WHERE id IN (:ids) AND deletedAt IS NULL")
     suspend fun getByIds(ids: List<String>): List<ExerciseEntity>
 
+    /** Active and archived, for matching a template's exercises against the library. */
+    @Query("SELECT * FROM exercise WHERE deletedAt IS NULL")
+    suspend fun getAll(): List<ExerciseEntity>
+
     @Insert
     suspend fun insert(exercise: ExerciseEntity)
 

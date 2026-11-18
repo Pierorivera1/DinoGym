@@ -49,8 +49,8 @@ import io.github.pierorivera1.dinogym.ui.theme.steppedBorder
  * The Programs tab (mock `ProgramList.dc.html`): the title, then YOUR PROGRAMS and ROUTINES,
  * each with `+ NEW` in its header. The active program comes first in the selected-state
  * colours with the cursor, an ACTIVE tag and its cycle strip with the next step marked.
- * Tapping a program or a routine opens its editor. Stateless; the bottom bar belongs to the
- * app shell.
+ * Tapping a program or a routine opens its editor; `+ NEW` program opens [NewProgramSheet].
+ * Stateless; the bottom bar belongs to the app shell.
  */
 @Composable
 fun ProgramListScreen(
@@ -60,10 +60,25 @@ fun ProgramListScreen(
     onOpenProgram: (programId: String) -> Unit,
     onOpenRoutine: (routineId: String) -> Unit,
     modifier: Modifier = Modifier,
+    newProgramActions: NewProgramActions = NewProgramActions.None,
+) {
+    Box(modifier.fillMaxSize()) {
+        ProgramListContent(state, onNewProgram, onNewRoutine, onOpenProgram, onOpenRoutine)
+        if (state.newProgramSheet) NewProgramSheet(state.starters, newProgramActions)
+    }
+}
+
+@Composable
+private fun ProgramListContent(
+    state: ProgramListUiState,
+    onNewProgram: () -> Unit,
+    onNewRoutine: () -> Unit,
+    onOpenProgram: (programId: String) -> Unit,
+    onOpenRoutine: (routineId: String) -> Unit,
 ) {
     val colors = DinoTheme.colors
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(colors.bg)
             .statusBarsPadding()
@@ -187,7 +202,7 @@ private fun ProgramCard(card: ProgramCardUi, onClick: () -> Unit) {
  * cursor on the current step. Smaller than Home's [io.github.pierorivera1.dinogym.ui.components.CycleStrip].
  */
 @Composable
-private fun CompactCycleStrip(cells: List<CycleCell>, modifier: Modifier = Modifier) {
+internal fun CompactCycleStrip(cells: List<CycleCell>, modifier: Modifier = Modifier) {
     val colors = DinoTheme.colors
     val rest = stringResource(R.string.home_cycle_rest)
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {

@@ -3,7 +3,10 @@ package io.github.pierorivera1.dinogym.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import org.robolectric.RuntimeEnvironment
 import com.github.takahirom.roborazzi.captureRoboImage
+import io.github.pierorivera1.dinogym.data.seed.SeedStrings
+import io.github.pierorivera1.dinogym.data.seed.StarterPrograms
 import io.github.pierorivera1.dinogym.domain.model.ExerciseIcon
 import io.github.pierorivera1.dinogym.domain.model.ExerciseKind
 import io.github.pierorivera1.dinogym.domain.model.ProgramType
@@ -16,6 +19,7 @@ import io.github.pierorivera1.dinogym.ui.programs.ProgramCardUi
 import io.github.pierorivera1.dinogym.ui.programs.ProgramEditActions
 import io.github.pierorivera1.dinogym.ui.programs.ProgramEditScreen
 import io.github.pierorivera1.dinogym.ui.programs.ProgramEditUiState
+import io.github.pierorivera1.dinogym.ui.programs.ProgramListMapper
 import io.github.pierorivera1.dinogym.ui.programs.ProgramListScreen
 import io.github.pierorivera1.dinogym.ui.programs.ProgramListUiState
 import io.github.pierorivera1.dinogym.ui.programs.ProgramSheet
@@ -60,6 +64,22 @@ class ProgramsScreenshotTest {
     @Test
     @Config(qualifiers = SPANISH)
     fun listDaySpanish() = capture("programs_list_es_day", ThemeMode.DAY) { List(ProgramSamples.list(spanish = true)) }
+
+    /** `+ NEW` program: the starter programs and the empty program (task 22). */
+    @Test
+    fun newProgramNightEnglish() = capture("programs_new_en_night", ThemeMode.NIGHT) { List(withStarters(spanish = false)) }
+
+    @Test
+    @Config(qualifiers = SPANISH)
+    fun newProgramDaySpanish() = capture("programs_new_es_day", ThemeMode.DAY) { List(withStarters(spanish = true)) }
+
+    private fun withStarters(spanish: Boolean): ProgramListUiState {
+        val strings = SeedStrings(RuntimeEnvironment.getApplication())
+        return ProgramSamples.list(spanish).copy(
+            newProgramSheet = true,
+            starters = ProgramListMapper.starters(StarterPrograms.all, strings::get),
+        )
+    }
 
     @Test
     fun programNightEnglish() = capture("programs_edit_en_night", ThemeMode.NIGHT) {

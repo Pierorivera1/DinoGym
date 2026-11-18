@@ -12,7 +12,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 // screen. Navigation itself stays in the app shell, which passes the callbacks. Edits
 // waiting for the typing delay are written when the app goes to the background.
 
-/** The Programs tab. `isNew` is true for a program or routine `+ NEW` just created. */
+/**
+ * The Programs tab. `isNew` is true for a program or routine `+ NEW` just created empty; a
+ * starter opens with `isNew` false, since its name is already meaningful. System Back closes
+ * the new-program sheet first.
+ */
 @Composable
 fun ProgramListEntry(
     onOpenProgram: (programId: String, isNew: Boolean) -> Unit,
@@ -20,9 +24,15 @@ fun ProgramListEntry(
     viewModel: ProgramListViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    BackHandler(enabled = state.newProgramSheet, onBack = viewModel::closeNewProgram)
     ProgramListScreen(
         state = state,
-        onNewProgram = { viewModel.createProgram { onOpenProgram(it, true) } },
+        onNewProgram = viewModel::openNewProgram,
+        newProgramActions = NewProgramActions(
+            onEmpty = { viewModel.createProgram { onOpenProgram(it, true) } },
+            onStarter = { key -> viewModel.installStarter(key) { onOpenProgram(it, false) } },
+            onClose = viewModel::closeNewProgram,
+        ),
         onNewRoutine = { viewModel.createRoutine { onOpenRoutine(it, true) } },
         onOpenProgram = { onOpenProgram(it, false) },
         onOpenRoutine = { onOpenRoutine(it, false) },

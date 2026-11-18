@@ -58,6 +58,7 @@ Every table uses a text UUID primary key plus `updatedAt` and a nullable `delete
 - Completing, skipping or marking a rest day done moves `program.currentStep` on (decision 29).
 - Progress is not stored. It is a query over set 1 of each finished session, keeping the days set 1 beat the previous best (decision 28).
 - The owner's program (WISHLIST.md) is inserted on first run.
+- Programs from outside the user's own edits (the first-run seed, the starter programs of task 22, and imported shares) are plain `ProgramTemplate` data copied in by `data/repository/ProgramInstaller.kt`: new ids for every row, library exercises reused by name and kind, taken names numbered (decision 93). The starter content is in `data/seed/StarterPrograms.kt` (decision 94).
 
 ### Sync (task 21)
 
