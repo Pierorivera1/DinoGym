@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +23,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,11 +30,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -64,6 +64,7 @@ import io.github.pierorivera1.dinogym.ui.components.Tag
 import io.github.pierorivera1.dinogym.ui.components.TopBar
 import io.github.pierorivera1.dinogym.ui.components.UndoBar
 import io.github.pierorivera1.dinogym.ui.components.WindowSheet
+import io.github.pierorivera1.dinogym.ui.share.ShareButton
 import io.github.pierorivera1.dinogym.ui.theme.ArtPixel
 import io.github.pierorivera1.dinogym.ui.theme.DinoTheme
 import io.github.pierorivera1.dinogym.ui.theme.SteppedShape
@@ -87,6 +88,8 @@ data class ProgramEditActions(
     val onCloseSheet: () -> Unit,
     val onUndo: () -> Unit,
     val onUndoTimeout: () -> Unit,
+    /** SHARE PROGRAM under the cycle (task 23). */
+    val onShare: () -> Unit = {},
 ) {
     companion object {
         /** No-op actions, for screenshot tests. */
@@ -239,6 +242,7 @@ private fun ColumnScope.EditorBody(
         )
     }
     HelpText(stringResource(R.string.program_drag_help))
+    ShareButton(isProgram = true, onClick = actions.onShare)
 
     if (!state.isActive) {
         Spacer(Modifier.weight(1f))

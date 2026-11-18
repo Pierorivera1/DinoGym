@@ -6,6 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.github.pierorivera1.dinogym.api.DinoGymApi
+import io.github.pierorivera1.dinogym.api.apis.SharesApi
 import io.github.pierorivera1.dinogym.api.apis.SyncApi
 import io.github.pierorivera1.dinogym.data.sync.ConnectivityNetworkMonitor
 import io.github.pierorivera1.dinogym.data.sync.DefaultSyncStatus
@@ -36,5 +37,9 @@ abstract class SyncModule {
     companion object {
         @Provides
         fun provideSyncApi(api: DinoGymApi): SyncApi = api.sync
+
+        /** Shareable routines (task 23). Publishing sets its own bearer token per call. */
+        @Provides
+        fun provideSharesApi(api: DinoGymApi): SharesApi = api.shares
     }
 }

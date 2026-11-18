@@ -11,6 +11,7 @@ import io.github.pierorivera1.dinogym.data.local.newId
 import io.github.pierorivera1.dinogym.data.local.toDomain
 import io.github.pierorivera1.dinogym.domain.model.ExerciseTemplate
 import io.github.pierorivera1.dinogym.domain.model.ProgramTemplate
+import io.github.pierorivera1.dinogym.domain.model.RoutineTemplate
 import io.github.pierorivera1.dinogym.domain.rules.InstallRules
 import io.github.pierorivera1.dinogym.domain.rules.TextFold
 import java.time.Clock
@@ -19,7 +20,8 @@ import javax.inject.Singleton
 
 /**
  * Copies a [ProgramTemplate] into the database as new rows (decision 93): the first-run seed,
- * a starter program, and later an imported share all go through here.
+ * a starter program and an imported share (task 23) all go through here; [installRoutine]
+ * does the same for one shared routine.
  *
  * - Every program, routine, step and routine line gets a new id, so it syncs like any row
  *   the user made.
@@ -49,7 +51,7 @@ class ProgramInstaller @Inject constructor(
     /** The same as [install], for a caller that already holds a write transaction. */
     suspend fun installInTransaction(template: ProgramTemplate, activation: Activation): String {
         val now = clock.millis()
-        val exerciseIds = exerciseIds(template, now)
+        val exerciseIds = exerciseIds(template.routines, now)
 
         val takenRoutines = db.routineDao().getNames().toMutableList()
         val routineIds = template.routines.map { newId() }
@@ -60,21 +62,7 @@ class ProgramInstaller @Inject constructor(
             },
         )
         db.routineDao().insertItems(
-            template.routines.flatMapIndexed { i, routine ->
-                routine.items.mapIndexed { position, item ->
-                    RoutineExerciseEntity(
-                        id = newId(),
-                        routineId = routineIds[i],
-                        exerciseId = exerciseIds.getValue(key(item.exercise)),
-                        position = position,
-                        sets = item.sets,
-                        repMin = item.repMin,
-                        repMax = item.repMax,
-                        restSeconds = item.restSeconds,
-                        updatedAt = now,
-                    )
-                }
-            },
+            template.routines.flatMapIndexed { i, routine -> lines(routine, routineIds[i], exerciseIds, now) },
         )
 
         val programs = db.programDao()
@@ -105,10 +93,45 @@ class ProgramInstaller @Inject constructor(
         return programId
     }
 
-    /** The library id for each distinct exercise of [template]: matched, or inserted now. */
-    private suspend fun exerciseIds(template: ProgramTemplate, now: Long): Map<Pair<String, String>, String> {
+    /**
+     * Copies one routine (an imported routine share, task 23) with the same rules as
+     * [install]: new ids, exercises matched by name and kind, a taken name numbered. It joins
+     * no program. Returns the new routine's id.
+     */
+    suspend fun installRoutine(template: RoutineTemplate): String = db.withWriteTransaction {
+        val now = clock.millis()
+        val exerciseIds = exerciseIds(listOf(template), now)
+        val routineId = newId()
+        db.routineDao().insert(
+            RoutineEntity(id = routineId, name = InstallRules.uniqueName(template.name, db.routineDao().getNames()), updatedAt = now),
+        )
+        db.routineDao().insertItems(lines(template, routineId, exerciseIds, now))
+        routineId
+    }
+
+    private fun lines(
+        routine: RoutineTemplate,
+        routineId: String,
+        exerciseIds: Map<Pair<String, String>, String>,
+        now: Long,
+    ) = routine.items.mapIndexed { position, item ->
+        RoutineExerciseEntity(
+            id = newId(),
+            routineId = routineId,
+            exerciseId = exerciseIds.getValue(key(item.exercise)),
+            position = position,
+            sets = item.sets,
+            repMin = item.repMin,
+            repMax = item.repMax,
+            restSeconds = item.restSeconds,
+            updatedAt = now,
+        )
+    }
+
+    /** The library id for each distinct exercise of [routines]: matched, or inserted now. */
+    private suspend fun exerciseIds(routines: List<RoutineTemplate>, now: Long): Map<Pair<String, String>, String> {
         val library = db.exerciseDao().getAll().map { it.toDomain() }
-        val wanted = template.routines.flatMap { r -> r.items.map { it.exercise } }.distinctBy(::key)
+        val wanted = routines.flatMap { r -> r.items.map { it.exercise } }.distinctBy(::key)
         val ids = mutableMapOf<Pair<String, String>, String>()
         val created = mutableListOf<ExerciseEntity>()
         wanted.forEach { exercise ->

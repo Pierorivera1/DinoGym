@@ -39,15 +39,18 @@ import io.github.pierorivera1.dinogym.ui.programs.ProgramEditRoute
 import io.github.pierorivera1.dinogym.ui.programs.ProgramListEntry
 import io.github.pierorivera1.dinogym.ui.programs.RoutineEditEntry
 import io.github.pierorivera1.dinogym.ui.programs.RoutineEditRoute
+import io.github.pierorivera1.dinogym.ui.settings.LicencesEntry
+import io.github.pierorivera1.dinogym.ui.settings.LicencesRoute
+import io.github.pierorivera1.dinogym.ui.settings.SettingsEntry
+import io.github.pierorivera1.dinogym.ui.settings.SettingsRoute
+import io.github.pierorivera1.dinogym.ui.share.ImportEntry
+import io.github.pierorivera1.dinogym.ui.share.ImportShareRoute
+import io.github.pierorivera1.dinogym.ui.share.Imported
 import io.github.pierorivera1.dinogym.ui.stats.ProgressEntry
 import io.github.pierorivera1.dinogym.ui.stats.ProgressRoute
 import io.github.pierorivera1.dinogym.ui.stats.SessionDetailEntry
 import io.github.pierorivera1.dinogym.ui.stats.SessionRoute
 import io.github.pierorivera1.dinogym.ui.stats.StatsEntry
-import io.github.pierorivera1.dinogym.ui.settings.LicencesEntry
-import io.github.pierorivera1.dinogym.ui.settings.LicencesRoute
-import io.github.pierorivera1.dinogym.ui.settings.SettingsEntry
-import io.github.pierorivera1.dinogym.ui.settings.SettingsRoute
 import io.github.pierorivera1.dinogym.ui.theme.DinoTheme
 import io.github.pierorivera1.dinogym.ui.workout.RestEntry
 import io.github.pierorivera1.dinogym.ui.workout.SummaryEntry
@@ -70,6 +73,8 @@ fun DinoGymNavigation(appViewModel: AppViewModel = hiltViewModel()) {
     LaunchedEffect(Unit) {
         val resume = appViewModel.screensToResume()
         if (resume.isNotEmpty() && backStack.toList() == listOf(HomeRoute)) backStack.addAll(resume)
+        // Shared links open on top of whatever is showing, after the resume above (task 23).
+        appViewModel.incomingShares.collect { backStack.add(ImportShareRoute(it)) }
     }
 
     AppShell(
@@ -99,6 +104,7 @@ fun DinoGymNavigation(appViewModel: AppViewModel = hiltViewModel()) {
                     ProgramListEntry(
                         onOpenProgram = { id, isNew -> backStack.add(ProgramEditRoute(id, isNew)) },
                         onOpenRoutine = { id, isNew -> backStack.add(RoutineEditRoute(id, isNew)) },
+                        onOpenLink = { if (backStack.last() == ProgramsRoute) backStack.add(ImportShareRoute(null)) },
                     )
                 }
                 entry<ProgramEditRoute> { key ->
@@ -107,6 +113,7 @@ fun DinoGymNavigation(appViewModel: AppViewModel = hiltViewModel()) {
                         isNew = key.isNew,
                         onBack = { if (backStack.last() == key) backStack.removeLastOrNull() },
                         onOpenRoutine = { id, isNew -> backStack.add(RoutineEditRoute(id, isNew)) },
+                        onOpenSettings = { if (backStack.last() == key) backStack.add(SettingsRoute) },
                     )
                 }
                 entry<RoutineEditRoute> { key ->
@@ -115,6 +122,23 @@ fun DinoGymNavigation(appViewModel: AppViewModel = hiltViewModel()) {
                         isNew = key.isNew,
                         onBack = { if (backStack.last() == key) backStack.removeLastOrNull() },
                         onOpenExercise = { backStack.add(ExerciseEditRoute(it, isNew = true)) },
+                        onOpenSettings = { if (backStack.last() == key) backStack.add(SettingsRoute) },
+                    )
+                }
+                entry<ImportShareRoute> { key ->
+                    ImportEntry(
+                        shareId = key.shareId,
+                        onBack = { if (backStack.last() == key) backStack.removeLastOrNull() },
+                        onImported = { imported ->
+                            // The editor replaces the import, so Back does not offer the same import again.
+                            backStack.remove(key)
+                            backStack.add(
+                                when (imported) {
+                                    is Imported.Program -> ProgramEditRoute(imported.programId)
+                                    is Imported.Routine -> RoutineEditRoute(imported.routineId)
+                                },
+                            )
+                        },
                     )
                 }
                 entry<StatsRoute> {

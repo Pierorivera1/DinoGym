@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shareable routines (task 23, decisions 102-103). Mocks: ShareFlow.dc.html, ImportShare.dc.html. -->
+<resources>
+    <!-- The share button at the end of the routine and program editors. -->
+    <string name="share_routine">SHARE ROUTINE</string>
+    <string name="share_program">SHARE PROGRAM</string>
+
+    <!-- The share sheet. -->
+    <string name="share_sheet_title">SHARE</string>
+    <string name="share_working">Making the link…</string>
+    <string name="share_done">Anyone with this link can see the routine and add it to DinoGym. Editing yours later does not change it: share again for a new link.</string>
+    <string name="share_done_program">Anyone with this link can see the program and add it to DinoGym. Editing yours later does not change it: share again for a new link.</string>
+    <string name="share_send">SEND LINK</string>
+    <string name="share_chooser_title">Share with</string>
+    <!-- The text sent with the link. %1$s is the routine or program name, %2$s the link. -->
+    <string name="share_message">%1$s on DinoGym: %2$s</string>
+    <string name="share_signed_out">Sharing needs an account: sign in under Settings › ACCOUNT. Nothing about you goes in the link, only what you share.</string>
+    <string name="share_open_settings">SETTINGS</string>
+    <string name="share_offline">You are offline. Making a link needs a connection; your routine is safe on the phone.</string>
+    <string name="share_too_many">You made 20 links today. Try again tomorrow.</string>
+    <string name="share_too_big">This is too big to share. A link holds up to 14 routines of 30 exercises each and 60 days in the cycle.</string>
+    <string name="share_empty">Add a routine to the cycle before sharing this program.</string>
+    <string name="share_failed">The link could not be made. Try again in a moment.</string>
+    <string name="action_close">CLOSE</string>
+    <string name="action_retry">TRY AGAIN</string>
+
+    <!-- The import screen. -->
+    <string name="import_title">IMPORT</string>
+    <string name="import_paste_label">SHARED LINK</string>
+    <string name="import_paste_help">Paste a DinoGym link someone shared with you.</string>
+    <string name="import_paste_open">OPEN LINK</string>
+    <string name="import_paste_invalid">That is not a DinoGym link. It looks like https://….cloudfront.net/r/…</string>
+    <string name="import_loading">Loading the shared routine…</string>
+    <string name="import_offline">You are offline. Opening a shared routine needs a connection. Try again when you have one.</string>
+    <string name="import_not_found">This link does not lead to a routine. Check that it was copied whole.</string>
+    <string name="import_unreadable">This was made with a newer DinoGym. Update the app to open it.</string>
+    <string name="import_failed">The shared routine could not be loaded. Try again in a moment.</string>
+    <string name="import_label_routine">SHARED ROUTINE</string>
+    <string name="import_label_program">SHARED PROGRAM</string>
+    <!-- "Gym · 6 days" -->
+    <string name="import_program_meta">%1$s · %2$s</string>
+    <plurals name="import_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <string name="import_type_gym">Gym</string>
+    <string name="import_type_calisthenics">Calisthenics</string>
+    <string name="import_cycle_label">CYCLE</string>
+    <string name="import_routines_label">ROUTINES</string>
+    <string name="import_new_tag">NEW</string>
+    <string name="import_cd_new">New in your library</string>
+    <string name="import_no_exercises">No exercises yet.</string>
+    <string name="import_explain_routine">Adds the routine %1$s. Put it in a program from the program editor.</string>
+    <string name="import_explain_program_active">Adds %1$s and makes it your program, since you have none active.</string>
+    <string name="import_explain_program">Adds %1$s to your programs. Your active program stays as it is.</string>
+    <string name="import_exercises_note">Exercises you already have are reused and keep their history; NEW ones join your library.</string>
+    <string name="import_add_routine">ADD ROUTINE</string>
+    <string name="import_add_program">ADD PROGRAM</string>
+    <string name="import_adding">ADDING…</string>
+
+    <!-- The new-program sheet's row for a link (task 22's sheet). -->
+    <string name="programs_new_from_link">FROM A LINK</string>
+    <string name="programs_new_from_link_meta">Paste a routine or program someone shared</string>
+</resources>

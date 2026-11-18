@@ -9,9 +9,12 @@ import io.github.pierorivera1.dinogym.data.settings.SettingsRepository
 import io.github.pierorivera1.dinogym.timer.RestTimer
 import io.github.pierorivera1.dinogym.ui.navigation.resumeScreens
 import io.github.pierorivera1.dinogym.ui.theme.ThemeMode
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,6 +36,18 @@ class AppViewModel @Inject constructor(
      */
     val themeMode: StateFlow<ThemeMode?> = settingsRepository.themeMode
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    private val shares = Channel<String>(Channel.BUFFERED)
+
+    /**
+     * Ids of shared links the app was opened with (task 23): an App Link, the web page's
+     * button, or text shared to the app. The shell opens the import screen for each.
+     */
+    val incomingShares: Flow<String> = shares.receiveAsFlow()
+
+    fun openShare(shareId: String) {
+        shares.trySend(shareId)
+    }
 
     /** The launch check runs once per activity, not again after a rotation. */
     private var resumeChecked = false

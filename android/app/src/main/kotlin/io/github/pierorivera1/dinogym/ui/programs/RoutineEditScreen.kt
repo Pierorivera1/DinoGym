@@ -55,6 +55,7 @@ import io.github.pierorivera1.dinogym.ui.components.SegmentedControl
 import io.github.pierorivera1.dinogym.ui.components.TopBar
 import io.github.pierorivera1.dinogym.ui.components.UndoBar
 import io.github.pierorivera1.dinogym.ui.components.WindowSheet
+import io.github.pierorivera1.dinogym.ui.share.ShareButton
 import io.github.pierorivera1.dinogym.ui.theme.ArtPixel
 import io.github.pierorivera1.dinogym.ui.theme.DinoTheme
 import io.github.pierorivera1.dinogym.ui.theme.SteppedShape
@@ -83,6 +84,8 @@ data class RoutineEditActions(
     val onUndo: () -> Unit,
     val onUndoTimeout: () -> Unit,
     val picker: PickerActions,
+    /** SHARE ROUTINE at the end of the list (task 23). */
+    val onShare: () -> Unit = {},
 ) {
     companion object {
         /** No-op actions, for screenshot tests. */
@@ -204,6 +207,7 @@ private fun RoutineBody(state: RoutineEditUiState, actions: RoutineEditActions, 
             }
         }
     }
+    ShareButton(isProgram = false, onClick = actions.onShare, modifier = Modifier.padding(top = 6.dp))
 }
 
 /** "2 × 4 · rest 2:30", or the show-only note. */

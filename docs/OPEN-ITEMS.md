@@ -12,6 +12,14 @@ As of 2026-11-18. Remove an item when it is done or decided, and record decision
 - [x] Create a Grafana Cloud account (free tier). Tokens are created later, when observability is wired up.
 - [ ] Back up the release signing key, `~/.config/dinogym/` (both files), to a password manager. Without it no update installs over the app ([RELEASE.md](RELEASE.md), decision 45)
 
+## Task 23: to do and to verify
+
+- [ ] On a phone: App Links verify (`adb shell pm get-app-links io.github.pierorivera1.dinogym.debug` shows `d1q286cdeyw8ks.cloudfront.net: verified`)
+- [ ] On staging: open a link in a desktop and a phone browser (Night and Day, English and Spanish); `assetlinks.json` is served as JSON; a share is cached by CloudFront (`x-cache: Hit from cloudfront` on the second request)
+- [ ] On a phone: SHARE ROUTINE signed in and signed out, the share sheet, opening a link from a chat app, OPEN IN DINOGYM on the web page with and without the app, pasting a link, importing offline, and that imported rows sync
+- [ ] The owner reviews `SharePage.dc.html`, `ShareFlow.dc.html` and `ImportShare.dc.html` (built before review, as in decision 41)
+- [ ] Shares cannot be deleted yet (decision 97); add a "my links" list with delete if anyone asks
+
 ## Still to decide
 
 - [ ] The owner reviews the new-program sheet mock (`NewProgram.dc.html`, task 22), built before review (decision 92)
@@ -40,7 +48,7 @@ As of 2026-11-18. Remove an item when it is done or decided, and record decision
 
 ## State of the build
 
-- Task 23 (in progress): the API publishes and serves shares (`POST /shares`, public `GET /shares/{id}`, decisions 96–97), checked with unit tests and on the emulator. The deploy roles' CloudFront and web bucket permissions are in `infra/bootstrap` and must be applied by the owner before the web side (decision 100) reaches `main`.
+- Task 23: the API publishes and serves shares (`POST /shares`, public `GET /shares/{id}`, decisions 96–97); CloudFront serves the page `/r/<id>`, its files and `assetlinks.json` from a private bucket and sends `/shares/*` to the API (decisions 98–101); the app shares from the routine and program editors and imports through task 22's installer (decisions 102–103). Checked with Go unit tests, the emulator (including requests to the distribution it serves), JVM tests and screenshots; the installer's new test runs in CI. Staging and prod serve the page, `assetlinks.json` and shares through CloudFront (`d1q286cdeyw8ks` and `d1ktti3qymlgmy`.cloudfront.net, 2026-11-18); publishing and importing are not yet tried on a phone.
 - Task 22: `+ NEW` on the Programs tab opens a sheet with an empty program and four starter programs (Gym and Calisthenics, 5 and 4 days, decision 92). Starters, the first-run seed and later imports are installed by `ProgramInstaller`, which reuses library exercises by name and kind (decision 93). Checked with JVM tests and screenshots; the installer's instrumented tests run in CI.
 - Task 21: the backend's `/sync/push` and `/sync/pull` work on the laptop and the emulator (decisions 86–87). The app tracks changes with SQLite triggers, pushes and pulls through WorkManager while signed in, uploads the whole history on the first sign-in, and shows the sync row in Settings › ACCOUNT (decisions 88–91). Checked with JVM tests and CI's instrumented tests; not yet tried on a phone against staging.
 - Task 20: the backend verifies Google ID tokens and issues sessions (decisions 79–80). The app signs in from Settings › ACCOUNT through Credential Manager, keeps the session encrypted with a Keystore key, and refreshes it under the rules of decision 83 (decisions 81–84). Debug builds use staging, release builds prod. Nothing else in the app needs an account.

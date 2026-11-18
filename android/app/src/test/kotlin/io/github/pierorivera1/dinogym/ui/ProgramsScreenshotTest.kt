@@ -168,7 +168,7 @@ class ProgramsScreenshotTest {
 }
 
 /** The data of the mocks, in English or Spanish (program, routine and exercise names are user data). */
-private object ProgramSamples {
+internal object ProgramSamples {
     private val ownerCycle = listOf("Pull", "Push", "Legs", null, "Upper", "Lower")
 
     fun list(spanish: Boolean) = ProgramListUiState(

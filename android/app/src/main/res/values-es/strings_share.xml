@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Rutinas compartidas (tarea 23, decisiones 102-103). -->
+<resources>
+    <string name="share_routine">COMPARTIR RUTINA</string>
+    <string name="share_program">COMPARTIR PROGRAMA</string>
+
+    <string name="share_sheet_title">COMPARTIR</string>
+    <string name="share_working">Creando el enlace…</string>
+    <string name="share_done">Cualquiera con este enlace puede ver la rutina y agregarla a DinoGym. Si después cambias la tuya, el enlace no cambia: comparte de nuevo para tener uno nuevo.</string>
+    <string name="share_done_program">Cualquiera con este enlace puede ver el programa y agregarlo a DinoGym. Si después cambias el tuyo, el enlace no cambia: comparte de nuevo para tener uno nuevo.</string>
+    <string name="share_send">ENVIAR ENLACE</string>
+    <string name="share_chooser_title">Compartir con</string>
+    <string name="share_message">%1$s en DinoGym: %2$s</string>
+    <string name="share_signed_out">Para compartir necesitas una cuenta: entra en Ajustes › CUENTA. En el enlace no va nada tuyo, solo lo que compartes.</string>
+    <string name="share_open_settings">AJUSTES</string>
+    <string name="share_offline">No tienes conexión. Para crear un enlace hace falta internet; tu rutina sigue guardada en el celular.</string>
+    <string name="share_too_many">Hoy ya creaste 20 enlaces. Inténtalo de nuevo mañana.</string>
+    <string name="share_too_big">Es demasiado grande para compartir. Un enlace admite hasta 14 rutinas de 30 ejercicios cada una y 60 días en el ciclo.</string>
+    <string name="share_empty">Agrega una rutina al ciclo antes de compartir este programa.</string>
+    <string name="share_failed">No se pudo crear el enlace. Inténtalo de nuevo en un momento.</string>
+    <string name="action_close">CERRAR</string>
+    <string name="action_retry">REINTENTAR</string>
+
+    <string name="import_title">IMPORTAR</string>
+    <string name="import_paste_label">ENLACE COMPARTIDO</string>
+    <string name="import_paste_help">Pega un enlace de DinoGym que alguien compartió contigo.</string>
+    <string name="import_paste_open">ABRIR ENLACE</string>
+    <string name="import_paste_invalid">Ese no es un enlace de DinoGym. Se ve así: https://….cloudfront.net/r/…</string>
+    <string name="import_loading">Cargando la rutina compartida…</string>
+    <string name="import_offline">No tienes conexión. Para abrir una rutina compartida hace falta internet. Inténtalo de nuevo cuando tengas.</string>
+    <string name="import_not_found">Este enlace no lleva a ninguna rutina. Revisa que se haya copiado completo.</string>
+    <string name="import_unreadable">Esto se hizo con un DinoGym más nuevo. Actualiza la app para abrirlo.</string>
+    <string name="import_failed">No se pudo cargar la rutina compartida. Inténtalo de nuevo en un momento.</string>
+    <string name="import_label_routine">RUTINA COMPARTIDA</string>
+    <string name="import_label_program">PROGRAMA COMPARTIDO</string>
+    <string name="import_program_meta">%1$s · %2$s</string>
+    <plurals name="import_days">
+        <item quantity="one">%d día</item>
+        <item quantity="many">%d días</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+    <string name="import_type_gym">Gimnasio</string>
+    <string name="import_type_calisthenics">Calistenia</string>
+    <string name="import_cycle_label">CICLO</string>
+    <string name="import_routines_label">RUTINAS</string>
+    <string name="import_new_tag">NUEVO</string>
+    <string name="import_cd_new">Nuevo en tu biblioteca</string>
+    <string name="import_no_exercises">Todavía no tiene ejercicios.</string>
+    <string name="import_explain_routine">Agrega la rutina %1$s. Ponla en un programa desde el editor de programas.</string>
+    <string name="import_explain_program_active">Agrega %1$s y lo deja como tu programa, porque no tienes ninguno activo.</string>
+    <string name="import_explain_program">Agrega %1$s a tus programas. Tu programa activo sigue igual.</string>
+    <string name="import_exercises_note">Los ejercicios que ya tienes se reutilizan y conservan su historial; los NUEVOS se suman a tu biblioteca.</string>
+    <string name="import_add_routine">AGREGAR RUTINA</string>
+    <string name="import_add_program">AGREGAR PROGRAMA</string>
+    <string name="import_adding">AGREGANDO…</string>
+
+    <string name="programs_new_from_link">DESDE UN ENLACE</string>
+    <string name="programs_new_from_link_meta">Pega una rutina o programa que alguien compartió</string>
+</resources>
