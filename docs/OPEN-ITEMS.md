@@ -15,7 +15,10 @@ As of 2026-11-18. Remove an item when it is done or decided, and record decision
 ## Task 24: to do and to verify
 
 - [ ] The owner reviews `Reminders.dc.html` before the REMINDERS section is built (decision 16)
-- [ ] The owner installs the Google Cloud CLI and applies `infra/google/` (decision 107), then registers the Android app (`io.github.pierorivera1.dinogym` and `.debug`) in the Firebase project `dinogym-3870b`
+- [x] The owner installs the Google Cloud CLI (AUR `google-cloud-cli` 594.0.0, 2026-11-18)
+- [ ] Before the backend PR merges: the owner applies `infra/bootstrap` (new boundary and deploy-role permissions, decision 108) and `infra/google` ([infra/README.md](../infra/README.md)), and the real project number replaces `GCP_PROJECT_NUMBER` in `envs/staging` and `envs/prod`
+- [ ] The owner registers the Android app (`io.github.pierorivera1.dinogym` and `.debug`) in the Firebase project `dinogym-3870b`
+- [ ] The Android part: REMINDERS in Settings, the four preferences, FCM token registration, notification channels and the messaging service (after the mock is approved)
 - [ ] On staging: a schedule fires, the federation token exchange works and a phone receives both reminders
 
 ## Task 23: to do and to verify

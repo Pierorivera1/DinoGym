@@ -21,10 +21,11 @@ import (
 // MaxBodyBytes caps a request body. A full push of 500 rows is well under it.
 const MaxBodyBytes = 1 << 20
 
-// Store is everything the handlers keep: synced rows and shares.
+// Store is everything the handlers keep: synced rows, shares and devices.
 type Store interface {
 	SyncStore
 	ShareStore
+	DeviceStore
 }
 
 // Server answers the API's operations.
@@ -36,6 +37,8 @@ type Server struct {
 	// shareBaseURL is https://<distribution>.cloudfront.net; empty when the
 	// environment has no share page, and then POST /shares returns no url.
 	shareBaseURL string
+	// reminders reconciles reminder schedules; nil when the environment has none.
+	reminders Reminders
 }
 
 var (

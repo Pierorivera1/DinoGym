@@ -3,12 +3,13 @@
 # A deploy role must create the Lambda's role and write its policy, so on its
 # own it could write an admin policy onto a role it made, then use that role.
 # A boundary closes that gap: a role's effective permissions are its policies
-# AND its boundary, so a role carrying this one can never do more than the API
-# needs, whatever policy is written onto it. The deploy roles may create or
+# AND its boundary, so a role carrying this one can never do more than the
+# environment's roles need (the API, the reminder function and the role
+# Scheduler uses to invoke it), whatever policy is written onto it. The deploy roles may create or
 # change roles only when this boundary is attached (github.tf).
 #
-# Keep it in step with the API role's policy in infra/modules/dinogym/lambda.tf:
-# anything the API needs must be allowed in both.
+# Keep it in step with the role policies in infra/modules/dinogym/lambda.tf and
+# reminders.tf: anything a role needs must be allowed in both.
 
 resource "aws_iam_policy" "boundary" {
   for_each = local.envs
@@ -31,6 +32,7 @@ resource "aws_iam_policy" "boundary" {
           "dynamodb:GetItem",
           "dynamodb:PutItem",
           "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
           "dynamodb:Query",
         ]
         Resource = [
@@ -55,6 +57,33 @@ resource "aws_iam_policy" "boundary" {
         Action    = "kms:Decrypt"
         Resource  = "arn:aws:kms:us-east-1:${local.account_id}:key/*"
         Condition = { StringEquals = { "kms:ViaService" = "ssm.us-east-1.amazonaws.com" } }
+      },
+      {
+        # The API keeps each user's reminder schedules (decision 105).
+        Sid    = "OwnSchedules"
+        Effect = "Allow"
+        Action = [
+          "scheduler:CreateSchedule",
+          "scheduler:UpdateSchedule",
+          "scheduler:DeleteSchedule",
+          "scheduler:GetSchedule",
+        ]
+        Resource = "arn:aws:scheduler:us-east-1:${local.account_id}:schedule/dinogym-${each.key}/*"
+      },
+      {
+        # ...and hands those schedules the role that invokes the reminder function.
+        Sid       = "PassSchedulerRole"
+        Effect    = "Allow"
+        Action    = "iam:PassRole"
+        Resource  = "arn:aws:iam::${local.account_id}:role/dinogym-${each.key}-scheduler"
+        Condition = { StringEquals = { "iam:PassedToService" = "scheduler.amazonaws.com" } }
+      },
+      {
+        # The Scheduler role's one job.
+        Sid      = "InvokeReminders"
+        Effect   = "Allow"
+        Action   = "lambda:InvokeFunction"
+        Resource = "arn:aws:lambda:us-east-1:${local.account_id}:function:dinogym-${each.key}-reminders"
       },
     ]
   })

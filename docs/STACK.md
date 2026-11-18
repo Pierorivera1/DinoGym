@@ -29,7 +29,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Database | DynamoDB, through the AWS SDK for Go v2; one table with one sync index (decisions 52 and 65) |
 | Files | S3 |
 | Queues | SQS |
-| Scheduled jobs | EventBridge Scheduler (reminders, weekly summaries) |
+| Scheduled jobs | EventBridge Scheduler: one schedule per user and reminder kind, made by the API in the group `dinogym-<env>` (decision 105) |
 | Auth | The backend verifies the Google ID token with `coreos/go-oidc` and issues its own sessions: HS256 access tokens (`golang-jwt/jwt`) and single-use refresh tokens in DynamoDB (decisions 79–80) |
 | Secrets | SSM Parameter Store, SecureString, standard tier; created by the owner, not Terraform (decision 69) |
 | Sync | Newest edit per row wins; devices pull by a server change number |
@@ -52,7 +52,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Infrastructure as code | Terraform 1.17.2: one module, one root per environment, state in S3 locked with S3's own lock file (decision 66); AWS provider pinned to 6.22.0 (decision 58) |
 | Environments | Emulator, staging (real AWS), prod (real AWS) |
 | Region | `us-east-1` |
-| Google Cloud access (FCM) | Workload identity federation from the Lambda's AWS role, no key |
+| Google Cloud access (FCM) | Workload identity federation from the reminder Lambda's AWS role, no key; `golang.org/x/oauth2/google/externalaccount` and plain HTTPS to FCM v1, no Firebase SDK on the server. The Google side is the Terraform root `infra/google` (Google provider 8.10.0), applied by hand (decision 107) |
 | CI/CD | GitHub Actions |
 | AWS access from CI | OIDC, no stored keys: one deploy role per GitHub environment, with a permissions boundary on the roles it creates (decisions 70–71) |
 | Local AWS | AWS Emulator 1.0.491, run in Docker from a pinned image (see [WORKFLOW.md](WORKFLOW.md)); Go integration tests run against it (decisions 59 and 65) |

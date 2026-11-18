@@ -63,6 +63,8 @@ jobs:
       - name: Test
         run: go test -p 2 ./...
 
-      # The Lambda binary (decision 63). Built only to prove it compiles; deploy.yml builds and deploys it.
-      - name: Build the Lambda binary
-        run: GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o bootstrap ./cmd/api
+      # The Lambda binaries (decisions 63 and 107). Built only to prove they compile; deploy.yml builds and deploys them.
+      - name: Build the Lambda binaries
+        run: |
+          GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o bootstrap ./cmd/api
+          GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o bootstrap-reminders ./cmd/reminders

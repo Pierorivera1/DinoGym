@@ -155,13 +155,33 @@ resource "aws_iam_role_policy" "deploy" {
         ]
       },
       # Lambda checks that whoever creates the function may hand it this role.
-      # Only the API's role, and only to Lambda.
+      # Only the API's and the reminder function's roles, and only to Lambda.
       {
-        Sid       = "PassLambdaRole"
-        Effect    = "Allow"
-        Action    = "iam:PassRole"
-        Resource  = "arn:aws:iam::${local.account_id}:role/dinogym-${each.key}-api"
+        Sid    = "PassLambdaRole"
+        Effect = "Allow"
+        Action = "iam:PassRole"
+        Resource = [
+          "arn:aws:iam::${local.account_id}:role/dinogym-${each.key}-api",
+          "arn:aws:iam::${local.account_id}:role/dinogym-${each.key}-reminders",
+        ]
         Condition = { StringEquals = { "iam:PassedToService" = "lambda.amazonaws.com" } }
+      },
+
+      # The group that holds the users' reminder schedules (decision 105). The
+      # schedules themselves are made by the API at run time, not by Terraform;
+      # deleting the group deletes them.
+      {
+        Sid    = "ScheduleGroup"
+        Effect = "Allow"
+        Action = [
+          "scheduler:CreateScheduleGroup",
+          "scheduler:DeleteScheduleGroup",
+          "scheduler:GetScheduleGroup",
+          "scheduler:ListTagsForResource",
+          "scheduler:TagResource",
+          "scheduler:UntagResource",
+        ]
+        Resource = "arn:aws:scheduler:us-east-1:${local.account_id}:schedule-group/dinogym-${each.key}"
       },
 
       {

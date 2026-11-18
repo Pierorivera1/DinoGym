@@ -12,6 +12,25 @@ variable "lambda_zip" {
   type        = string
 }
 
+variable "reminders_zip" {
+  description = "Path to the zip holding the reminder Lambda's binary named bootstrap (infra/scripts/build-lambda.sh)."
+  type        = string
+}
+
+variable "fcm" {
+  description = <<-EOT
+    Where the reminder Lambda sends (decision 107): the Firebase project id, the
+    Google workload identity provider it exchanges its AWS credentials at
+    (//iam.googleapis.com/projects/<number>/locations/global/workloadIdentityPools/<pool>/providers/<provider>),
+    and the service account it then acts as. From infra/google's outputs. Not secret.
+  EOT
+  type = object({
+    project         = string
+    audience        = string
+    service_account = string
+  })
+}
+
 variable "protect_data" {
   description = "Deletion protection and point-in-time recovery on the table. On for prod."
   type        = bool

@@ -4,11 +4,12 @@ Terraform for the DinoGym backend (decisions 66–67).
 
 | Path | What |
 |---|---|
-| `modules/dinogym` | One environment: DynamoDB table, Go Lambda, API Gateway HTTP API, access to the SSM secrets |
+| `modules/dinogym` | One environment: DynamoDB table, the API Lambda, API Gateway HTTP API, access to the SSM secrets, the share page (task 23), and the reminder Lambda with its schedule group and Scheduler role (task 24) |
 | `envs/emulator` | The staging stack on the local AWS Emulator, local state |
 | `envs/staging`, `envs/prod` | Real AWS, state in S3, deployed by `.github/workflows/deploy.yml` |
 | `bootstrap` | Applied once by hand: the state bucket, GitHub OIDC and the two deploy roles, the $10 budget alert |
-| `scripts/build-lambda.sh` | Builds `backend/bin/api.zip`, which every root deploys |
+| `google` | Applied once by hand: the Google workload identity pool and the FCM sender service account for the reminder Lambdas (decision 107) |
+| `scripts/build-lambda.sh` | Builds `backend/bin/api.zip` and `backend/bin/reminders.zip`, which every root deploys |
 | `emulator/` | Starts the AWS Emulator ([../docs/WORKFLOW.md](../docs/WORKFLOW.md)) |
 
 ## On the emulator
@@ -28,7 +29,7 @@ The emulator creates every resource, but cannot run the Lambda, route API Gatewa
 
 - `dinogym-tfstate-<account-id>`: the state bucket for every root. Versioned (old versions kept 90 days), SSE-S3, public access blocked, plain HTTP denied. It cannot be deleted while it holds state.
 - GitHub's OIDC provider and two roles, `dinogym-deploy-staging` and `dinogym-deploy-prod`. Each trusts only a job of `Pierorivera1/DinoGym` (matched by its owner and repository IDs, decision 77) running in the GitHub environment of the same name, and may manage only resources named `dinogym-<env>…` plus its own state file. API Gateway is the exception: its ARNs hold random IDs, not names, so both roles can manage any HTTP API in the account. Since task 23 they also manage the web bucket `dinogym-<env>-web-*` and its objects, and CloudFront, which has the same random-ID problem, so both roles can manage any CloudFront resource in the account (decision 100).
-- `dinogym-<env>-boundary`: a permissions boundary allowing only what the API needs (its logs, its table, reading its two secrets). A deploy role may create a role or add permissions to one only if the role carries this boundary, may never remove a boundary, and cannot change the boundaries or the deploy roles. So a deploy role cannot make itself a more powerful role. `envs/staging` and `envs/prod` attach it to the API role; `envs/emulator` does not.
+- `dinogym-<env>-boundary`: a permissions boundary allowing only what the environment's roles need: their logs, their table, reading the two secrets, and since task 24 the reminder schedules in `dinogym-<env>`, passing the Scheduler role and invoking the reminder function. A deploy role may create a role or add permissions to one only if the role carries this boundary, may never remove a boundary, and cannot change the boundaries or the deploy roles. So a deploy role cannot make itself a more powerful role. `envs/staging` and `envs/prod` attach it to the API role; `envs/emulator` does not.
 - `dinogym-monthly`: an AWS Budgets alert at $10 a month that emails at 50% and 100% actual, and at 100% forecast. The first two budgets in an account are free.
 
 ### Signing in on the laptop
@@ -81,12 +82,24 @@ aws ssm put-parameter --type SecureString --name /dinogym-staging/session-signin
 
 Add `--overwrite` to change a value later.
 
+## Google side of reminders (task 24)
+
+`google/` lets the reminder Lambdas send FCM messages without a Google key (decisions 55 and 107): a workload identity pool in the Firebase project `dinogym-3870b` that accepts only the roles `dinogym-staging-reminders` and `dinogym-prod-reminders` of our AWS account, and the service account `fcm-sender`, which may only send FCM messages. Its state is in the bootstrap's bucket, so the shell needs the AWS credentials from "Signing in on the laptop" as well as Google's:
+
+```bash
+gcloud auth application-default login
+cd infra/google
+terraform init -backend-config="bucket=dinogym-tfstate-<account-id>"
+terraform apply -var aws_account_id=<account-id>
+terraform output fcm      # matches the fcm block in envs/staging and envs/prod
+```
+
 ## Deploys from CI
 
 `.github/workflows/deploy.yml` runs on every push to `main` that touches `api/`, `backend/`, `infra/` or the workflow, and by hand from the Actions tab:
 
 1. **checks** runs `infra.yml`, the same emulator checks as a pull request. `main` has no branch protection, so this is what stops an unchecked merge from deploying.
-2. **build** builds `api.zip` once and uploads it as an artifact.
+2. **build** builds `api.zip` and `reminders.zip` once and uploads them as an artifact.
 3. **staging** signs in as `dinogym-deploy-staging` through OIDC, runs `terraform plan -out` and applies that plan in `envs/staging`, then calls `<api_url>/health` until it answers 200 (about a minute at most).
 4. **prod** waits for the owner's approval on the `prod` GitHub environment, then does the same in `envs/prod` with the same zip.
 

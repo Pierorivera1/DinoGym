@@ -15,7 +15,8 @@ resource "aws_iam_role" "api" {
   })
 }
 
-# Only what the code does: write its own logs, use its own table, read its own secrets.
+# Only what the code does: write its own logs, use its own table, read its own
+# secrets, and keep the users' reminder schedules.
 resource "aws_iam_role_policy" "api" {
   name = "api"
   role = aws_iam_role.api.id
@@ -50,6 +51,25 @@ resource "aws_iam_role_policy" "api" {
         Action    = "kms:Decrypt"
         Resource  = "arn:aws:kms:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:key/*"
         Condition = { StringEquals = { "kms:ViaService" = "ssm.${data.aws_region.current.region}.amazonaws.com" } }
+      },
+      # Keep each user's reminder schedules in this environment's group
+      # (decision 105), handing them the role that may only invoke the
+      # reminder function.
+      {
+        Effect = "Allow"
+        Action = [
+          "scheduler:CreateSchedule",
+          "scheduler:UpdateSchedule",
+          "scheduler:DeleteSchedule",
+          "scheduler:GetSchedule",
+        ]
+        Resource = "arn:aws:scheduler:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:schedule/${aws_scheduler_schedule_group.reminders.name}/*"
+      },
+      {
+        Effect    = "Allow"
+        Action    = "iam:PassRole"
+        Resource  = aws_iam_role.scheduler.arn
+        Condition = { StringEquals = { "iam:PassedToService" = "scheduler.amazonaws.com" } }
       },
     ]
   })
@@ -88,6 +108,10 @@ resource "aws_lambda_function" "api" {
       DINOGYM_SESSION_KEY_PARAM = local.session_key_param
       # Shared links are https://<this distribution>/r/<id> (decisions 97 and 100).
       DINOGYM_SHARE_BASE_URL = "https://${aws_cloudfront_distribution.web.domain_name}"
+      # Reminder schedules (decision 105).
+      DINOGYM_SCHEDULE_GROUP        = aws_scheduler_schedule_group.reminders.name
+      DINOGYM_REMINDER_FUNCTION_ARN = aws_lambda_function.reminders.arn
+      DINOGYM_SCHEDULER_ROLE_ARN    = aws_iam_role.scheduler.arn
     }
   }
 

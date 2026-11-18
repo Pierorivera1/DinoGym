@@ -30,10 +30,17 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 
 module "dinogym" {
-  source       = "../../modules/dinogym"
-  env          = "staging"
-  lambda_zip   = "${path.root}/../../../backend/bin/api.zip"
-  protect_data = false
+  source        = "../../modules/dinogym"
+  env           = "staging"
+  lambda_zip    = "${path.root}/../../../backend/bin/api.zip"
+  reminders_zip = "${path.root}/../../../backend/bin/reminders.zip"
+  protect_data  = false
+  # From infra/google's `fcm` output (decision 107). Not secret.
+  fcm = {
+    project         = "dinogym-3870b"
+    audience        = "//iam.googleapis.com/projects/GCP_PROJECT_NUMBER/locations/global/workloadIdentityPools/dinogym-aws/providers/aws-account"
+    service_account = "fcm-sender@dinogym-3870b.iam.gserviceaccount.com"
+  }
   # The Web OAuth client ID (decision 80). Public: it is in every ID token.
   google_client_id = "854486518090-7sc6gs4dmbuo5lgsm9ss9g0p0chedm9a.apps.googleusercontent.com"
   # Created by infra/bootstrap. The deploy role cannot create the API role without it.

@@ -91,6 +91,24 @@ phone (import) ──GET /shares/<id>──▶ API Gateway (its own environment'
 
 Code: `backend/internal/server/shares.go`, `backend/internal/store/shares.go`, `web/share/`, `infra/modules/dinogym/web.tf`, and on the phone `data/share/` and `ui/share/`.
 
+### Reminders (task 24)
+
+Decisions 104–107. The server decides when and to whom; the phone writes the notification.
+
+```
+phone ──sync push (reminder_* preferences)──▶ API ──reconcile──▶ EventBridge Scheduler
+phone ──PUT /devices/{installationId} (FCM token)──▶ API ─▶ DynamoDB DEVICE#  (+ reconcile)
+Scheduler (cron in the user's time zone) ──▶ reminders Lambda ─▶ DynamoDB (settings, devices)
+                                                           └─▶ Google STS (federation) ─▶ FCM ─▶ phones
+```
+
+1. **Settings** are four synced preferences: `reminder_workout_day`, `reminder_weekly`, `reminder_time` (`HH:mm`), `reminder_time_zone` (IANA).
+2. **Reconcile.** After a push accepts a `reminder_*` row, and on every device registration, the API reads the stored settings and puts or deletes `<userId>-day` and `<userId>-week` in the group `dinogym-<env>`. A failure is logged, not returned.
+3. **Fire.** The reminder Lambda checks the setting is still on, sends `{"kind": "workout_day" | "weekly_summary"}` as an FCM data message to each registered phone, and deletes tokens FCM reports as unregistered.
+4. **Show.** The app builds the text from Room and string resources, and shows nothing on a rest day or after a workout that day (Android part, not built yet).
+
+Code: `backend/internal/reminders/`, `backend/cmd/reminders/`, `backend/internal/server/devices.go`, `backend/internal/store/devices.go`, `infra/modules/dinogym/reminders.tf`, `infra/google/`.
+
 ### Testing
 
 - Local: only the JVM unit tests of the class that changed (`./gradlew :app:testDebugUnitTest --tests '<Class>'`).
