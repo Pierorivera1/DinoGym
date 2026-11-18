@@ -38,7 +38,7 @@ func decodeSession(t *testing.T, rec *httptest.ResponseRecorder) api.Session {
 func TestSignInAndRefresh(t *testing.T) {
 	var logs bytes.Buffer
 	a := testAuth(t)
-	h := New(slog.New(slog.NewTextHandler(&logs, &slog.HandlerOptions{Level: slog.LevelDebug})), nil, a).Handler()
+	h := New(slog.New(slog.NewTextHandler(&logs, &slog.HandlerOptions{Level: slog.LevelDebug})), newFakeStore(), a).Handler()
 	post := func(path, body string) (*httptest.ResponseRecorder, api.Error) {
 		return serveWith(t, h, http.MethodPost, path, body, "")
 	}
@@ -55,9 +55,9 @@ func TestSignInAndRefresh(t *testing.T) {
 		t.Fatalf("refresh gave %+v after %+v", s2, s1)
 	}
 
-	// The new access token opens the protected routes (501 until task 21).
+	// The new access token opens the protected routes.
 	rec, _ = serveWith(t, h, http.MethodGet, "/sync/pull?since=0", "", "Bearer "+s2.AccessToken)
-	if rec.Code != http.StatusNotImplemented {
+	if rec.Code != http.StatusOK {
 		t.Fatalf("pull with a fresh token: %d", rec.Code)
 	}
 
@@ -111,7 +111,7 @@ func TestGoogleOutageIsAServerError(t *testing.T) {
 		t.Fatal(err)
 	}
 	a := auth.NewService(tokens, unreachableGoogle{}, authtest.NewStore())
-	h := New(slog.New(slog.DiscardHandler), nil, a).Handler()
+	h := New(slog.New(slog.DiscardHandler), newFakeStore(), a).Handler()
 	rec, e := serveWith(t, h, http.MethodPost, "/auth/google", `{"idToken":"x"}`, "")
 	if rec.Code != http.StatusInternalServerError || e.Code != "internal" {
 		t.Fatalf("got %d %q, want 500 internal (the app retries)", rec.Code, e.Code)
@@ -128,7 +128,7 @@ func TestProtectedRoutesComeFromTheContract(t *testing.T) {
 
 func TestBearerCheck(t *testing.T) {
 	a := testAuth(t)
-	h := New(slog.New(slog.DiscardHandler), nil, a).Handler()
+	h := New(slog.New(slog.DiscardHandler), newFakeStore(), a).Handler()
 	good := bearer(t, a)
 
 	other, err := auth.NewTokens([]byte(strings.Repeat("x", auth.MinKeyBytes)), "local")
@@ -171,7 +171,7 @@ func TestBearerCheck(t *testing.T) {
 		}
 	}
 	// A lower-case scheme is accepted (RFC 9110: the scheme is case-insensitive).
-	if rec, _ := serveWith(t, h, http.MethodGet, "/sync/pull?since=0", "", "bearer "+strings.TrimPrefix(good, "Bearer ")); rec.Code != http.StatusNotImplemented {
+	if rec, _ := serveWith(t, h, http.MethodGet, "/sync/pull?since=0", "", "bearer "+strings.TrimPrefix(good, "Bearer ")); rec.Code != http.StatusOK {
 		t.Fatalf("lower-case scheme: %d", rec.Code)
 	}
 }

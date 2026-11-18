@@ -6,7 +6,7 @@ The DinoGym API in Go. One binary serves HTTP on the laptop and runs as the Lamb
 |---|---|
 | `cmd/api` | The binary: config, telemetry, then a local server or the Lambda loop |
 | `internal/api` | Generated from [../api/openapi.yaml](../api/openapi.yaml). Do not edit `api.gen.go`; run `go generate ./...` |
-| `internal/server` | The API's handlers (`StrictServerInterface`) and the bearer check on secured routes |
+| `internal/server` | The API's handlers (`StrictServerInterface`), the bearer check on secured routes, request bodies checked against the contract, and the sync handlers (`sync.go`) |
 | `internal/auth` | Google ID token check, access tokens (JWT) and refresh token rotation (decisions 79–80); `authtest` holds in-memory fakes for tests |
 | `internal/lambdahttp` | API Gateway HTTP API events ↔ `net/http` |
 | `internal/store` | DynamoDB: the sync rules of decision 51 on the table of decisions 52 and 65; accounts and refresh tokens in `sessions.go` |
@@ -61,6 +61,22 @@ curl -s '127.0.0.1:8080/sync/pull?since=0' -H 'Authorization: Bearer <access tok
 
 A refresh token works once; sending a used one again revokes that session (decision 79). Without a valid access token, `/sync/*` answers 401 `invalid_token`. The unit tests cover all of this without Google (`go test -p 2 ./internal/auth/... ./internal/server/`).
 
+### Sync
+
+With an access token, push rows and pull them back:
+
+```bash
+curl -s -X POST 127.0.0.1:8080/sync/push -H 'Authorization: Bearer <access token>' -H 'Content-Type: application/json' \
+  -d '{"weighIns":[{"id":"00000000-0000-4000-8000-000000000001","measuredAt":1763380000000,"weightKg":72.4,"updatedAt":1763380000000}]}'
+curl -s '127.0.0.1:8080/sync/pull?since=0' -H 'Authorization: Bearer <access token>'
+```
+
+How it behaves ([../api/openapi.yaml](../api/openapi.yaml) is the contract; decisions 51, 62, 86 and 87):
+
+- **Push:** at most 500 rows (`400 too_many_rows`). The body is checked against the contract first (`400 bad_request` names the field, for example `/weighIns/0/id: minimum string length is 36`). Each row comes back `accepted` with its change number, `stale` (the server's copy is as new or newer; a retry of the same rows gives this) or `rejected` with reason `updated_at_in_future` (more than 5 minutes ahead of the server). A storage failure is `500 internal`: nothing tells which rows were written, so the app retries the whole batch, which is safe.
+- **Pull:** `since` ≥ 0, `limit` 1–1000 (default 500). Rows come grouped by table, in change-number order; empty tables are left out. The cursor stops before rows accepted in the last 30 seconds, which then come again on the next pull, and `hasMore` is then false.
+- Logs carry row counts, never row contents.
+
 ## Test it
 
 Only the packages you changed, two at a time at most (CLAUDE.md):
@@ -69,11 +85,11 @@ Only the packages you changed, two at a time at most (CLAUDE.md):
 go test -p 2 ./internal/server/
 ```
 
-The integration tests (build tag `integration`) need the emulator and refuse any other endpoint. They create their own resources and delete them; the whole set takes about 20 seconds:
+The integration tests (build tag `integration`) need the emulator and refuse any other endpoint. They create their own resources and delete them; the whole set takes under a minute:
 
 ```bash
 source ../infra/emulator/env.sh
-go test -p 2 -tags integration ./internal/store/ ./internal/awstest/
+go test -p 2 -tags integration ./internal/store/ ./internal/server/ ./internal/awstest/
 ```
 
 ## Build the Lambda binary

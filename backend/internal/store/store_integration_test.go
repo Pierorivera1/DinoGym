@@ -18,10 +18,13 @@ import (
 )
 
 // newStore creates a fresh table on the emulator and deletes it after the test.
+// Its settle window is 0, so pulls move past rows just written; the window
+// itself is checked in TestPullCursorWaitsForRecentRows.
 func newStore(t *testing.T) *Store {
 	t.Helper()
 	db := dynamodb.NewFromConfig(awstest.Config(t))
 	s := New(db, awstest.Name("dinogym-test"))
+	s.settle = 0
 	ctx := context.Background()
 	if err := s.CreateTable(ctx); err != nil {
 		t.Fatal(err)
@@ -165,6 +168,105 @@ func TestPullPagesInChangeOrderAndKeepsUsersApart(t *testing.T) {
 	changes, next, more, err := s.Since(ctx, "u1", cursor, 2)
 	if err != nil || len(changes) != 0 || more || next != cursor {
 		t.Fatalf("after the end: %d changes, cursor %d, more %v, err %v", len(changes), next, more, err)
+	}
+}
+
+func TestPutRowsNumbersRowsInOrderWithOneBlock(t *testing.T) {
+	s := newStore(t)
+	ctx := context.Background()
+	put(t, s, "u1", weighIn("old", 1000, "70")) // takes number 1
+
+	rows := []Row{
+		weighIn("old", 900, "60"), // stale: uses up a number, keeps nothing
+		weighIn("a", 1000, "71"),
+		weighIn("b", 1000, "72"),
+		weighIn("future", time.Now().Add(time.Hour).UnixMilli(), "73"), // rejected: no number
+		weighIn("c", 1000, "74"),
+	}
+	res, err := s.PutRows(ctx, "u1", rows)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []Result{{Status: Stale}, {Status: Accepted, ChangeNumber: 3}, {Status: Accepted, ChangeNumber: 4}, {Status: Rejected, Reason: ReasonUpdatedAtInFuture}, {Status: Accepted, ChangeNumber: 5}}
+	for i := range want {
+		if res[i] != want[i] {
+			t.Fatalf("results %+v, want %+v", res, want)
+		}
+	}
+	changes, cursor, _, err := s.Since(ctx, "u1", 1, 10)
+	if err != nil || len(changes) != 3 || cursor != 5 {
+		t.Fatalf("got %d changes, cursor %d, %v; want a, b, c up to 5", len(changes), cursor, err)
+	}
+	for _, c := range changes {
+		if c.AcceptedAt == 0 {
+			t.Fatalf("%s has no acceptedAt", c.ID)
+		}
+	}
+}
+
+// Decision 86: rows are returned at once, but the cursor waits until they are
+// older than the settle window.
+func TestPullCursorWaitsForRecentRows(t *testing.T) {
+	s := newStore(t)
+	s.settle = SettleWindow
+	ctx := context.Background()
+	if _, err := s.PutRows(ctx, "u1", []Row{weighIn("a", 1000, "70"), weighIn("b", 1000, "71"), weighIn("c", 1000, "72")}); err != nil {
+		t.Fatal(err)
+	}
+
+	changes, cursor, more, err := s.Since(ctx, "u1", 0, 2)
+	if err != nil || len(changes) != 2 || cursor != 0 || more {
+		t.Fatalf("just written: %d changes, cursor %d, more %v, %v; want 2 rows, cursor 0, no more", len(changes), cursor, more, err)
+	}
+
+	later := time.Now().Add(SettleWindow + time.Second)
+	s.now = func() time.Time { return later }
+	changes, cursor, more, err = s.Since(ctx, "u1", 0, 2)
+	if err != nil || len(changes) != 2 || cursor != 2 || !more {
+		t.Fatalf("settled: %d changes, cursor %d, more %v, %v; want 2 rows, cursor 2, more", len(changes), cursor, more, err)
+	}
+}
+
+// Decision 51's risk: pushes from two devices at once. Every accepted row
+// must be pulled exactly once by a device that pages to the end.
+func TestConcurrentPushesAreAllPulled(t *testing.T) {
+	s := newStore(t)
+	ctx := context.Background()
+	const pushes, perPush = 4, 25
+	var wg sync.WaitGroup
+	for p := range pushes {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			rows := make([]Row, perPush)
+			for i := range rows {
+				rows[i] = weighIn(fmt.Sprintf("p%d-%d", p, i), 1000, "70")
+			}
+			if _, err := s.PutRows(ctx, "u1", rows); err != nil {
+				t.Error(err)
+			}
+		}()
+	}
+	wg.Wait()
+
+	seen := map[string]bool{}
+	var cursor int64
+	for more := true; more; {
+		var changes []Change
+		var err error
+		changes, cursor, more, err = s.Since(ctx, "u1", cursor, 30)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, c := range changes {
+			if seen[c.ID] {
+				t.Fatalf("%s pulled twice", c.ID)
+			}
+			seen[c.ID] = true
+		}
+	}
+	if len(seen) != pushes*perPush {
+		t.Fatalf("pulled %d rows, want %d", len(seen), pushes*perPush)
 	}
 }
 

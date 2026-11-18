@@ -21,6 +21,7 @@ As of 2026-11-17. Remove an item when it is done or decided, and record decision
 - [ ] First CI runs: the emulator image cache in `infra.yml` saves time; if not, remove it (decision 68)
 - [ ] AWS provider 6.22.0 is pinned because of aws/aws-emulator#56 (decision 58). Move to the current provider once it is fixed
 - [ ] Bump the pinned AWS Emulator version from time to time; security fixes only reach the latest release (decision 57)
+- [ ] On staging: a full 500-row push finishes well inside the Lambda's 10 s timeout, and a 3,000-row first upload is not throttled (10 requests a second, decision 67). The emulator cannot show either (decisions 86–87)
 
 - [ ] On a phone: Back handling in a workout, the notification permission prompt, the rest alarm and its sound with the screen off, resume after the app is killed, the scroll picker. None of these can be checked on the laptop
 - [ ] On a phone, for the Exercises screens: drag to reorder, keyboard and focus, and that edits reach the database
@@ -35,12 +36,13 @@ As of 2026-11-17. Remove an item when it is done or decided, and record decision
 
 ## State of the build
 
+- Task 21, backend half: `/sync/push` and `/sync/pull` work on the laptop and the emulator for every synced table, with the cursor rule of decision 86 and the handlers of decision 87. Not yet deployed or run on staging. The app does not sync yet (the Android half of task 21).
 - Task 20: the backend verifies Google ID tokens and issues sessions (decisions 79–80). The app signs in from Settings › ACCOUNT through Credential Manager, keeps the session encrypted with a Keystore key, and refreshes it under the rules of decision 83 (decisions 81–84). Debug builds use staging, release builds prod. Nothing else in the app needs an account.
 - Task 19: the bootstrap is applied on real AWS (us-east-1) as the IAM user `piero-admin-dinogym`, its state is in the bucket, and the `staging` and `prod` GitHub environments and variables are set. Staging is deployed by `deploy.yml` and answers `/health`; prod deploys after the owner approves the run (decisions 74–78). The AWS side is torn down on 2027-02-01 (decision 76).
 - Task 18: pull requests run the emulator checks (`infra/emulator/check.sh`); `deploy.yml` deploys staging, then prod after approval, through OIDC (decisions 68–73). `infra/bootstrap` holds the state bucket, the OIDC provider, the deploy roles, the permissions boundaries and the budget. The deploy jobs are skipped until `DEPLOY_ENABLED` is set in task 19, so neither workflow has reached AWS yet.
 - Task 17: Terraform in `infra/` describes the backend for staging and prod: the table, the Go Lambda and the HTTP API (decisions 66–67; the SSM parameters were taken out in decision 69). It applies, plans clean and destroys on the emulator. Nothing exists on real AWS yet: the state bucket and the first apply are task 19, the deploy pipeline task 18.
-- Task 16: the Go API (`backend/`) runs as one binary on the laptop and on Lambda, with OpenTelemetry (decisions 63–64). Its DynamoDB store applies the sync rules and is tested on the emulator, as are SQS, S3 and Scheduler (decision 65). Sign-in and sync still answer 501 until tasks 20 and 21. The integration tests run only on the laptop until CI starts the emulator in task 18.
+- Task 16: the Go API (`backend/`) runs as one binary on the laptop and on Lambda, with OpenTelemetry (decisions 63–64). Its DynamoDB store applies the sync rules and is tested on the emulator, as are SQS, S3 and Scheduler (decision 65).
 - Task 15: the API contract is `api/openapi.yaml`. It generates the Kotlin client (`android/api-client`) and the Go server interfaces (`backend/internal/api`); see decisions 60–62. Token formats for `/auth/*` are in decisions 79–80.
 - Task 14: the AWS Emulator 1.0.491 runs in Docker; DynamoDB, SQS, S3, Scheduler and Terraform (provider 6.22.0) work on it; the Go Lambda cannot run on it ([WORKFLOW.md](WORKFLOW.md)).
-- Task 12 decided the cloud items: sync (51), DynamoDB model (52), region (53), secrets (54), FCM auth (55). Still open in sync: concurrent pushes taking change numbers out of order, and the sync index lagging behind a write (decisions 51 and 65, task 21).
+- Task 12 decided the cloud items: sync (51), DynamoDB model (52), region (53), secrets (54), FCM auth (55). Ordering of concurrent pushes and the sync index lag were settled in task 21 (decision 86).
 - Part 1 (tasks 1–10) and Part 2 (task 11) are done; progress is tracked in [TASKS.md](TASKS.md). The first release is tagged from `main` as described in [RELEASE.md](RELEASE.md). `docs/design/references/` (third-party art) is git-ignored and stays local.

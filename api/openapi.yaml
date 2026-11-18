@@ -140,6 +140,10 @@ paths:
         change-number order, at most `limit` of them. The device stores `cursor`
         and passes it as `since` next time. While `hasMore` is true, pull again.
         Applying the same row twice changes nothing.
+
+        The cursor does not move past a row the server accepted less than 30
+        seconds ago (decision 86), so such rows come again on the next pull.
+        This keeps a row from being skipped when two pushes land at once.
       tags: [sync]
       parameters:
         - name: since
@@ -334,10 +338,16 @@ components:
         cursor:
           type: integer
           format: int64
-          description: The highest change number in this page, or `since` when the page is empty.
+          description: |
+            Where the next pull starts: the highest change number in this page,
+            or lower when the page has rows accepted in the last 30 seconds, and
+            `since` when the page is empty. It never goes below `since`.
         hasMore:
           type: boolean
-          description: True when more rows follow this page.
+          description: |
+            True when more rows follow this page and the cursor reached its end.
+            False when the cursor stopped early on recent rows; they and any
+            after them come on a later pull.
 
     SyncTable:
       type: string
