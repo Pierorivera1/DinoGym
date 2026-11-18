@@ -31,7 +31,7 @@ Decision 16 still applies: a screen is built only after its mock is approved.
 | Stats: progress for one exercise | `Progress.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
 | Stats: progress tab (list of exercises with their best) | – | Built without a mock (task 9, decision 47), awaiting the owner's review |
 | Body weight chart and weigh-in entry (Stats › WEIGHT) | `BodyWeight.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 11) |
-| Account: sign-in and sync status (Settings › ACCOUNT, sign-out dialog) | `Account.dc.html` | Mocked 2026-11-17, awaiting the owner's review (task 20) |
+| Account: sign-in and sync status (Settings › ACCOUNT, sign-out dialog) | `Account.dc.html` | Approved 2026-11-17 (task 20) |
 | Sharing, reminders, web | – | Later |
 
 The build order in [ARCHITECTURE.md](ARCHITECTURE.md) is arranged so the code that has no screen, and the approved screens, are built while the remaining mocks are made.
