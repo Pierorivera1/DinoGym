@@ -56,3 +56,52 @@ func TestItemsReadBackAsRows(t *testing.T) {
 		t.Fatalf("fields %v, want only value", c.Fields)
 	}
 }
+
+func TestPutRowsRejectsFutureRowsWithoutTakingNumbers(t *testing.T) {
+	now := time.Date(2026, 11, 17, 12, 0, 0, 0, time.UTC)
+	s := &Store{now: func() time.Time { return now }} // no client: a counter update would panic
+	future := now.Add(MaxClockSkew + time.Second).UnixMilli()
+	res, err := s.PutRows(context.Background(), "u1", []Row{
+		{Kind: "WEIGHIN", ID: "a", UpdatedAt: future},
+		{Kind: "SET", ID: "b", UpdatedAt: future},
+	})
+	if err != nil || len(res) != 2 {
+		t.Fatalf("got %+v, %v", res, err)
+	}
+	for _, r := range res {
+		if r.Status != Rejected || r.Reason != ReasonUpdatedAtInFuture {
+			t.Fatalf("got %+v, want rejected %s", r, ReasonUpdatedAtInFuture)
+		}
+	}
+}
+
+func TestSettledCursorStopsBeforeRecentRows(t *testing.T) {
+	page := func(accepted ...int64) []Change {
+		var out []Change
+		for i, a := range accepted {
+			out = append(out, Change{ChangeNumber: int64(10 + i), AcceptedAt: a})
+		}
+		return out
+	}
+	cases := []struct {
+		name       string
+		changes    []Change
+		more       bool
+		wantCursor int64
+		wantMore   bool
+	}{
+		{"an empty page keeps the cursor", nil, false, 5, false},
+		{"all settled: the last row", page(100, 100, 200), true, 12, true},
+		{"stops at the first recent row", page(100, 300, 200), true, 10, false},
+		{"first row recent: no move and no more, so no loop", page(300, 100), true, 5, false},
+		{"rows stored before acceptedAt existed count as settled", page(0, 0), false, 11, false},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			cursor, more := settledCursor(c.changes, 5, c.more, 200)
+			if cursor != c.wantCursor || more != c.wantMore {
+				t.Fatalf("got %d %v, want %d %v", cursor, more, c.wantCursor, c.wantMore)
+			}
+		})
+	}
+}

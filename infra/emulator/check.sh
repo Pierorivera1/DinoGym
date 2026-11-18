@@ -45,7 +45,7 @@ done
 
 step "Go integration tests"
 # -p 2: CPU limit from CLAUDE.md. -count=1: never reuse a cached pass, the emulator is the thing under test.
-(cd "$ROOT/backend" && go test -p 2 -count=1 -tags integration ./internal/store/ ./internal/awstest/)
+(cd "$ROOT/backend" && go test -p 2 -count=1 -tags integration ./internal/store/ ./internal/server/ ./internal/awstest/)
 
 step "Build the Lambda zip"
 "$ROOT/infra/scripts/build-lambda.sh"

@@ -20,20 +20,29 @@ import (
 )
 
 // testAuth is a session service on in-memory fakes: Google accepts only
-// "good-id-token", whose sub is "google-sub-1".
+// "good-id-token" (sub "google-sub-1") and "other-id-token" (sub
+// "google-sub-2"). Each service gives its users new ids.
 func testAuth(t *testing.T) *auth.Service {
 	t.Helper()
 	tokens, err := auth.NewTokens([]byte(strings.Repeat("k", auth.MinKeyBytes)), "local")
 	if err != nil {
 		t.Fatal(err)
 	}
-	return auth.NewService(tokens, authtest.Google{"good-id-token": "google-sub-1"}, authtest.NewStore())
+	google := authtest.Google{"good-id-token": "google-sub-1", "other-id-token": "google-sub-2"}
+	return auth.NewService(tokens, google, authtest.NewStore())
 }
 
-// bearer returns an Authorization header value for a fresh signed-in user.
+// bearer returns an Authorization header value for the first test user.
 func bearer(t *testing.T, a *auth.Service) string {
 	t.Helper()
-	s, err := a.SignInWithGoogle(context.Background(), "good-id-token")
+	return bearerFor(t, a, "good-id-token")
+}
+
+// bearerFor signs in with a Google ID token and returns an Authorization
+// header value for that user.
+func bearerFor(t *testing.T, a *auth.Service, idToken string) string {
+	t.Helper()
+	s, err := a.SignInWithGoogle(context.Background(), idToken)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,7 +52,7 @@ func bearer(t *testing.T, a *auth.Service) string {
 func serve(t *testing.T, method, path, body string) (*httptest.ResponseRecorder, api.Error) {
 	t.Helper()
 	a := testAuth(t)
-	return serveWith(t, New(slog.New(slog.NewTextHandler(io.Discard, nil)), nil, a).Handler(), method, path, body, bearer(t, a))
+	return serveWith(t, New(slog.New(slog.NewTextHandler(io.Discard, nil)), newFakeStore(), a).Handler(), method, path, body, bearer(t, a))
 }
 
 func serveWith(t *testing.T, h http.Handler, method, path, body, authorization string) (*httptest.ResponseRecorder, api.Error) {
@@ -82,8 +91,6 @@ func TestErrorsUseTheContractShape(t *testing.T) {
 		status                   int
 		code                     string
 	}{
-		{"not built yet", http.MethodGet, "/sync/pull?since=0", "", http.StatusNotImplemented, "not_implemented"},
-		{"push not built yet", http.MethodPost, "/sync/push", `{}`, http.StatusNotImplemented, "not_implemented"},
 		{"missing since", http.MethodGet, "/sync/pull", "", http.StatusBadRequest, "bad_request"},
 		{"bad json", http.MethodPost, "/sync/push", `{`, http.StatusBadRequest, "bad_request"},
 		{"body over the cap", http.MethodPost, "/sync/push", big, http.StatusRequestEntityTooLarge, "body_too_large"},

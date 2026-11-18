@@ -20,22 +20,21 @@ import (
 // MaxBodyBytes caps a request body. A full push of 500 rows is well under it.
 const MaxBodyBytes = 1 << 20
 
-// ErrNotImplemented marks an endpoint whose task has not been built yet
-// (sync in task 21). It is answered with 501.
-var ErrNotImplemented = errors.New("not implemented")
-
 // Server answers the API's operations.
 type Server struct {
 	log   *slog.Logger
-	store *store.Store // used by sync in task 21
+	store SyncStore
 	auth  *auth.Service
 }
 
-var _ api.StrictServerInterface = (*Server)(nil)
+var (
+	_ api.StrictServerInterface = (*Server)(nil)
+	_ SyncStore                 = (*store.Store)(nil)
+)
 
 // New returns a Server that logs to log, keeps synced rows in st and signs
 // users in with a.
-func New(log *slog.Logger, st *store.Store, a *auth.Service) *Server {
+func New(log *slog.Logger, st SyncStore, a *auth.Service) *Server {
 	return &Server{log: log, store: st, auth: a}
 }
 
@@ -88,17 +87,10 @@ func invalidToken() api.UnauthorizedJSONResponse {
 	return api.UnauthorizedJSONResponse{Code: "invalid_token", Message: "the token is missing, invalid or expired"}
 }
 
-func (s *Server) PushChanges(context.Context, api.PushChangesRequestObject) (api.PushChangesResponseObject, error) {
-	return nil, ErrNotImplemented
-}
-
-func (s *Server) PullChanges(context.Context, api.PullChangesRequestObject) (api.PullChangesResponseObject, error) {
-	return nil, ErrNotImplemented
-}
-
 // Handler returns the API as an http.Handler: routing and request parsing from
-// the generated code, errors in the contract's Error shape, a body size cap, and
-// an OpenTelemetry span and metrics for every request.
+// the generated code, the bearer check and body validation from the contract,
+// errors in the contract's Error shape, a body size cap, and an OpenTelemetry
+// span and metrics for every request.
 func (s *Server) Handler() http.Handler {
 	strict := api.NewStrictHandlerWithOptions(s, nil, api.StrictHTTPServerOptions{
 		RequestErrorHandlerFunc: func(w http.ResponseWriter, r *http.Request, err error) {
@@ -115,7 +107,7 @@ func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
 	router := &bearerRouter{ServeMux: mux, protected: protectedRoutes(), verify: s.auth.VerifyAccess}
 	h := api.HandlerWithOptions(strict, api.StdHTTPServerOptions{
-		BaseRouter: router,
+		BaseRouter: &validatingRouter{next: router, schemas: requestBodySchemas()},
 		ErrorHandlerFunc: func(w http.ResponseWriter, r *http.Request, err error) {
 			writeError(w, http.StatusBadRequest, "bad_request", err.Error())
 		},
@@ -143,10 +135,6 @@ func (s *Server) Handler() http.Handler {
 }
 
 func (s *Server) responseError(w http.ResponseWriter, r *http.Request, err error) {
-	if errors.Is(err, ErrNotImplemented) {
-		writeError(w, http.StatusNotImplemented, "not_implemented", "this endpoint is not built yet")
-		return
-	}
 	s.log.ErrorContext(r.Context(), "request failed", "method", r.Method, "path", r.URL.Path, "error", err)
 	writeError(w, http.StatusInternalServerError, "internal", "internal error")
 }

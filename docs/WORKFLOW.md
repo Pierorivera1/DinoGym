@@ -40,7 +40,7 @@ The findings below were **run and checked on 2026-11-17 with version 1.0.491**. 
 
 ### How we test around the gaps
 
-- The Go code is tested as ordinary Go, with its AWS calls going to the emulator: `go test -p 2 -tags integration ./internal/store/ ./internal/awstest/` after `source infra/emulator/env.sh` (decision 65).
+- The Go code is tested as ordinary Go, with its AWS calls going to the emulator: `go test -p 2 -tags integration ./internal/store/ ./internal/server/ ./internal/awstest/` after `source infra/emulator/env.sh` (decision 65).
 - The Lambda path, real permissions and CloudFront are covered by staging on real AWS.
 
 ### What we may claim

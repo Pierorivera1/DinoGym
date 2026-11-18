@@ -382,6 +382,7 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Why:** One user on a few personal devices rarely edits the same row on two of them before syncing, and logged sets are mostly only added. Whole-row last-writer-wins is simple to build, test and explain. Ordering the pull by a server number, not by timestamps, means a device never misses a row because of clock drift.
 - **Rejected:** Field-by-field merging and CRDTs (far more work for conflicts that will almost never happen); pulling by `updatedAt` (device clocks drift, so rows would be skipped); asking the user to resolve conflicts (no one wants a merge dialog mid-workout).
 - **Known risk, settled in task 21:** two pushes from the same user landing at once can take numbers 5 and 6 and commit 6 first, so a pull in between would skip 5. Task 21 decides the fix (handling one user's pushes one at a time, or re-reading a window behind the cursor) and tests it.
+- **Settled 2026-11-17:** decision 86 (the pull cursor waits 30 seconds behind new rows).
 
 ## 52. DynamoDB: one table, keyed by user (2026-11-16)
 
@@ -463,6 +464,7 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Why:** A list per table is fully typed in both generators without polymorphism. `oneOf` with a discriminator is where the Kotlin generator is weakest. Per-row results let the device clear its pending flags exactly and tell "already newer on the server" apart from a refusal.
 - **Rejected:** One list of rows with a `type` discriminator (`oneOf`), which generates poorly in Kotlin; a free-form `data` object per row (no types, no validation); ISO 8601 strings for times (the app and the change rules already use milliseconds, so they would be converted twice).
 - **Still open:** the push response only reports change numbers; the device keeps its pull cursor from pulls alone. Ordering of concurrent pushes stays with task 21 (decision 51).
+- **Settled 2026-11-17:** ordering of concurrent pushes in decision 86; the push and pull handlers in decision 87.
 
 ## 63. One Go binary for the laptop and Lambda, with our own small API Gateway adapter (2026-11-17)
 
@@ -490,6 +492,7 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Why:** The fewest calls and attributes that do what decision 51 says. Allocating the number first keeps a push to two simple calls. The build tag keeps `go test ./...` fast and free of Docker, while the integration tests use the same SDK and code as the API.
 - **Rejected:** A transaction that reads the counter and commits the row and the new count together (no gaps, and commits in number order, but more code, double write cost and retries; the index is eventually consistent anyway, so it would not settle decision 51's risk on its own, which stays with task 21); a separate `GSI1PK` attribute (a copy of `PK` with no access pattern needing it); a JSON blob for the row's fields (hides them from the console and from future filters); separate test directories or a `testing.Short` switch instead of a build tag (the tag keeps the AWS test code out of normal builds altogether).
 - **Cost:** Found by the emulator tests: DynamoDB refuses expression names the expression does not use, and returns numbers normalized (`73.0` comes back as `73`). The AWS SDK adds about 6 MB to the Lambda binary (stripped arm64: about 24 MB, up from 18).
+- **Changed 2026-11-17:** a push takes its change numbers as one block with a single counter update, and every row stores `acceptedAt` (decision 86).
 
 ## 66. Terraform layout: one module, one root per environment, state in S3 with its own lock file (2026-11-17)
 
@@ -641,3 +644,26 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Decision:** Google Cloud has two Android OAuth clients for `io.github.pierorivera1.dinogym.debug`: one for `~/.android/debug.keystore` (terminal builds) and one for `~/.config/.android/debug.keystore` (the key Android Studio uses on this laptop). Both SHA-1s are in [../android/README.md](../android/README.md).
 - **Why:** Found on the first sign-in on the owner's phone (Samsung A16): the Google account sheet closed and the app showed nothing. The installed APK was signed by Android Studio's key, which was not registered, and Credential Manager reports that refusal as a cancellation, so the app cannot tell it apart from the user closing the sheet. With the second client, sign-in, sign-out, reopening the app and the offline message all worked on the phone, and staging stored the user and its sessions.
 - **Rejected:** Pointing both tools at one keystore (it changes Studio settings on one machine and is easy to lose); a project-level debug keystore in git (a shared signing key in a public repository).
+
+## 86. Sync ordering: the pull cursor waits 30 seconds behind new rows (2026-11-17)
+
+- **Decision:** Settles decision 51's known risk and the sync index lag of decision 65.
+  - A push takes all its change numbers as one block (`ADD seq :n`, one counter update), numbered in the order of its rows, and stores each accepted row with `acceptedAt`, the server's clock right after the numbers were taken. Its writes must finish within 10 seconds of that, or are cancelled.
+  - A pull still returns every row it finds after `since`. Its `cursor` moves past rows in order and stops before the first row whose `acceptedAt` is less than 30 seconds old; when it stops early, `hasMore` is false. Those recent rows come again on the next pull, by when any row numbered before them is either written and visible in the index, or was never written.
+  - Why this is enough: numbers are taken in time order, so a row with a lower number was numbered no later than one the cursor passes. Thirty seconds covers the 10-second write limit plus the index catching up (usually under a second), with room for clock differences between Lambda instances.
+- **Why:** It fixes both causes of a skipped row (two pushes committing out of order, and the eventually consistent index) with one rule, no locks and no extra calls on pull. Applying a pulled row twice already changes nothing (decision 51), so sending recent rows again costs only a few reads. One block of numbers per push halves the counter writes and keeps a 500-row push inside the Lambda's 10-second timeout.
+- **Rejected:** Handling one user's pushes one at a time with a lock item (a lease to expire, a second device waiting or failing, and the index lag still unsolved); a transaction per row that commits row and counter together (decision 65: double write cost, and the index lag remains); re-reading a fixed count of numbers behind the cursor (a count says nothing about time, so a slow write can still fall outside it); a counter update per row (double the writes, and a 500-row push takes several seconds of the 10).
+- **Cost:** a device that pushes and pulls at once gets its own new rows back, and keeps getting them for 30 seconds. When another device has just uploaded more than one page, a new device gets the first page now and the rest on its next sync.
+
+## 87. Sync handlers: the contract checks the body, rows map through JSON, the whole push fails together (2026-11-17)
+
+- **Decision:**
+  - Every JSON request body is checked against its operation's schema in the embedded contract before it is decoded, with kin-openapi (already used for the bearer check). A failure is `400 bad_request` with the field's path and the rule, without the value's surroundings.
+  - A push over 500 rows is `400 too_many_rows`; nothing is written. Results come in a fixed table order (programs, cycle steps, routines, exercises, routine exercises, sessions, set entries, weigh-ins, preferences), each list in the order sent.
+  - A row becomes an item by way of its JSON: the id (or a preference's key) goes to the sort key, `updatedAt` and `deletedAt` to their own attributes, every other field to an attribute of the same name (strings, numbers kept exactly as written, booleans). A null optional field is not stored and reads back as null. Sort key kinds: `PROGRAM`, `CYCLESTEP`, `ROUTINE`, `EXERCISE`, `ROUTINEEXERCISE`, `SESSION`, `SET`, `WEIGHIN`, `PREF`.
+  - The store writes four rows at a time. If any write fails, the push answers `500 internal` without per-row results; rows already written stay, and a retry of the batch gets `stale` for them.
+  - A pull leaves out empty tables. A row kind this binary does not know is skipped and the cursor still moves past it.
+  - Logs carry counts only, never row contents.
+  - The same sync test suite runs on an in-memory fake (unit tests) and on the real store against the emulator (`-tags integration`), so the fake cannot drift from the real rules unnoticed.
+- **Why:** Go's JSON decoder turns a missing field into a zero, which would then be stored as data; checking against the contract keeps the rule in one place for both generators. The JSON path keeps the mapping identical for every table and uses the names Room and the contract already use, so a new column needs no backend code. Four workers keep a 500-row push near a second on Lambda without pushing one user's partition towards DynamoDB's 1,000 writes a second. An all-or-nothing error is simple for the device, and safe because a retry is idempotent.
+- **Rejected:** Hand-written checks per table (a second copy of the contract to keep in step); kin-openapi's request router (needs another module for routing we already have); a per-row `error` status (a contract change for a case the retry already handles); `attributevalue` from the AWS SDK for the mapping (another module, and its Go field names would not match the JSON names); writing rows one at a time (several seconds of the 10-second timeout for a full batch).

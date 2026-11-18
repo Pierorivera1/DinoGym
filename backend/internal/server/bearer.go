@@ -39,7 +39,7 @@ func (b *bearerRouter) HandleFunc(pattern string, h func(http.ResponseWriter, *h
 			writeError(w, http.StatusUnauthorized, "invalid_token", "the token is missing, invalid or expired")
 			return
 		}
-		// For the sync handlers (task 21): auth.UserID(ctx).
+		// The sync handlers read it with auth.UserID(ctx).
 		h(w, r.WithContext(auth.WithUserID(r.Context(), userID)))
 	})
 }
