@@ -27,7 +27,7 @@ type syncEnv struct {
 	alice, bob string // Authorization header values
 }
 
-func newSyncEnv(t *testing.T, st SyncStore, log *slog.Logger) *syncEnv {
+func newSyncEnv(t *testing.T, st Store, log *slog.Logger) *syncEnv {
 	t.Helper()
 	if log == nil {
 		log = slog.New(slog.NewTextHandler(io.Discard, nil))
@@ -118,8 +118,8 @@ func ptr[T any](v T) *T { return &v }
 func fullChangeSet(at int64) api.ChangeSet {
 	return api.ChangeSet{
 		Programs: &[]api.Program{
-			{Id: uid(1), Name: "Push Pull Legs", Type: api.GYM, CurrentStep: 2, IsActive: true, UpdatedAt: at},
-			{Id: uid(2), Name: "", Type: api.CALISTHENICS, CurrentStep: 0, IsActive: false, UpdatedAt: at + 1, DeletedAt: ptr(at + 1)},
+			{Id: uid(1), Name: "Push Pull Legs", Type: api.ProgramTypeGYM, CurrentStep: 2, IsActive: true, UpdatedAt: at},
+			{Id: uid(2), Name: "", Type: api.ProgramTypeCALISTHENICS, CurrentStep: 0, IsActive: false, UpdatedAt: at + 1, DeletedAt: ptr(at + 1)},
 		},
 		CycleSteps: &[]api.CycleStep{
 			{Id: uid(3), ProgramId: uid(1), Position: 0, RoutineId: ptr(uid(4)), UpdatedAt: at},
@@ -129,9 +129,9 @@ func fullChangeSet(at int64) api.ChangeSet {
 			{Id: uid(4), Name: "Día de pierna", UpdatedAt: at},
 		},
 		Exercises: &[]api.Exercise{
-			{Id: uid(6), Name: "Pull-up", IconKey: "pullup", Kind: api.TEMPLATE, Template: ptr("3s + {n} pulls + 3s"), WeightEnabled: false, Archived: true, UpdatedAt: at},
-			{Id: uid(7), Name: "Squat", IconKey: "squat", Kind: api.REPS, WeightEnabled: true, Archived: false, UpdatedAt: at},
-			{Id: uid(15), Name: "Plank", IconKey: "plank", Kind: api.SHOWONLY, UpdatedAt: at},
+			{Id: uid(6), Name: "Pull-up", IconKey: "pullup", Kind: api.ExerciseKindTEMPLATE, Template: ptr("3s + {n} pulls + 3s"), WeightEnabled: false, Archived: true, UpdatedAt: at},
+			{Id: uid(7), Name: "Squat", IconKey: "squat", Kind: api.ExerciseKindREPS, WeightEnabled: true, Archived: false, UpdatedAt: at},
+			{Id: uid(15), Name: "Plank", IconKey: "plank", Kind: api.ExerciseKindSHOWONLY, UpdatedAt: at},
 		},
 		RoutineExercises: &[]api.RoutineExercise{
 			{Id: uid(8), RoutineId: uid(4), ExerciseId: uid(7), Position: 0, Sets: 3, RepMin: 6, RepMax: 10, RestSeconds: 90, UpdatedAt: at},
@@ -181,7 +181,7 @@ func wantStatuses(t *testing.T, got []api.PushResult, want ...api.PushResultStat
 	}
 }
 
-func runSyncSuite(t *testing.T, newStore func(t *testing.T) SyncStore) {
+func runSyncSuite(t *testing.T, newStore func(t *testing.T) Store) {
 	// An hour ago: well inside the clock rule, and growing from there.
 	at := time.Now().Add(-time.Hour).UnixMilli()
 

@@ -4,6 +4,7 @@ package config
 import (
 	"fmt"
 	"log/slog"
+	"strings"
 )
 
 // Config holds every setting the API reads at start.
@@ -27,6 +28,9 @@ type Config struct {
 	// SessionKey is the session signing key itself, for the laptop. Secret:
 	// never log a Config.
 	SessionKey string
+	// ShareBaseURL is where shared links live, https://<distribution>.cloudfront.net
+	// (decision 100), set by Terraform. Empty: POST /shares answers no url.
+	ShareBaseURL string
 }
 
 // Load reads the settings through getenv, normally os.Getenv.
@@ -40,6 +44,7 @@ type Config struct {
 //	DINOGYM_GOOGLE_CLIENT_ID   Web OAuth client ID; required in staging and prod
 //	DINOGYM_SESSION_KEY_PARAM  SSM parameter with the session signing key
 //	DINOGYM_SESSION_KEY        the signing key itself (laptop only)
+//	DINOGYM_SHARE_BASE_URL     base of shared links, no trailing slash
 //
 // Staging and prod need one of the two session key settings, not both. Locally
 // with neither, cmd/api makes a random key at start.
@@ -52,6 +57,7 @@ func Load(getenv func(string) string) (Config, error) {
 		GoogleClientID:  getenv("DINOGYM_GOOGLE_CLIENT_ID"),
 		SessionKeyParam: getenv("DINOGYM_SESSION_KEY_PARAM"),
 		SessionKey:      getenv("DINOGYM_SESSION_KEY"),
+		ShareBaseURL:    strings.TrimRight(getenv("DINOGYM_SHARE_BASE_URL"), "/"),
 	}
 	switch c.Env {
 	case "local", "staging", "prod":

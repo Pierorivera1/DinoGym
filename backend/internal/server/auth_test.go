@@ -120,7 +120,8 @@ func TestGoogleOutageIsAServerError(t *testing.T) {
 
 func TestProtectedRoutesComeFromTheContract(t *testing.T) {
 	got := slices.Sorted(maps.Keys(protectedRoutes()))
-	want := []string{"GET /sync/pull", "POST /sync/push"}
+	// GET /shares/{shareId} is public on purpose: the web page reads it.
+	want := []string{"GET /sync/pull", "POST /shares", "POST /sync/push"}
 	if !slices.Equal(got, want) {
 		t.Fatalf("protected routes %v, want %v", got, want)
 	}

@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"slices"
 	"sync"
 	"time"
@@ -17,7 +18,10 @@ type fakeStore struct {
 	mu   sync.Mutex
 	seq  map[string]int64
 	rows map[string]map[string]store.Change // user → KIND#id → row
-	now  func() time.Time
+	// shares by id, and how many each owner published per UTC day.
+	shares      map[string]store.Share
+	shareCounts map[string]int
+	now         func() time.Time
 }
 
 func newFakeStore() *fakeStore {
@@ -71,4 +75,34 @@ func (f *fakeStore) Since(_ context.Context, userID string, after int64, limit i
 		cursor = all[len(all)-1].ChangeNumber
 	}
 	return all, cursor, more, nil
+}
+
+// PutShare and GetShare keep shares like store.PutShare and store.GetShare:
+// a per-owner count for each UTC day, and no overwrites.
+func (f *fakeStore) PutShare(_ context.Context, sh store.Share, perDay int) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.shares == nil {
+		f.shares, f.shareCounts = map[string]store.Share{}, map[string]int{}
+	}
+	day := sh.OwnerID + "#" + time.UnixMilli(sh.CreatedAt).UTC().Format(time.DateOnly)
+	if f.shareCounts[day] >= perDay {
+		return store.ErrShareLimit
+	}
+	f.shareCounts[day]++
+	if _, ok := f.shares[sh.ID]; ok {
+		return errors.New("share exists")
+	}
+	f.shares[sh.ID] = sh
+	return nil
+}
+
+func (f *fakeStore) GetShare(_ context.Context, id string) (store.Share, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	sh, ok := f.shares[id]
+	if !ok {
+		return store.Share{}, store.ErrShareNotFound
+	}
+	return sh, nil
 }

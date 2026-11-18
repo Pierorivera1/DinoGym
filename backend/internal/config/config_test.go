@@ -63,3 +63,18 @@ func TestRejectsBadValues(t *testing.T) {
 		}
 	}
 }
+
+func TestShareBaseURLLosesItsTrailingSlash(t *testing.T) {
+	c, err := Load(func(k string) string {
+		if k == "DINOGYM_SHARE_BASE_URL" {
+			return "https://d123.cloudfront.net/"
+		}
+		return ""
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.ShareBaseURL != "https://d123.cloudfront.net" {
+		t.Fatalf("ShareBaseURL %q", c.ShareBaseURL)
+	}
+}

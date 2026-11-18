@@ -192,6 +192,80 @@ resource "aws_iam_role_policy" "deploy" {
       # No SSM access: the owner creates the secrets by hand (decision 54), and
       # Terraform only names them in the Lambda's policy.
 
+      # The shared-link web bucket (task 23, decision 100): only buckets named
+      # dinogym-<env>-web-*, and their objects. Get*/List* because the provider
+      # reads every bucket setting on refresh (ACL, CORS, website, logging...).
+      {
+        Sid    = "WebBucket"
+        Effect = "Allow"
+        Action = [
+          "s3:CreateBucket",
+          "s3:DeleteBucket",
+          "s3:Get*",
+          "s3:List*",
+          "s3:PutBucketPolicy",
+          "s3:DeleteBucketPolicy",
+          "s3:PutBucketPublicAccessBlock",
+          "s3:PutBucketTagging",
+          "s3:PutBucketOwnershipControls",
+          "s3:PutEncryptionConfiguration",
+        ]
+        Resource = "arn:aws:s3:::dinogym-${each.key}-web-*"
+      },
+      {
+        Sid    = "WebObjects"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:GetObjectTagging",
+          "s3:PutObject",
+          "s3:PutObjectTagging",
+          "s3:DeleteObject",
+          "s3:DeleteObjectTagging",
+        ]
+        Resource = "arn:aws:s3:::dinogym-${each.key}-web-*/*"
+      },
+
+      # CloudFront: the distribution, its function, cache and response headers
+      # policies and origin access control. Their ARNs hold random IDs (the
+      # function is the exception), so like API Gateway this covers every
+      # CloudFront resource in the account. Acceptable in an account that holds
+      # only DinoGym. No invalidations: the page's files expire in 5 minutes.
+      {
+        Sid    = "CloudFront"
+        Effect = "Allow"
+        Action = [
+          "cloudfront:CreateDistribution",
+          "cloudfront:CreateDistributionWithTags",
+          "cloudfront:GetDistribution",
+          "cloudfront:GetDistributionConfig",
+          "cloudfront:UpdateDistribution",
+          "cloudfront:DeleteDistribution",
+          "cloudfront:TagResource",
+          "cloudfront:UntagResource",
+          "cloudfront:ListTagsForResource",
+          "cloudfront:CreateFunction",
+          "cloudfront:DescribeFunction",
+          "cloudfront:GetFunction",
+          "cloudfront:UpdateFunction",
+          "cloudfront:PublishFunction",
+          "cloudfront:DeleteFunction",
+          "cloudfront:CreateCachePolicy",
+          "cloudfront:GetCachePolicy",
+          "cloudfront:UpdateCachePolicy",
+          "cloudfront:DeleteCachePolicy",
+          "cloudfront:CreateResponseHeadersPolicy",
+          "cloudfront:GetResponseHeadersPolicy",
+          "cloudfront:UpdateResponseHeadersPolicy",
+          "cloudfront:DeleteResponseHeadersPolicy",
+          "cloudfront:CreateOriginAccessControl",
+          "cloudfront:GetOriginAccessControl",
+          "cloudfront:UpdateOriginAccessControl",
+          "cloudfront:DeleteOriginAccessControl",
+        ]
+        Resource = "arn:aws:cloudfront::${local.account_id}:*"
+      },
+
       # API Gateway's ARNs hold the API's random ID, not its name, so this
       # cannot be limited to dinogym-<env>-api: it covers every HTTP API in the
       # account and region. Acceptable in an account that holds only DinoGym.

@@ -16,7 +16,7 @@ import (
 )
 
 func TestSyncOnTheFake(t *testing.T) {
-	runSyncSuite(t, func(*testing.T) SyncStore { return newFakeStore() })
+	runSyncSuite(t, func(*testing.T) Store { return newFakeStore() })
 }
 
 func TestSyncNeverLogsRowContents(t *testing.T) {
@@ -62,6 +62,14 @@ func (failingStore) Since(context.Context, string, int64, int32) ([]store.Change
 	return nil, 0, false, errors.New("dynamodb: throttled")
 }
 
+func (failingStore) PutShare(context.Context, store.Share, int) error {
+	return errors.New("dynamodb: throttled")
+}
+
+func (failingStore) GetShare(context.Context, string) (store.Share, error) {
+	return store.Share{}, errors.New("dynamodb: throttled")
+}
+
 func TestStoreFailureIsAServerError(t *testing.T) {
 	e := newSyncEnv(t, failingStore{}, slog.New(slog.DiscardHandler))
 	body, _ := json.Marshal(weighIns(1, 0, 1000))
@@ -70,6 +78,13 @@ func TestStoreFailureIsAServerError(t *testing.T) {
 	}
 	if rec, eb := serveWith(t, e.h, http.MethodGet, "/sync/pull?since=0", "", e.alice); rec.Code != http.StatusInternalServerError || eb.Code != "internal" {
 		t.Fatalf("pull: %d %q, want 500 internal", rec.Code, eb.Code)
+	}
+	body, _ = json.Marshal(routineSnapshot())
+	if rec, eb := serveWith(t, e.h, http.MethodPost, "/shares", string(body), e.alice); rec.Code != http.StatusInternalServerError || eb.Code != "internal" {
+		t.Fatalf("create share: %d %q, want 500 internal", rec.Code, eb.Code)
+	}
+	if rec, eb := serveWith(t, e.h, http.MethodGet, "/shares/AAAAAAAAAAAAAAAAAAAAAA", "", ""); rec.Code != http.StatusInternalServerError || eb.Code != "internal" {
+		t.Fatalf("get share: %d %q, want 500 internal", rec.Code, eb.Code)
 	}
 }
 

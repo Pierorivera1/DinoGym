@@ -31,5 +31,5 @@ func TestSyncOnTheEmulator(t *testing.T) {
 			t.Errorf("delete table: %v", err)
 		}
 	})
-	runSyncSuite(t, func(*testing.T) SyncStore { return st })
+	runSyncSuite(t, func(*testing.T) Store { return st })
 }

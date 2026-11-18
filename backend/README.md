@@ -6,10 +6,10 @@ The DinoGym API in Go. One binary serves HTTP on the laptop and runs as the Lamb
 |---|---|
 | `cmd/api` | The binary: config, telemetry, then a local server or the Lambda loop |
 | `internal/api` | Generated from [../api/openapi.yaml](../api/openapi.yaml). Do not edit `api.gen.go`; run `go generate ./...` |
-| `internal/server` | The API's handlers (`StrictServerInterface`), the bearer check on secured routes, request bodies checked against the contract, and the sync handlers (`sync.go`) |
+| `internal/server` | The API's handlers (`StrictServerInterface`), the bearer check on secured routes, request bodies checked against the contract, the sync handlers (`sync.go`) and shares (`shares.go`) |
 | `internal/auth` | Google ID token check, access tokens (JWT) and refresh token rotation (decisions 79–80); `authtest` holds in-memory fakes for tests |
 | `internal/lambdahttp` | API Gateway HTTP API events ↔ `net/http` |
-| `internal/store` | DynamoDB: the sync rules of decision 51 on the table of decisions 52 and 65; accounts and refresh tokens in `sessions.go` |
+| `internal/store` | DynamoDB: the sync rules of decision 51 on the table of decisions 52 and 65; accounts and refresh tokens in `sessions.go`; shares and their daily counter in `shares.go` (decision 97) |
 | `internal/telemetry` | OpenTelemetry traces, metrics and logs (decision 64) |
 | `internal/config` | Settings from environment variables |
 | `internal/awstest` | Connects integration tests to the AWS Emulator; holds the SQS, S3 and Scheduler checks |
@@ -41,6 +41,7 @@ Without `env.sh` it still starts, with a warning, and storage calls fail ([../do
 | `DINOGYM_GOOGLE_CLIENT_ID` | none; required in staging and prod | Web OAuth client ID that Google ID tokens must be issued to |
 | `DINOGYM_SESSION_KEY_PARAM` | none | SSM parameter holding the session signing key (set by Terraform) |
 | `DINOGYM_SESSION_KEY` | a random key in `local` | The signing key itself, at least 32 bytes; laptop only. Never set both this and `_PARAM` |
+| `DINOGYM_SHARE_BASE_URL` | none | Base of shared links, `https://<distribution>.cloudfront.net` (set by Terraform). Without it `POST /shares` returns no `url` |
 
 ### Sign in locally
 
@@ -76,6 +77,20 @@ How it behaves ([../api/openapi.yaml](../api/openapi.yaml) is the contract; deci
 - **Push:** at most 500 rows (`400 too_many_rows`). The body is checked against the contract first (`400 bad_request` names the field, for example `/weighIns/0/id: minimum string length is 36`). Each row comes back `accepted` with its change number, `stale` (the server's copy is as new or newer; a retry of the same rows gives this) or `rejected` with reason `updated_at_in_future` (more than 5 minutes ahead of the server). A storage failure is `500 internal`: nothing tells which rows were written, so the app retries the whole batch, which is safe.
 - **Pull:** `since` ≥ 0, `limit` 1–1000 (default 500). Rows come grouped by table, in change-number order; empty tables are left out. The cursor stops before rows accepted in the last 30 seconds, which then come again on the next pull, and `hasMore` is then false.
 - Logs carry row counts, never row contents.
+
+### Shares
+
+Publish a routine with an access token, then read it without one (decisions 96–97):
+
+```bash
+curl -s -X POST 127.0.0.1:8080/shares -H 'Authorization: Bearer <access token>' -H 'Content-Type: application/json' \
+  -d '{"version":1,"kind":"routine","routines":[{"name":"PULL","exercises":[{"exercise":{"name":"Pull-up","iconKey":"LEVER","kind":"REPS","weightEnabled":false},"sets":2,"repMin":5,"repMax":8,"restSeconds":150}]}]}'
+curl -s 127.0.0.1:8080/shares/<id>
+```
+
+- **Publish:** `201` with the 22-character id and, when `DINOGYM_SHARE_BASE_URL` is set, the link `url`. A routine share has exactly one routine and no program; a program's cycle must use every routine and point at no missing one; `repMin` ≤ `repMax`. Over 64 KiB is `413 share_too_large`; a user's 21st share in a UTC day is `429 too_many_shares`.
+- **Read:** public, `Cache-Control: public, max-age=3600`; an unknown or malformed id is `404 not_found`.
+- Logs carry the kind and size, never names.
 
 ## Test it
 
