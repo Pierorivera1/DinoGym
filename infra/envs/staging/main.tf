@@ -38,7 +38,7 @@ module "dinogym" {
   # From infra/google's `fcm` output (decision 107). Not secret.
   fcm = {
     project         = "dinogym-3870b"
-    audience        = "//iam.googleapis.com/projects/GCP_PROJECT_NUMBER/locations/global/workloadIdentityPools/dinogym-aws/providers/aws-account"
+    audience        = "//iam.googleapis.com/projects/854486518090/locations/global/workloadIdentityPools/dinogym-aws/providers/aws-account"
     service_account = "fcm-sender@dinogym-3870b.iam.gserviceaccount.com"
   }
   # The Web OAuth client ID (decision 80). Public: it is in every ID token.
