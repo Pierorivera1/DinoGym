@@ -86,6 +86,8 @@ resource "aws_lambda_function" "api" {
       # Decisions 79 and 80. The key itself is read from SSM at cold start.
       DINOGYM_GOOGLE_CLIENT_ID  = var.google_client_id
       DINOGYM_SESSION_KEY_PARAM = local.session_key_param
+      # Shared links are https://<this distribution>/r/<id> (decisions 97 and 100).
+      DINOGYM_SHARE_BASE_URL = "https://${aws_cloudfront_distribution.web.domain_name}"
     }
   }
 
