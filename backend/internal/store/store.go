@@ -263,6 +263,8 @@ func readNumber(item map[string]types.AttributeValue, name string) (int64, error
 // CreateTable creates the table with its sync index, on demand billing, and
 // waits until it is usable. It is for the emulator and tests: staging and prod
 // get the table from Terraform (task 17). An existing table is left as is.
+// Time to Live on `ttl` (decision 79) is left to Terraform: nothing here
+// depends on expired items being deleted.
 func (s *Store) CreateTable(ctx context.Context) error {
 	_, err := s.db.CreateTable(ctx, &dynamodb.CreateTableInput{
 		TableName:   &s.table,

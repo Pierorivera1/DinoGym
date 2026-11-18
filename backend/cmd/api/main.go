@@ -11,6 +11,8 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -22,10 +24,13 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 
+	"github.com/Pierorivera1/DinoGym/backend/internal/auth"
 	"github.com/Pierorivera1/DinoGym/backend/internal/config"
 	"github.com/Pierorivera1/DinoGym/backend/internal/lambdahttp"
 	"github.com/Pierorivera1/DinoGym/backend/internal/server"
@@ -54,11 +59,29 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	st, err := newStore(ctx, cfg, log)
+	awsCfg, err := awsconfig.LoadDefaultConfig(ctx)
+	if err != nil {
+		return fmt.Errorf("load AWS config: %w", err)
+	}
+	otelaws.AppendMiddlewares(&awsCfg.APIOptions)
+
+	st, err := newStore(ctx, cfg, awsCfg, log)
 	if err != nil {
 		return err
 	}
-	handler := server.New(log, st).Handler()
+	key, err := sessionKey(ctx, cfg, awsCfg, log)
+	if err != nil {
+		return err
+	}
+	tokens, err := auth.NewTokens(key, cfg.Env)
+	if err != nil {
+		return err
+	}
+	if cfg.GoogleClientID == "" {
+		log.Warn("DINOGYM_GOOGLE_CLIENT_ID is not set; sign-in with Google will fail")
+	}
+	svc := auth.NewService(tokens, auth.NewGoogle(cfg.GoogleClientID), st)
+	handler := server.New(log, st, svc).Handler()
 
 	// Lambda sets AWS_LAMBDA_RUNTIME_API for the runtime client.
 	if os.Getenv("AWS_LAMBDA_RUNTIME_API") != "" {
@@ -108,12 +131,7 @@ func serveLocal(cfg config.Config, log *slog.Logger, tel *telemetry.Telemetry, h
 // newStore connects to DynamoDB. Every AWS call gets a span (otelaws). On the
 // laptop pointed at the emulator, it also creates the table; staging and prod
 // get it from Terraform (task 17).
-func newStore(ctx context.Context, cfg config.Config, log *slog.Logger) (*store.Store, error) {
-	awsCfg, err := awsconfig.LoadDefaultConfig(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("load AWS config: %w", err)
-	}
-	otelaws.AppendMiddlewares(&awsCfg.APIOptions)
+func newStore(ctx context.Context, cfg config.Config, awsCfg aws.Config, log *slog.Logger) (*store.Store, error) {
 	st := store.New(dynamodb.NewFromConfig(awsCfg), cfg.Table)
 
 	if cfg.Env != "local" {
@@ -131,4 +149,37 @@ func newStore(ctx context.Context, cfg config.Config, log *slog.Logger) (*store.
 	}
 	log.Info("table ready on the emulator", "table", cfg.Table, "endpoint", endpoint)
 	return st, nil
+}
+
+// sessionKey returns the key that signs access tokens (decision 79): read once
+// from SSM in staging and prod, from DINOGYM_SESSION_KEY on the laptop, or, on
+// the laptop with neither, made up at start (sessions then end on restart).
+// The value is never logged.
+func sessionKey(ctx context.Context, cfg config.Config, awsCfg aws.Config, log *slog.Logger) ([]byte, error) {
+	switch {
+	case cfg.SessionKeyParam != "":
+		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		defer cancel()
+		out, err := ssm.NewFromConfig(awsCfg).GetParameters(ctx, &ssm.GetParametersInput{
+			Names:          []string{cfg.SessionKeyParam},
+			WithDecryption: aws.Bool(true),
+		})
+		if err != nil {
+			return nil, fmt.Errorf("read session signing key %s: %w", cfg.SessionKeyParam, err)
+		}
+		if len(out.Parameters) != 1 || out.Parameters[0].Value == nil {
+			return nil, fmt.Errorf("session signing key %s not found", cfg.SessionKeyParam)
+		}
+		return []byte(*out.Parameters[0].Value), nil
+	case cfg.SessionKey != "":
+		return []byte(cfg.SessionKey), nil
+	case cfg.Env == "local":
+		b := make([]byte, 48)
+		if _, err := rand.Read(b); err != nil {
+			return nil, err
+		}
+		log.Warn("no session signing key set; using a random one, so sessions end when the server stops")
+		return []byte(base64.StdEncoding.EncodeToString(b)), nil
+	}
+	return nil, fmt.Errorf("no session signing key configured")
 }

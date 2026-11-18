@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"log/slog"
@@ -14,14 +15,45 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 
 	"github.com/Pierorivera1/DinoGym/backend/internal/api"
+	"github.com/Pierorivera1/DinoGym/backend/internal/auth"
+	"github.com/Pierorivera1/DinoGym/backend/internal/auth/authtest"
 )
+
+// testAuth is a session service on in-memory fakes: Google accepts only
+// "good-id-token", whose sub is "google-sub-1".
+func testAuth(t *testing.T) *auth.Service {
+	t.Helper()
+	tokens, err := auth.NewTokens([]byte(strings.Repeat("k", auth.MinKeyBytes)), "local")
+	if err != nil {
+		t.Fatal(err)
+	}
+	return auth.NewService(tokens, authtest.Google{"good-id-token": "google-sub-1"}, authtest.NewStore())
+}
+
+// bearer returns an Authorization header value for a fresh signed-in user.
+func bearer(t *testing.T, a *auth.Service) string {
+	t.Helper()
+	s, err := a.SignInWithGoogle(context.Background(), "good-id-token")
+	if err != nil {
+		t.Fatal(err)
+	}
+	return "Bearer " + s.AccessToken
+}
 
 func serve(t *testing.T, method, path, body string) (*httptest.ResponseRecorder, api.Error) {
 	t.Helper()
-	h := New(slog.New(slog.NewTextHandler(io.Discard, nil)), nil).Handler()
+	a := testAuth(t)
+	return serveWith(t, New(slog.New(slog.NewTextHandler(io.Discard, nil)), nil, a).Handler(), method, path, body, bearer(t, a))
+}
+
+func serveWith(t *testing.T, h http.Handler, method, path, body, authorization string) (*httptest.ResponseRecorder, api.Error) {
+	t.Helper()
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest(method, path, strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
+	if authorization != "" {
+		req.Header.Set("Authorization", authorization)
+	}
 	h.ServeHTTP(rec, req)
 
 	var e api.Error

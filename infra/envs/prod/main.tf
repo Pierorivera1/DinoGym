@@ -34,6 +34,8 @@ module "dinogym" {
   env          = "prod"
   lambda_zip   = "${path.root}/../../../backend/bin/api.zip"
   protect_data = true
+  # The Web OAuth client ID (decision 80). Public: it is in every ID token.
+  google_client_id = "854486518090-7sc6gs4dmbuo5lgsm9ss9g0p0chedm9a.apps.googleusercontent.com"
   # Created by infra/bootstrap. The deploy role cannot create the API role without it.
   permissions_boundary = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/dinogym-prod-boundary"
 }

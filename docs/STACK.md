@@ -30,7 +30,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Files | S3 |
 | Queues | SQS |
 | Scheduled jobs | EventBridge Scheduler (reminders, weekly summaries) |
-| Auth | The backend verifies the Google ID token and issues its own sessions |
+| Auth | The backend verifies the Google ID token with `coreos/go-oidc` and issues its own sessions: HS256 access tokens (`golang-jwt/jwt`) and single-use refresh tokens in DynamoDB (decisions 79–80) |
 | Secrets | SSM Parameter Store, SecureString, standard tier; created by the owner, not Terraform (decision 69) |
 | Sync | Newest edit per row wins; devices pull by a server change number |
 | API contract | OpenAPI 3.0.3 in `api/openapi.yaml`, the source for the Kotlin client and the Go server (oapi-codegen); linted with Redocly CLI in CI (decisions 60–61) |

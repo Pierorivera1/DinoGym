@@ -4,12 +4,16 @@ package store
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
+	"github.com/Pierorivera1/DinoGym/backend/internal/auth"
 	"github.com/Pierorivera1/DinoGym/backend/internal/awstest"
 )
 
@@ -161,5 +165,118 @@ func TestPullPagesInChangeOrderAndKeepsUsersApart(t *testing.T) {
 	changes, next, more, err := s.Since(ctx, "u1", cursor, 2)
 	if err != nil || len(changes) != 0 || more || next != cursor {
 		t.Fatalf("after the end: %d changes, cursor %d, more %v, err %v", len(changes), next, more, err)
+	}
+}
+
+// Accounts and sessions (decisions 79 and 80): the conditional writes that the
+// auth package's unit tests only fake.
+
+func TestGoogleAccountIsCreatedOnceUnderARace(t *testing.T) {
+	s := newStore(t)
+	ctx := context.Background()
+	ids := make([]string, 8)
+	var wg sync.WaitGroup
+	for i := range ids {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			id, err := s.GoogleUser(ctx, "sub-1", fmt.Sprintf("candidate-%d", i))
+			if err != nil {
+				t.Error(err)
+			}
+			ids[i] = id
+		}()
+	}
+	wg.Wait()
+	for _, id := range ids {
+		if id == "" || id != ids[0] {
+			t.Fatalf("concurrent sign-ins got %v, want one user id", ids)
+		}
+	}
+	if id, err := s.GoogleUser(ctx, "sub-2", "u2"); err != nil || id != "u2" {
+		t.Fatalf("another Google account: %q, %v", id, err)
+	}
+}
+
+func TestRefreshTokenWorksOnce(t *testing.T) {
+	s := newStore(t)
+	ctx := context.Background()
+	exp := time.UnixMilli(time.Now().Add(auth.RefreshTokenTTL).UnixMilli())
+	rec := auth.RefreshRecord{Hash: "h1", UserID: "u1", FamilyID: "f1", ExpiresAt: exp}
+	if err := s.PutRefreshToken(ctx, rec); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := s.UseRefreshToken(ctx, "unknown", time.Now()); !errors.Is(err, auth.ErrNotFound) {
+		t.Fatalf("unknown token: %v", err)
+	}
+	got, err := s.UseRefreshToken(ctx, "h1", time.Now())
+	if err != nil || got.UserID != "u1" || got.FamilyID != "f1" || !got.ExpiresAt.Equal(exp) {
+		t.Fatalf("first use: %+v, %v; want %+v", got, err, rec)
+	}
+	got, err = s.UseRefreshToken(ctx, "h1", time.Now())
+	if !errors.Is(err, auth.ErrAlreadyUsed) || got.FamilyID != "f1" {
+		t.Fatalf("second use: %+v, %v; want ErrAlreadyUsed with the family", got, err)
+	}
+
+	item, err := s.db.GetItem(ctx, &dynamodb.GetItemInput{TableName: &s.table, Key: refreshKey("h1")})
+	if err != nil {
+		t.Fatal(err)
+	}
+	ttl, err := readNumber(item.Item, attrTTL)
+	if err != nil || ttl != exp.Unix() {
+		t.Fatalf("ttl %d, %v; want %d (epoch seconds)", ttl, err, exp.Unix())
+	}
+}
+
+func TestOnlyOneOfConcurrentRefreshesWins(t *testing.T) {
+	s := newStore(t)
+	ctx := context.Background()
+	if err := s.PutRefreshToken(ctx, auth.RefreshRecord{Hash: "h1", UserID: "u1", FamilyID: "f1", ExpiresAt: time.Now().Add(time.Hour)}); err != nil {
+		t.Fatal(err)
+	}
+	errs := make([]error, 6)
+	var wg sync.WaitGroup
+	for i := range errs {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_, errs[i] = s.UseRefreshToken(ctx, "h1", time.Now())
+		}()
+	}
+	wg.Wait()
+	won := 0
+	for _, err := range errs {
+		switch {
+		case err == nil:
+			won++
+		case !errors.Is(err, auth.ErrAlreadyUsed):
+			t.Fatal(err)
+		}
+	}
+	if won != 1 {
+		t.Fatalf("%d uses succeeded, want exactly 1", won)
+	}
+}
+
+func TestFamilyRevocation(t *testing.T) {
+	s := newStore(t)
+	ctx := context.Background()
+	later := time.Now().Add(time.Hour)
+
+	if err := s.RenewFamily(ctx, "missing", later); !errors.Is(err, auth.ErrRevoked) {
+		t.Fatalf("a missing family renewed: %v", err)
+	}
+	if err := s.PutFamily(ctx, "f1", later); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.RenewFamily(ctx, "f1", later.Add(time.Hour)); err != nil {
+		t.Fatalf("renew: %v", err)
+	}
+	if err := s.RevokeFamily(ctx, "f1"); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.RenewFamily(ctx, "f1", later.Add(2*time.Hour)); !errors.Is(err, auth.ErrRevoked) {
+		t.Fatalf("a revoked family renewed: %v", err)
 	}
 }

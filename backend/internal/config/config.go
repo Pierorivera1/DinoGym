@@ -18,6 +18,15 @@ type Config struct {
 	Telemetry string
 	// Table is the DynamoDB table (decision 52).
 	Table string
+	// GoogleClientID is the Web OAuth client ID that Google ID tokens must be
+	// issued to (decision 80). Not secret.
+	GoogleClientID string
+	// SessionKeyParam is the SSM parameter holding the session signing key
+	// (decision 79). Set by Terraform in staging and prod.
+	SessionKeyParam string
+	// SessionKey is the session signing key itself, for the laptop. Secret:
+	// never log a Config.
+	SessionKey string
 }
 
 // Load reads the settings through getenv, normally os.Getenv.
@@ -28,11 +37,21 @@ type Config struct {
 //	DINOGYM_TELEMETRY  otlp, console, none; default otlp when OTEL_EXPORTER_OTLP_ENDPOINT
 //	                   is set, otherwise none
 //	DINOGYM_TABLE      DynamoDB table name, default dinogym
+//	DINOGYM_GOOGLE_CLIENT_ID   Web OAuth client ID; required in staging and prod
+//	DINOGYM_SESSION_KEY_PARAM  SSM parameter with the session signing key
+//	DINOGYM_SESSION_KEY        the signing key itself (laptop only)
+//
+// Staging and prod need one of the two session key settings, not both. Locally
+// with neither, cmd/api makes a random key at start.
 func Load(getenv func(string) string) (Config, error) {
 	c := Config{
 		Env:   orDefault(getenv("DINOGYM_ENV"), "local"),
 		Addr:  orDefault(getenv("DINOGYM_ADDR"), "127.0.0.1:8080"),
 		Table: orDefault(getenv("DINOGYM_TABLE"), "dinogym"),
+
+		GoogleClientID:  getenv("DINOGYM_GOOGLE_CLIENT_ID"),
+		SessionKeyParam: getenv("DINOGYM_SESSION_KEY_PARAM"),
+		SessionKey:      getenv("DINOGYM_SESSION_KEY"),
 	}
 	switch c.Env {
 	case "local", "staging", "prod":
@@ -61,6 +80,18 @@ func Load(getenv func(string) string) (Config, error) {
 	case "otlp", "console", "none":
 	default:
 		return Config{}, fmt.Errorf("DINOGYM_TELEMETRY=%q: want otlp, console or none", c.Telemetry)
+	}
+
+	if c.SessionKeyParam != "" && c.SessionKey != "" {
+		return Config{}, fmt.Errorf("set DINOGYM_SESSION_KEY_PARAM or DINOGYM_SESSION_KEY, not both")
+	}
+	if c.Env != "local" {
+		if c.GoogleClientID == "" {
+			return Config{}, fmt.Errorf("DINOGYM_GOOGLE_CLIENT_ID is required in %s", c.Env)
+		}
+		if c.SessionKeyParam == "" && c.SessionKey == "" {
+			return Config{}, fmt.Errorf("DINOGYM_SESSION_KEY_PARAM is required in %s", c.Env)
+		}
 	}
 	return c, nil
 }

@@ -35,3 +35,8 @@ variable "permissions_boundary" {
   type        = string
   default     = null
 }
+
+variable "google_client_id" {
+  description = "Web OAuth client ID that Google ID tokens must be issued to (decision 80). Not secret: it is in every ID token."
+  type        = string
+}

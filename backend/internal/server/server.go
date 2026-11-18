@@ -6,12 +6,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
 	"github.com/Pierorivera1/DinoGym/backend/internal/api"
+	"github.com/Pierorivera1/DinoGym/backend/internal/auth"
 	"github.com/Pierorivera1/DinoGym/backend/internal/store"
 )
 
@@ -19,32 +21,71 @@ import (
 const MaxBodyBytes = 1 << 20
 
 // ErrNotImplemented marks an endpoint whose task has not been built yet
-// (sign-in in task 20, sync in task 21). It is answered with 501.
+// (sync in task 21). It is answered with 501.
 var ErrNotImplemented = errors.New("not implemented")
 
 // Server answers the API's operations.
 type Server struct {
 	log   *slog.Logger
 	store *store.Store // used by sync in task 21
+	auth  *auth.Service
 }
 
 var _ api.StrictServerInterface = (*Server)(nil)
 
-// New returns a Server that logs to log and keeps synced rows in st.
-func New(log *slog.Logger, st *store.Store) *Server {
-	return &Server{log: log, store: st}
+// New returns a Server that logs to log, keeps synced rows in st and signs
+// users in with a.
+func New(log *slog.Logger, st *store.Store, a *auth.Service) *Server {
+	return &Server{log: log, store: st, auth: a}
 }
 
 func (s *Server) GetHealth(context.Context, api.GetHealthRequestObject) (api.GetHealthResponseObject, error) {
 	return api.GetHealth200JSONResponse{Status: api.Ok}, nil
 }
 
-func (s *Server) SignInWithGoogle(context.Context, api.SignInWithGoogleRequestObject) (api.SignInWithGoogleResponseObject, error) {
-	return nil, ErrNotImplemented
+func (s *Server) SignInWithGoogle(ctx context.Context, req api.SignInWithGoogleRequestObject) (api.SignInWithGoogleResponseObject, error) {
+	if req.Body.IdToken == "" {
+		return api.SignInWithGoogle400JSONResponse{BadRequestJSONResponse: badRequest("idToken is required")}, nil
+	}
+	sess, err := s.auth.SignInWithGoogle(ctx, req.Body.IdToken)
+	if errors.Is(err, auth.ErrInvalidToken) {
+		return api.SignInWithGoogle401JSONResponse{UnauthorizedJSONResponse: invalidToken()}, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("sign in: %w", err)
+	}
+	return api.SignInWithGoogle200JSONResponse(toSession(sess)), nil
 }
 
-func (s *Server) RefreshSession(context.Context, api.RefreshSessionRequestObject) (api.RefreshSessionResponseObject, error) {
-	return nil, ErrNotImplemented
+func (s *Server) RefreshSession(ctx context.Context, req api.RefreshSessionRequestObject) (api.RefreshSessionResponseObject, error) {
+	if req.Body.RefreshToken == "" {
+		return api.RefreshSession400JSONResponse{BadRequestJSONResponse: badRequest("refreshToken is required")}, nil
+	}
+	sess, err := s.auth.Refresh(ctx, req.Body.RefreshToken)
+	if errors.Is(err, auth.ErrInvalidToken) {
+		return api.RefreshSession401JSONResponse{UnauthorizedJSONResponse: invalidToken()}, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("refresh session: %w", err)
+	}
+	return api.RefreshSession200JSONResponse(toSession(sess)), nil
+}
+
+func toSession(s auth.Session) api.Session {
+	return api.Session{
+		UserId:               s.UserID,
+		AccessToken:          s.AccessToken,
+		AccessTokenExpiresAt: s.AccessTokenExpiresAt.UnixMilli(),
+		RefreshToken:         s.RefreshToken,
+	}
+}
+
+func badRequest(msg string) api.BadRequestJSONResponse {
+	return api.BadRequestJSONResponse{Code: "bad_request", Message: msg}
+}
+
+func invalidToken() api.UnauthorizedJSONResponse {
+	return api.UnauthorizedJSONResponse{Code: "invalid_token", Message: "the token is missing, invalid or expired"}
 }
 
 func (s *Server) PushChanges(context.Context, api.PushChangesRequestObject) (api.PushChangesResponseObject, error) {
@@ -72,12 +113,14 @@ func (s *Server) Handler() http.Handler {
 	})
 
 	mux := http.NewServeMux()
+	router := &bearerRouter{ServeMux: mux, protected: protectedRoutes(), verify: s.auth.VerifyAccess}
 	h := api.HandlerWithOptions(strict, api.StdHTTPServerOptions{
-		BaseRouter: mux,
+		BaseRouter: router,
 		ErrorHandlerFunc: func(w http.ResponseWriter, r *http.Request, err error) {
 			writeError(w, http.StatusBadRequest, "bad_request", err.Error())
 		},
 	})
+	router.mustCoverAll()
 	// Paths the contract does not have get a JSON 404 instead of Go's text one.
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusNotFound, "not_found", "no such path")
