@@ -21,6 +21,15 @@ Sign-in is optional and lives only in Settings › ACCOUNT; nothing else needs a
 | Build | API | Can sign in |
 |---|---|---|
 | Debug, built on the laptop | staging, `https://ypn4asfnil.execute-api.us-east-1.amazonaws.com` | Yes, when the laptop's debug key SHA-1 is registered for the Android OAuth client |
+
+This laptop has two debug keys, and both are registered as Android OAuth clients for `io.github.pierorivera1.dinogym.debug` (decision 85):
+
+| Built by | Keystore | SHA-1 |
+|---|---|---|
+| Android Studio | `~/.config/.android/debug.keystore` | `CE:9E:E3:48:E8:31:92:C7:34:7E:AC:39:FC:91:A3:55:61:1E:44:F4` |
+| `./gradlew` in a terminal | `~/.android/debug.keystore` | `BE:99:9E:4C:0B:49:7F:B3:28:F7:B8:AA:DB:7C:1E:FC:99:58:37:35` |
+
+If the Google account sheet closes and the button comes back with no message, the build's SHA-1 is not registered: Credential Manager reports it as a cancel. Check the installed APK with `apksigner verify --print-certs` and add its SHA-1 as another Android client.
 | Debug, built in CI | staging | No: CI uses a throwaway debug key whose SHA-1 is not registered, so Google refuses the request |
 | Release | prod, `https://cm884h7had.execute-api.us-east-1.amazonaws.com` | Yes (the release key's SHA-1 is registered) |
 
