@@ -20,6 +20,8 @@ Sign-in is optional and lives only in Settings › ACCOUNT; nothing else needs a
 
 While signed in, the app syncs in the background with WorkManager: SQLite triggers mark every changed row in `sync_pending`, and `data/sync/SyncEngine` pushes those rows and pulls newer ones (decisions 88–91). The first sign-in uploads the whole history. Settings › ACCOUNT shows the sync state and SYNC NOW. Debug builds sync with staging, release builds with prod.
 
+Shared routine links (task 23) follow the same split: debug builds open and import `https://d1q286cdeyw8ks.cloudfront.net/r/<id>` (staging), release builds `https://d1ktti3qymlgmy.cloudfront.net/r/<id>` (prod). The hosts are `shareHost` in `app/build.gradle.kts`; App Links verify only for builds signed with a key listed in that environment's `assetlinks.json` (decision 99).
+
 | Build | API | Can sign in |
 |---|---|---|
 | Debug, built on the laptop | staging, `https://ypn4asfnil.execute-api.us-east-1.amazonaws.com` | Yes, when the laptop's debug key SHA-1 is registered for the Android OAuth client |

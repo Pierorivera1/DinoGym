@@ -52,6 +52,8 @@ android {
             applicationIdSuffix = ".debug"
             // Staging's HTTP API. Changes if the API is ever recreated (android/README.md).
             buildConfigField("String", "API_BASE_URL", "\"https://ypn4asfnil.execute-api.us-east-1.amazonaws.com\"")
+            // Staging's CloudFront domain: the host of its shared links (App Links, decision 99).
+            manifestPlaceholders["shareHost"] = "d1q286cdeyw8ks.cloudfront.net"
         }
         release {
             isMinifyEnabled = false
@@ -60,6 +62,8 @@ android {
             signingConfig = signingConfigs.findByName("release")
             // Prod's HTTP API. Changes if the API is ever recreated (android/README.md).
             buildConfigField("String", "API_BASE_URL", "\"https://cm884h7had.execute-api.us-east-1.amazonaws.com\"")
+            // Prod's CloudFront domain. Changes if the distribution is ever recreated (decision 23).
+            manifestPlaceholders["shareHost"] = "d1ktti3qymlgmy.cloudfront.net"
         }
     }
 

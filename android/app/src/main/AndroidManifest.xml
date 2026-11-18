@@ -32,17 +32,16 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- Shared routine links, https://<distribution>.cloudfront.net/r/<id> (task 23,
-                 decision 99). The distributions' names are random and exist only after the first
-                 deploy, so this filter matches any CloudFront host and is not verified: Android
-                 offers DinoGym for these links. A verified filter with the exact host comes once
-                 the staging and prod domains are known. -->
-            <intent-filter>
+            <!-- Shared routine links, https://<this build's distribution>/r/<id> (task 23,
+                 decision 99). Verified against /.well-known/assetlinks.json on that domain, so
+                 Android opens them in DinoGym directly: debug builds staging's, release prod's
+                 (shareHost in build.gradle.kts). -->
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" />
-                <data android:host="*.cloudfront.net" />
+                <data android:host="${shareHost}" />
                 <data android:pathPrefix="/r/" />
             </intent-filter>
             <!-- A link shared to DinoGym as text from a chat app. MainActivity opens the import

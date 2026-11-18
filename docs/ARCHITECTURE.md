@@ -86,7 +86,7 @@ phone (import) ──GET /shares/<id>──▶ API Gateway (its own environment'
 
 1. **Publish.** The share action (routine and program editors) builds the snapshot from Room and posts it; the API answers the id and the link (`url`, from the distribution's address that Terraform gives the Lambda). Needs sign-in; 20 shares a user a day; 64 KiB at most.
 2. **Read.** Public. The page (`web/share/`) and the app read the same `GET /shares/{id}`; the answer is cached an hour by CloudFront.
-3. **Open.** A `/r/*` link (an App Link once the exact hosts are in the manifest, decision 99), the page's `intent://` button, or a link shared or pasted as text opens the import preview.
+3. **Open.** A `/r/*` link (an App Link on the build's own domain, decision 99), the page's `intent://` button, or a link shared or pasted as text opens the import preview.
 4. **Import.** The snapshot becomes a `ProgramTemplate` and goes through `ProgramInstaller` (decision 93): new ids, exercises matched by name and kind, names numbered, active only when no program is. The new rows then sync like any others.
 
 Code: `backend/internal/server/shares.go`, `backend/internal/store/shares.go`, `web/share/`, `infra/modules/dinogym/web.tf`, and on the phone `data/share/` and `ui/share/`.
