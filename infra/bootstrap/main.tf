@@ -40,6 +40,10 @@ data "aws_caller_identity" "current" {}
 locals {
   account_id   = data.aws_caller_identity.current.account_id
   state_bucket = "dinogym-tfstate-${local.account_id}"
-  github_repo  = "Pierorivera1/DinoGym"
-  envs         = toset(["staging", "prod"])
+  # GitHub sends immutable subjects for this repository: owner and repository
+  # IDs next to the names (gh api repos/Pierorivera1/DinoGym/actions/oidc/customization/sub).
+  # The IDs survive a rename and are not reused by a new repository with the
+  # same name, so they are what the deploy roles trust (decision 77).
+  github_sub_prefix = "repo:Pierorivera1@176773497/DinoGym@1460291141"
+  envs              = toset(["staging", "prod"])
 }
