@@ -152,6 +152,9 @@ func (s *Server) PushChanges(ctx context.Context, req api.PushChangesRequestObje
 			results[i].Reason = &r.Reason
 		}
 	}
+	if touchesReminders(rows, stored) {
+		s.reconcile(ctx, userID)
+	}
 	// Counts only: row contents never go to the logs.
 	s.log.DebugContext(ctx, "sync push", "rows", len(rows),
 		"accepted", counts[store.Accepted], "stale", counts[store.Stale], "rejected", counts[store.Rejected])

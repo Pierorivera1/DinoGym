@@ -4,7 +4,8 @@
 #   infra/emulator/start.sh      # once, if the emulator is not up
 #   infra/emulator/check.sh
 #
-# 1. Terraform format, and `validate` of the staging and prod roots (no AWS calls).
+# 1. Terraform format, and `validate` of the staging, prod and google roots (no
+#    AWS or Google calls).
 # 2. The Go integration tests against the emulator.
 # 3. The staging stack on the emulator: apply, a second plan that must report
 #    no changes, the shared-link checks against the CloudFront distribution
@@ -43,10 +44,13 @@ for env in staging prod; do
   terraform -chdir="$ROOT/infra/envs/$env" init -backend=false -input=false >/dev/null
   terraform -chdir="$ROOT/infra/envs/$env" validate
 done
+step "terraform validate google"
+terraform -chdir="$ROOT/infra/google" init -backend=false -input=false >/dev/null
+terraform -chdir="$ROOT/infra/google" validate
 
 step "Go integration tests"
 # -p 2: CPU limit from CLAUDE.md. -count=1: never reuse a cached pass, the emulator is the thing under test.
-(cd "$ROOT/backend" && go test -p 2 -count=1 -tags integration ./internal/store/ ./internal/server/ ./internal/awstest/)
+(cd "$ROOT/backend" && go test -p 2 -count=1 -tags integration ./internal/store/ ./internal/server/ ./internal/reminders/ ./internal/awstest/)
 
 step "Build the Lambda zip"
 "$ROOT/infra/scripts/build-lambda.sh"

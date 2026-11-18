@@ -33,6 +33,8 @@ tags:
     description: Push and pull of the user's rows (decision 51, task 21).
   - name: shares
     description: Shareable routines and programs, public by link (task 23, decisions 96–101).
+  - name: devices
+    description: Phones that receive reminders (task 24, decisions 104–107).
 
 paths:
   /health:
@@ -258,6 +260,50 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+
+  /devices/{installationId}:
+    parameters:
+      - name: installationId
+        in: path
+        required: true
+        description: A random UUID the app makes once per install and keeps.
+        schema:
+          type: string
+          pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    put:
+      operationId: registerDevice
+      summary: Register this phone for reminders
+      description: |
+        Stores the phone's Firebase Cloud Messaging token under the signed-in
+        user (decision 106), replacing the one stored for this installation.
+        The app calls it at start (at most once a day unless the token changed)
+        and when FCM gives it a new token. A device not registered again for
+        60 days is dropped. It also brings the user's reminder schedules in
+        line with their settings (decision 105).
+      tags: [devices]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceRegistration"
+      responses:
+        "204":
+          description: Registered.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    delete:
+      operationId: unregisterDevice
+      summary: Stop reminders on this phone
+      description: Called on sign-out. Deleting a device that is not registered also answers 204.
+      tags: [devices]
+      responses:
+        "204":
+          description: Removed, or was not there.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
 
 components:
   securitySchemes:
@@ -821,3 +867,13 @@ components:
           description: When it was published, epoch milliseconds.
         snapshot:
           $ref: "#/components/schemas/ShareSnapshot"
+
+    DeviceRegistration:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+          minLength: 1
+          maxLength: 4096
+          description: The FCM registration token. Never logged.

@@ -27,12 +27,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/scheduler"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 
 	"github.com/Pierorivera1/DinoGym/backend/internal/auth"
 	"github.com/Pierorivera1/DinoGym/backend/internal/config"
 	"github.com/Pierorivera1/DinoGym/backend/internal/lambdahttp"
+	"github.com/Pierorivera1/DinoGym/backend/internal/reminders"
 	"github.com/Pierorivera1/DinoGym/backend/internal/server"
 	"github.com/Pierorivera1/DinoGym/backend/internal/store"
 	"github.com/Pierorivera1/DinoGym/backend/internal/telemetry"
@@ -81,7 +83,15 @@ func run() error {
 		log.Warn("DINOGYM_GOOGLE_CLIENT_ID is not set; sign-in with Google will fail")
 	}
 	svc := auth.NewService(tokens, auth.NewGoogle(cfg.GoogleClientID), st)
-	handler := server.New(log, st, svc).WithShareBaseURL(cfg.ShareBaseURL).Handler()
+	srv := server.New(log, st, svc).WithShareBaseURL(cfg.ShareBaseURL)
+	if cfg.ScheduleGroup != "" {
+		srv.WithReminders(reminders.NewReconciler(log, st, scheduler.NewFromConfig(awsCfg), reminders.Target{
+			Group:       cfg.ScheduleGroup,
+			FunctionARN: cfg.ReminderFunctionARN,
+			RoleARN:     cfg.SchedulerRoleARN,
+		}))
+	}
+	handler := srv.Handler()
 
 	// Lambda sets AWS_LAMBDA_RUNTIME_API for the runtime client.
 	if os.Getenv("AWS_LAMBDA_RUNTIME_API") != "" {

@@ -58,7 +58,9 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: lambda-zip
-          path: backend/bin/api.zip
+          path: |
+            backend/bin/api.zip
+            backend/bin/reminders.zip
           if-no-files-found: error
           # Must outlive the wait for prod's approval, which GitHub caps at 30 days.
           retention-days: 30

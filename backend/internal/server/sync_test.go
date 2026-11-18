@@ -70,6 +70,14 @@ func (failingStore) GetShare(context.Context, string) (store.Share, error) {
 	return store.Share{}, errors.New("dynamodb: throttled")
 }
 
+func (failingStore) PutDevice(context.Context, string, string, string, time.Time) error {
+	return errors.New("dynamodb: throttled")
+}
+
+func (failingStore) DeleteDevice(context.Context, string, string) error {
+	return errors.New("dynamodb: throttled")
+}
+
 func TestStoreFailureIsAServerError(t *testing.T) {
 	e := newSyncEnv(t, failingStore{}, slog.New(slog.DiscardHandler))
 	body, _ := json.Marshal(weighIns(1, 0, 1000))

@@ -21,7 +21,9 @@ type fakeStore struct {
 	// shares by id, and how many each owner published per UTC day.
 	shares      map[string]store.Share
 	shareCounts map[string]int
-	now         func() time.Time
+	// devices by user, then installation id → token.
+	devices map[string]map[string]string
+	now     func() time.Time
 }
 
 func newFakeStore() *fakeStore {
@@ -105,4 +107,24 @@ func (f *fakeStore) GetShare(_ context.Context, id string) (store.Share, error) 
 		return store.Share{}, store.ErrShareNotFound
 	}
 	return sh, nil
+}
+
+func (f *fakeStore) PutDevice(_ context.Context, userID, installationID, token string, _ time.Time) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.devices == nil {
+		f.devices = map[string]map[string]string{}
+	}
+	if f.devices[userID] == nil {
+		f.devices[userID] = map[string]string{}
+	}
+	f.devices[userID][installationID] = token
+	return nil
+}
+
+func (f *fakeStore) DeleteDevice(_ context.Context, userID, installationID string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	delete(f.devices[userID], installationID)
+	return nil
 }

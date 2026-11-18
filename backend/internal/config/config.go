@@ -31,6 +31,12 @@ type Config struct {
 	// ShareBaseURL is where shared links live, https://<distribution>.cloudfront.net
 	// (decision 100), set by Terraform. Empty: POST /shares answers no url.
 	ShareBaseURL string
+	// Reminder schedules (decision 105): the environment's schedule group, the
+	// reminder Lambda the schedules invoke and the role they invoke it with.
+	// All three or none; with none, settings sync but no schedule is made.
+	ScheduleGroup       string
+	ReminderFunctionARN string
+	SchedulerRoleARN    string
 }
 
 // Load reads the settings through getenv, normally os.Getenv.
@@ -45,6 +51,8 @@ type Config struct {
 //	DINOGYM_SESSION_KEY_PARAM  SSM parameter with the session signing key
 //	DINOGYM_SESSION_KEY        the signing key itself (laptop only)
 //	DINOGYM_SHARE_BASE_URL     base of shared links, no trailing slash
+//	DINOGYM_SCHEDULE_GROUP, DINOGYM_REMINDER_FUNCTION_ARN, DINOGYM_SCHEDULER_ROLE_ARN
+//	                           reminder schedules; all three or none
 //
 // Staging and prod need one of the two session key settings, not both. Locally
 // with neither, cmd/api makes a random key at start.
@@ -58,6 +66,13 @@ func Load(getenv func(string) string) (Config, error) {
 		SessionKeyParam: getenv("DINOGYM_SESSION_KEY_PARAM"),
 		SessionKey:      getenv("DINOGYM_SESSION_KEY"),
 		ShareBaseURL:    strings.TrimRight(getenv("DINOGYM_SHARE_BASE_URL"), "/"),
+
+		ScheduleGroup:       getenv("DINOGYM_SCHEDULE_GROUP"),
+		ReminderFunctionARN: getenv("DINOGYM_REMINDER_FUNCTION_ARN"),
+		SchedulerRoleARN:    getenv("DINOGYM_SCHEDULER_ROLE_ARN"),
+	}
+	if set := countSet(c.ScheduleGroup, c.ReminderFunctionARN, c.SchedulerRoleARN); set != 0 && set != 3 {
+		return Config{}, fmt.Errorf("set all of DINOGYM_SCHEDULE_GROUP, DINOGYM_REMINDER_FUNCTION_ARN and DINOGYM_SCHEDULER_ROLE_ARN, or none")
 	}
 	switch c.Env {
 	case "local", "staging", "prod":
@@ -100,6 +115,16 @@ func Load(getenv func(string) string) (Config, error) {
 		}
 	}
 	return c, nil
+}
+
+func countSet(vs ...string) int {
+	n := 0
+	for _, v := range vs {
+		if v != "" {
+			n++
+		}
+	}
+	return n
 }
 
 func orDefault(v, def string) string {

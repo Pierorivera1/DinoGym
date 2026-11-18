@@ -57,6 +57,7 @@ func TestRejectsBadValues(t *testing.T) {
 		{"DINOGYM_SESSION_KEY": "k", "DINOGYM_SESSION_KEY_PARAM": "/p"},
 		{"DINOGYM_ENV": "staging", "DINOGYM_SESSION_KEY_PARAM": "/p"},
 		{"DINOGYM_ENV": "staging", "DINOGYM_GOOGLE_CLIENT_ID": "id"},
+		{"DINOGYM_SCHEDULE_GROUP": "g", "DINOGYM_REMINDER_FUNCTION_ARN": "arn"},
 	} {
 		if _, err := Load(env(m)); err == nil {
 			t.Errorf("Load(%v) accepted a bad value", m)

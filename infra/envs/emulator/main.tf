@@ -24,9 +24,17 @@ provider "aws" {
 }
 
 module "dinogym" {
-  source     = "../../modules/dinogym"
-  env        = "staging"
-  lambda_zip = "${path.root}/../../../backend/bin/api.zip"
+  source        = "../../modules/dinogym"
+  env           = "staging"
+  lambda_zip    = "${path.root}/../../../backend/bin/api.zip"
+  reminders_zip = "${path.root}/../../../backend/bin/reminders.zip"
+  # The emulator cannot run the reminder Lambda (decision 14), so these are
+  # never used; the real values are in envs/staging.
+  fcm = {
+    project         = "dinogym-emulator"
+    audience        = "//iam.googleapis.com/projects/0/locations/global/workloadIdentityPools/dinogym-aws/providers/aws-account"
+    service_account = "fcm-sender@dinogym-emulator.iam.gserviceaccount.com"
+  }
   # Same as staging (decision 80). Public: it is in every ID token.
   google_client_id = "854486518090-7sc6gs4dmbuo5lgsm9ss9g0p0chedm9a.apps.googleusercontent.com"
   # Debug builds talk to staging (decision 81), so staging's links open the
