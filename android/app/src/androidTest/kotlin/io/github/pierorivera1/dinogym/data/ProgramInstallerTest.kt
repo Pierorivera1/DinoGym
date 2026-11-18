@@ -6,7 +6,12 @@ import io.github.pierorivera1.dinogym.data.seed.SeedResolver
 import io.github.pierorivera1.dinogym.data.seed.SeedStrings
 import io.github.pierorivera1.dinogym.data.seed.StarterKey
 import io.github.pierorivera1.dinogym.data.seed.StarterPrograms
+import io.github.pierorivera1.dinogym.domain.model.ExerciseIcon
+import io.github.pierorivera1.dinogym.domain.model.ExerciseKind
+import io.github.pierorivera1.dinogym.domain.model.ExerciseTemplate
 import io.github.pierorivera1.dinogym.domain.model.ProgramType
+import io.github.pierorivera1.dinogym.domain.model.RoutineItemTemplate
+import io.github.pierorivera1.dinogym.domain.model.RoutineTemplate
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -71,5 +76,31 @@ class ProgramInstallerTest {
         assertEquals(names[0] + " 2", names[1])
         // Exercises are shared between the two copies.
         assertEquals(10, t.exercises.observeExercises().first().size)
+    }
+
+    @Test
+    fun aSharedRoutineJoinsTheLibraryButNoProgram() = runTest {
+        t.seeder.seedIfNeeded()
+        val programsBefore = t.programs.observePrograms().first().size
+        val exercisesBefore = t.exercises.observeExercises().first()
+        val pullUps = exercisesBefore.single { it.name == "Pull-ups" }
+
+        // As a share from another phone: other case, another new exercise.
+        val id = t.installer.installRoutine(
+            RoutineTemplate(
+                name = "PULL",
+                items = listOf(
+                    RoutineItemTemplate(ExerciseTemplate("PULL-UPS", ExerciseIcon.PULL_UP, ExerciseKind.REPS), 3, 5, 8, 150),
+                    RoutineItemTemplate(ExerciseTemplate("Archer row", ExerciseIcon.ROW, ExerciseKind.REPS), 2, 6, 6, 90),
+                ),
+            ),
+        )
+
+        val routine = t.routines.observeRoutine(id).first()!!
+        assertEquals("PULL 2", routine.routine.name)
+        assertEquals(pullUps.id, routine.items[0].exercise.id)
+        assertEquals(listOf(3, 5, 8, 150), routine.items[0].routineExercise.let { listOf(it.sets, it.repMin, it.repMax, it.restSeconds) })
+        assertEquals(exercisesBefore.size + 1, t.exercises.observeExercises().first().size)
+        assertEquals(programsBefore, t.programs.observePrograms().first().size)
     }
 }

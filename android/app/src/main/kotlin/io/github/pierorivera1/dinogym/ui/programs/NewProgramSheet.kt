@@ -38,6 +38,8 @@ data class NewProgramActions(
     val onEmpty: () -> Unit,
     val onStarter: (StarterKey) -> Unit,
     val onClose: () -> Unit,
+    /** FROM A LINK: the import screen with a field for a shared link (task 23). */
+    val onFromLink: () -> Unit = {},
 ) {
     companion object {
         val None = NewProgramActions(onEmpty = {}, onStarter = {}, onClose = {})
@@ -48,7 +50,8 @@ data class NewProgramActions(
  * `+ NEW` on YOUR PROGRAMS (mock `NewProgram.dc.html`, decision 92): a window sheet with an
  * EMPTY PROGRAM row, then READY-MADE starter cards (name with type and days, routine and
  * exercise counts, the cycle strip). Tapping a starter copies it in and opens its editor; EMPTY PROGRAM
- * opens a new empty program, as `+ NEW` did before task 22.
+ * opens a new empty program, as `+ NEW` did before task 22. FROM A LINK (task 23) opens the
+ * import screen to paste a shared link.
  */
 @Composable
 internal fun NewProgramSheet(starters: List<StarterCardUi>, actions: NewProgramActions) {
@@ -63,6 +66,7 @@ internal fun NewProgramSheet(starters: List<StarterCardUi>, actions: NewProgramA
         ) {
             HelpText(stringResource(R.string.programs_new_sheet_help))
             EmptyProgramRow(actions.onEmpty)
+            SheetRow(stringResource(R.string.programs_new_from_link), stringResource(R.string.programs_new_from_link_meta), actions.onFromLink)
             SheetLabel(stringResource(R.string.programs_starters_label))
             starters.forEach { StarterCard(it, onClick = { actions.onStarter(it.key) }) }
             HelpText(stringResource(R.string.programs_starters_source))
@@ -118,9 +122,13 @@ private fun StarterCard(card: StarterCardUi, onClick: () -> Unit) {
 }
 
 @Composable
-private fun EmptyProgramRow(onClick: () -> Unit) {
+private fun EmptyProgramRow(onClick: () -> Unit) =
+    SheetRow(stringResource(R.string.programs_new_empty), stringResource(R.string.programs_new_empty_meta), onClick)
+
+/** A row with a title, a muted line and a chevron: EMPTY PROGRAM and FROM A LINK. */
+@Composable
+private fun SheetRow(title: String, meta: String, onClick: () -> Unit) {
     val colors = DinoTheme.colors
-    val meta = stringResource(R.string.programs_new_empty_meta)
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -135,7 +143,7 @@ private fun EmptyProgramRow(onClick: () -> Unit) {
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(
-                stringResource(R.string.programs_new_empty),
+                title,
                 style = DinoTheme.type.button.copy(fontSize = 18.sp),
                 color = colors.outline,
             )

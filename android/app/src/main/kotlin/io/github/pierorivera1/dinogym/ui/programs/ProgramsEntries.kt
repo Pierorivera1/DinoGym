@@ -7,6 +7,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.pierorivera1.dinogym.ui.share.ShareSheetHost
+import io.github.pierorivera1.dinogym.ui.share.ShareTarget
+import io.github.pierorivera1.dinogym.ui.share.ShareViewModel
 
 // The Programs screens as navigation entries: each joins its ViewModel to its stateless
 // screen. Navigation itself stays in the app shell, which passes the callbacks. Edits
@@ -21,6 +24,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun ProgramListEntry(
     onOpenProgram: (programId: String, isNew: Boolean) -> Unit,
     onOpenRoutine: (routineId: String, isNew: Boolean) -> Unit,
+    onOpenLink: () -> Unit,
     viewModel: ProgramListViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -32,6 +36,10 @@ fun ProgramListEntry(
             onEmpty = { viewModel.createProgram { onOpenProgram(it, true) } },
             onStarter = { key -> viewModel.installStarter(key) { onOpenProgram(it, false) } },
             onClose = viewModel::closeNewProgram,
+            onFromLink = {
+                viewModel.closeNewProgram()
+                onOpenLink()
+            },
         ),
         onNewRoutine = { viewModel.createRoutine { onOpenRoutine(it, true) } },
         onOpenProgram = { onOpenProgram(it, false) },
@@ -46,10 +54,12 @@ fun ProgramEditEntry(
     isNew: Boolean,
     onBack: () -> Unit,
     onOpenRoutine: (routineId: String, isNew: Boolean) -> Unit,
+    onOpenSettings: () -> Unit,
     viewModel: ProgramEditViewModel = hiltViewModel<ProgramEditViewModel, ProgramEditViewModel.Factory>(
         key = programId,
         creationCallback = { factory -> factory.create(programId) },
     ),
+    share: ShareViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) { viewModel.flush() }
@@ -73,9 +83,14 @@ fun ProgramEditEntry(
             onCloseSheet = viewModel::closeSheet,
             onUndo = viewModel::undoRemove,
             onUndoTimeout = viewModel::dismissUndo,
+            onShare = {
+                viewModel.flush()
+                share.share(ShareTarget.Program(programId))
+            },
         ),
         focusName = isNew,
     )
+    ShareSheetHost(name = state.name, onOpenSettings = onOpenSettings, viewModel = share)
 }
 
 /**
@@ -88,10 +103,12 @@ fun RoutineEditEntry(
     isNew: Boolean,
     onBack: () -> Unit,
     onOpenExercise: (exerciseId: String) -> Unit,
+    onOpenSettings: () -> Unit,
     viewModel: RoutineEditViewModel = hiltViewModel<RoutineEditViewModel, RoutineEditViewModel.Factory>(
         key = routineId,
         creationCallback = { factory -> factory.create(routineId) },
     ),
+    share: ShareViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) { viewModel.flush() }
@@ -125,7 +142,12 @@ fun RoutineEditEntry(
                 onNewExercise = { viewModel.createExercise(onOpenExercise) },
                 onAdd = viewModel::addSelected,
             ),
+            onShare = {
+                viewModel.flush()
+                share.share(ShareTarget.Routine(routineId))
+            },
         ),
         focusName = isNew,
     )
+    ShareSheetHost(name = state.name, onOpenSettings = onOpenSettings, viewModel = share)
 }
