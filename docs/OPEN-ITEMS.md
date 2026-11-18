@@ -26,7 +26,6 @@ As of 2026-11-17. Remove an item when it is done or decided, and record decision
 - [ ] On a phone, for the Exercises screens: drag to reorder, keyboard and focus, and that edits reach the database
 - [ ] With the system font at 130%, long button labels are cut off (`EMPEZAR PULL` shows as `EMPEZAR`). No shorter Spanish verb exists, so this needs a layout fix
 - [ ] On a phone, for tasks 7–11: drag to reorder in the cycle and routine editors, the exercise picker → exercise editor round trip, editing a past set, the theme switch, the kg keyboard on a weigh-in, Back closing sheets, TalkBack on the new screens
-- [ ] On a phone, for task 20: sign in, sign out, kill and reopen (the session persists), airplane mode (sign-in shows the offline message, nothing else changes). Needs a local debug or a release build (decision 81)
 - [ ] When Night or Day is forced against the phone's dark mode, the window background shows the phone's mode for a moment at launch (decision 46)
 
 - [ ] The AWS free-tier terms for a new account (AWS changed them in 2025); [WISHLIST.md](WISHLIST.md) assumes the always-free allowances
