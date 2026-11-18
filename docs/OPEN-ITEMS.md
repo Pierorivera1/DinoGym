@@ -23,7 +23,6 @@ As of 2026-11-17. Remove an item when it is done or decided, and record decision
 - [ ] Bump the pinned AWS Emulator version from time to time; security fixes only reach the latest release (decision 57)
 - [ ] On staging: a full 500-row push finishes well inside the Lambda's 10 s timeout, and a 3,000-row first upload is not throttled (10 requests a second, decision 67). The emulator cannot show either (decisions 86–87)
 
-- [ ] On a phone, for sync (task 21): sync between the phone and a second device or a reinstall; first-sign-in upload of the full history; airplane mode → changes waiting → back online → synced
 - [ ] A second phone or a reinstall that signs in gets two copies of the seeded program, since every install seeds it with new ids (decision 90). Delete one by hand, or give seed rows fixed ids
 - [ ] On a phone: Back handling in a workout, the notification permission prompt, the rest alarm and its sound with the screen off, resume after the app is killed, the scroll picker. None of these can be checked on the laptop
 - [ ] On a phone, for the Exercises screens: drag to reorder, keyboard and focus, and that edits reach the database
