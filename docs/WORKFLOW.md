@@ -30,6 +30,7 @@ The findings below were **run and checked on 2026-11-17 with version 1.0.491**. 
 | Lambda: create, configure, mark `Active` | Works for any runtime, so Terraform can manage our function |
 | Terraform (AWS provider **6.22.0**): DynamoDB table, SQS queue, S3 bucket, IAM role and policy, schedule | `apply`, a second `plan` with no changes, and `destroy` all work. Probe config: [../infra/emulator/terraform-check/](../infra/emulator/terraform-check/) |
 | Terraform for our stack (task 17): the above plus API Gateway HTTP API (route, `$default` stage, throttling), Lambda with JSON logging, CloudWatch log group, SSM SecureString, DynamoDB point-in-time recovery and deletion protection | Same: `apply`, an empty second `plan`, drift reverted, `destroy`. Checked 2026-11-17. Config: [../infra/envs/emulator/](../infra/envs/emulator/) ([../infra/README.md](../infra/README.md)) |
+| CloudFront and S3 for shared links (task 23): bucket with origin access control, CloudFront Function, cache and response headers policies, distribution with an S3 and an API Gateway origin | `apply`, an empty second `plan`, `destroy`. The emulator also **serves** the distribution on a port inside its container: the function's rewrite, OAC to S3, the GET-only behaviour, the HTTPS redirect and the response headers all behave, and `check.sh` requests them with `docker exec` (decision 101). Checked 2026-11-18 |
 
 ### What does not work
 
@@ -41,7 +42,7 @@ The findings below were **run and checked on 2026-11-17 with version 1.0.491**. 
 ### How we test around the gaps
 
 - The Go code is tested as ordinary Go, with its AWS calls going to the emulator: `go test -p 2 -tags integration ./internal/store/ ./internal/server/ ./internal/awstest/` after `source infra/emulator/env.sh` (decision 65).
-- The Lambda path, real permissions and CloudFront are covered by staging on real AWS.
+- The Lambda path and real permissions are covered by staging on real AWS. CloudFront's configuration is checked on the emulator, but only staging proves real CloudFront and S3, the bucket policy, and the Lambda answering through `/shares/*` (`deploy.yml` requests the page, `assetlinks.json` and a share there).
 
 ### What we may claim
 

@@ -29,8 +29,21 @@ module "dinogym" {
   lambda_zip = "${path.root}/../../../backend/bin/api.zip"
   # Same as staging (decision 80). Public: it is in every ID token.
   google_client_id = "854486518090-7sc6gs4dmbuo5lgsm9ss9g0p0chedm9a.apps.googleusercontent.com"
+  # Debug builds talk to staging (decision 81), so staging's links open the
+  # debug app. Both laptop debug keys (decision 85). Public: in every APK.
+  app_links = [{
+    package_name = "io.github.pierorivera1.dinogym.debug"
+    sha256_cert_fingerprints = [
+      "1C:17:F4:61:4A:14:F8:AE:9A:79:84:9B:F0:BB:97:06:D1:F9:4D:2E:30:3C:1C:AF:65:DB:31:30:94:CB:5E:79", # ~/.android/debug.keystore
+      "3B:77:9E:78:9E:69:F2:CA:C6:28:9B:69:D2:63:37:DB:96:70:6F:F4:AD:C0:48:96:53:54:7F:EC:32:EE:33:B2", # Android Studio's debug key
+    ]
+  }]
 }
 
 output "api_url" {
   value = module.dinogym.api_url
+}
+
+output "web_url" {
+  value = module.dinogym.web_url
 }

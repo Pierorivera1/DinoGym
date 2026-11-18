@@ -13,6 +13,9 @@ on:
       - "api/**"
       - "backend/**"
       - "infra/**"
+      # The shared link page, and the app font it serves (infra/modules/dinogym/web.tf).
+      - "web/**"
+      - "android/app/src/main/res/font/pixelify_sans.ttf"
       - ".github/workflows/infra.yml"
   workflow_call:
   workflow_dispatch:
