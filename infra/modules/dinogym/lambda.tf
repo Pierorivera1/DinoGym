@@ -42,6 +42,15 @@ resource "aws_iam_role_policy" "api" {
         Action   = "ssm:GetParameters"
         Resource = local.secret_arns
       },
+      # SecureString values are decrypted with the AWS-managed aws/ssm key on
+      # the caller's behalf. Only through SSM, which the statement above limits
+      # to our two parameters (decision 79).
+      {
+        Effect    = "Allow"
+        Action    = "kms:Decrypt"
+        Resource  = "arn:aws:kms:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:key/*"
+        Condition = { StringEquals = { "kms:ViaService" = "ssm.${data.aws_region.current.region}.amazonaws.com" } }
+      },
     ]
   })
 }
@@ -74,6 +83,9 @@ resource "aws_lambda_function" "api" {
       DINOGYM_ENV       = var.env
       DINOGYM_TABLE     = aws_dynamodb_table.main.name
       DINOGYM_TELEMETRY = "none" # Grafana Cloud is wired up in task 26 (decision 64)
+      # Decisions 79 and 80. The key itself is read from SSM at cold start.
+      DINOGYM_GOOGLE_CLIENT_ID  = var.google_client_id
+      DINOGYM_SESSION_KEY_PARAM = local.session_key_param
     }
   }
 

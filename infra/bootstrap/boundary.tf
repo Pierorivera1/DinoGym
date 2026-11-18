@@ -47,6 +47,15 @@ resource "aws_iam_policy" "boundary" {
           "arn:aws:ssm:us-east-1:${local.account_id}:parameter/dinogym-${each.key}/grafana-token",
         ]
       },
+      {
+        # Decrypting those SecureStrings with the AWS-managed aws/ssm key, and
+        # only through SSM (decision 79).
+        Sid       = "DecryptOwnSecretsViaSSM"
+        Effect    = "Allow"
+        Action    = "kms:Decrypt"
+        Resource  = "arn:aws:kms:us-east-1:${local.account_id}:key/*"
+        Condition = { StringEquals = { "kms:ViaService" = "ssm.us-east-1.amazonaws.com" } }
+      },
     ]
   })
 }

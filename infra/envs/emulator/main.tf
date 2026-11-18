@@ -27,6 +27,8 @@ module "dinogym" {
   source     = "../../modules/dinogym"
   env        = "staging"
   lambda_zip = "${path.root}/../../../backend/bin/api.zip"
+  # Same as staging (decision 80). Public: it is in every ID token.
+  google_client_id = "854486518090-7sc6gs4dmbuo5lgsm9ss9g0p0chedm9a.apps.googleusercontent.com"
 }
 
 output "api_url" {

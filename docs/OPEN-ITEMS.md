@@ -7,7 +7,7 @@ As of 2026-11-17. Remove an item when it is done or decided, and record decision
 - [x] Install Go (mise, 1.27.4, decision 37)
 - [x] Install Terraform (mise, v1.17.2)
 - [ ] Before 2027-03-18 the AWS free plan ends: either the AWS side is torn down by then (planned for 2027-02-01, decision 76) or the account is upgraded to a paid plan
-- [ ] Before tasks 20 and 26 read them: create `/dinogym-<env>/session-signing-key` and `/dinogym-<env>/grafana-token` with `aws ssm put-parameter --type SecureString` (decision 69)
+- [ ] Before task 26 reads it: create `/dinogym-<env>/grafana-token` with `aws ssm put-parameter --type SecureString` (decision 69). The session signing keys for staging and prod exist (task 20)
 - [x] Create a Firebase project: `DinoGym`, project ID `dinogym-3870b`. The Android app is added to it later, once the package name and signing key exist.
 - [x] Create a Grafana Cloud account (free tier). Tokens are created later, when observability is wired up.
 - [ ] Back up the release signing key, `~/.config/dinogym/` (both files), to a password manager. Without it no update installs over the app ([RELEASE.md](RELEASE.md), decision 45)

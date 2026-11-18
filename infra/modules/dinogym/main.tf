@@ -37,6 +37,14 @@ resource "aws_dynamodb_table" "main" {
   point_in_time_recovery {
     enabled = var.protect_data
   }
+
+  # Decision 79: refresh tokens and session families carry ttl (epoch seconds)
+  # and DynamoDB deletes them after it, at no cost. The code checks expiry
+  # itself, since deletion can lag by a day or two.
+  ttl {
+    attribute_name = "ttl"
+    enabled        = true
+  }
 }
 
 # Decision 54: the secrets are SSM SecureString parameters that the owner
@@ -47,6 +55,7 @@ data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
 locals {
+  session_key_param = "/${local.name}/session-signing-key"
   secret_arns = [
     for s in ["session-signing-key", "grafana-token"] :
     "arn:aws:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter/${local.name}/${s}"

@@ -24,6 +24,8 @@ func TestProdIsQuietAndOTLPFollowsTheEndpoint(t *testing.T) {
 	c, err := Load(env(map[string]string{
 		"DINOGYM_ENV":                 "prod",
 		"OTEL_EXPORTER_OTLP_ENDPOINT": "https://otlp.example",
+		"DINOGYM_GOOGLE_CLIENT_ID":    "web.apps.googleusercontent.com",
+		"DINOGYM_SESSION_KEY_PARAM":   "/dinogym-prod/session-signing-key",
 	}))
 	if err != nil {
 		t.Fatal(err)
@@ -52,6 +54,9 @@ func TestRejectsBadValues(t *testing.T) {
 		{"DINOGYM_ENV": "dev"},
 		{"DINOGYM_LOG_LEVEL": "loud"},
 		{"DINOGYM_TELEMETRY": "grpc"},
+		{"DINOGYM_SESSION_KEY": "k", "DINOGYM_SESSION_KEY_PARAM": "/p"},
+		{"DINOGYM_ENV": "staging", "DINOGYM_SESSION_KEY_PARAM": "/p"},
+		{"DINOGYM_ENV": "staging", "DINOGYM_GOOGLE_CLIENT_ID": "id"},
 	} {
 		if _, err := Load(env(m)); err == nil {
 			t.Errorf("Load(%v) accepted a bad value", m)
