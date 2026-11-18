@@ -62,6 +62,28 @@ class SessionManagerTest {
     }
 
     @Test
+    fun aTokenTheApiRejected_isRefreshed_evenIfTheClockSaysItIsValid() = runTest {
+        val server = FakeServer { session("access-2", 2_000_000, "refresh-2") }
+        val store = FakeSessionStore(storedSession())
+
+        val result = manager(store, server).accessToken(rejected = "access-1")
+
+        assertEquals(AccessTokenResult.Token("access-2"), result)
+        assertEquals(1, server.requestsTo("/auth/refresh").size)
+    }
+
+    @Test
+    fun aRejectedTokenThatWasAlreadyReplaced_isNotRefreshedAgain() = runTest {
+        val server = FakeServer { error("no request expected") }
+        val store = FakeSessionStore(storedSession(access = "access-2"))
+
+        val result = manager(store, server).accessToken(rejected = "access-1")
+
+        assertEquals(AccessTokenResult.Token("access-2"), result)
+        assertTrue(server.requests.isEmpty())
+    }
+
+    @Test
     fun aTokenAboutToExpire_isRefreshed_andTheNewPairIsStored() = runTest {
         val server = FakeServer { session("access-2", 2_000_000, "refresh-2") }
         val store = FakeSessionStore(storedSession())

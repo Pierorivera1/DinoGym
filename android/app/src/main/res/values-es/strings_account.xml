@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Account (task 20). Copy from Account.dc.html. -->
+<!-- Account (tasks 20 and 21). Copy from Account.dc.html. -->
 <resources>
     <string name="account_label">CUENTA</string>
 
@@ -13,9 +13,32 @@
     <string name="account_error_offline">Sin conexión. Vuelve a intentarlo cuando tengas internet.</string>
     <string name="account_error_failed">No se pudo iniciar sesión. Vuelve a intentarlo más tarde.</string>
 
-    <string name="account_signed_in_note">Tus entrenos se guardan en este celular. La sincronización con tu cuenta llega en la próxima actualización.</string>
+    <string name="account_signed_in_note">Tus entrenos se guardan en este celular y en tu cuenta. Se sincronizan solos cuando hay conexión.</string>
+    <string name="account_offline_note">Se sincronizan solos cuando vuelvas a tener conexión.</string>
+    <string name="account_failed_note">DinoGym lo vuelve a intentar solo. Tus entrenos están a salvo en este celular.</string>
+    <string name="account_sync_now">SINCRONIZAR</string>
     <string name="account_sign_out">CERRAR SESIÓN</string>
+
+    <string name="sync_synced">Sincronizado</string>
+    <string name="sync_syncing">Sincronizando…</string>
+    <string name="sync_offline">Sin conexión</string>
+    <string name="sync_waiting">Por sincronizar</string>
+    <string name="sync_failed">Error al sincronizar</string>
+    <string name="sync_ago_now">· hace un momento</string>
+    <string name="sync_ago_minutes">· hace %d min</string>
+    <string name="sync_ago_hours">· hace %d h</string>
+    <string name="sync_ago_days">· hace %d d</string>
+    <plurals name="sync_changes_waiting">
+        <item quantity="one">· %d cambio en espera</item>
+        <item quantity="many">· %d cambios en espera</item>
+        <item quantity="other">· %d cambios en espera</item>
+    </plurals>
 
     <string name="account_sign_out_title">¿CERRAR SESIÓN?</string>
     <string name="account_sign_out_body">Tus entrenos se quedan en este celular.</string>
+    <plurals name="account_sign_out_body_pending">
+        <item quantity="one">Tus entrenos se quedan en este celular. %d cambio aún no se sincroniza: se sincronizará la próxima vez que entres con esta cuenta.</item>
+        <item quantity="many">Tus entrenos se quedan en este celular. %d cambios aún no se sincronizan: se sincronizarán la próxima vez que entres con esta cuenta.</item>
+        <item quantity="other">Tus entrenos se quedan en este celular. %d cambios aún no se sincronizan: se sincronizarán la próxima vez que entres con esta cuenta.</item>
+    </plurals>
 </resources>

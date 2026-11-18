@@ -15,6 +15,7 @@ import io.github.pierorivera1.dinogym.data.local.PreferenceDao
 import io.github.pierorivera1.dinogym.data.local.ProgramDao
 import io.github.pierorivera1.dinogym.data.local.RoutineDao
 import io.github.pierorivera1.dinogym.data.local.SessionDao
+import io.github.pierorivera1.dinogym.data.local.SyncTracking
 import io.github.pierorivera1.dinogym.data.local.WeighInDao
 import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Singleton
@@ -36,6 +37,8 @@ object DatabaseModule {
             .setQueryCoroutineContext(io)
             // Real migrations only: the app holds workout history, so it never falls back to a wipe.
             .addMigrations(*ALL_MIGRATIONS.toTypedArray())
+            // The triggers that mark changed rows for sync (task 21).
+            .addCallback(SyncTracking.callback)
             .build()
 
     @Provides

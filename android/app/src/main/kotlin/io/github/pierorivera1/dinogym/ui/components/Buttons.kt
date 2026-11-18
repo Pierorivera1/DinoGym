@@ -93,7 +93,8 @@ fun PrimaryButton(
 
 /**
  * A secondary action (SKIP, NOTE, the rest time): `surface` fill, `action` border.
- * The optional [icon] is drawn in the `action` colour, as in the mocks.
+ * The optional [icon] is drawn in the `action` colour, as in the mocks. Disabled ([enabled]
+ * false, SYNC NOW offline): the same look as a disabled [PrimaryButton].
  */
 @Composable
 fun SecondaryButton(
@@ -101,10 +102,17 @@ fun SecondaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int? = null,
+    enabled: Boolean = true,
 ) {
     val colors = DinoTheme.colors
-    RaisedBox(onClick, colors.surface, colors.action, modifier.height(56.dp)) {
-        ButtonContent(text, icon, textColor = colors.outline, iconColor = colors.action)
+    if (enabled) {
+        RaisedBox(onClick, colors.surface, colors.action, modifier.height(56.dp)) {
+            ButtonContent(text, icon, textColor = colors.outline, iconColor = colors.action)
+        }
+    } else {
+        RaisedBox(onClick, colors.surface, colors.surface2, modifier.height(56.dp), enabled = false) {
+            ButtonContent(text, icon, textColor = colors.muted, iconColor = colors.muted)
+        }
     }
 }
 

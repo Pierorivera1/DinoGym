@@ -18,6 +18,8 @@ On the laptop, run one test class at a time (`--tests '<Class>'`) and never the 
 
 Sign-in is optional and lives only in Settings › ACCOUNT; nothing else needs an account. The app gets a Google ID token from Credential Manager, exchanges it at `/auth/google` for a DinoGym session, and keeps that session encrypted with a key in the Android Keystore (decisions 81–83). The code is in `app/src/main/kotlin/.../data/account/`.
 
+While signed in, the app syncs in the background with WorkManager: SQLite triggers mark every changed row in `sync_pending`, and `data/sync/SyncEngine` pushes those rows and pulls newer ones (decisions 88–91). The first sign-in uploads the whole history. Settings › ACCOUNT shows the sync state and SYNC NOW. Debug builds sync with staging, release builds with prod.
+
 | Build | API | Can sign in |
 |---|---|---|
 | Debug, built on the laptop | staging, `https://ypn4asfnil.execute-api.us-east-1.amazonaws.com` | Yes, when the laptop's debug key SHA-1 is registered for the Android OAuth client |

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Account (task 20): the ACCOUNT section of Settings and the sign-out dialog. Copy from Account.dc.html. -->
+<!-- Account (tasks 20 and 21): the ACCOUNT section of Settings, its sync row and the sign-out dialog. Copy from Account.dc.html. -->
 <resources>
     <string name="account_label">ACCOUNT</string>
 
@@ -15,11 +15,33 @@
     <string name="account_error_offline">No connection. Try again when you are online.</string>
     <string name="account_error_failed">Sign-in did not work. Try again later.</string>
 
-    <!-- Signed in. The sync status row and SYNC NOW come with sync (task 21). -->
-    <string name="account_signed_in_note">Your workouts are saved on this phone. Syncing them to your account comes with the next update.</string>
+    <!-- Signed in. -->
+    <string name="account_signed_in_note">Your workouts are saved on this phone and in your account. They sync on their own when you are online.</string>
+    <string name="account_offline_note">They sync on their own when you are back online.</string>
+    <string name="account_failed_note">DinoGym tries again on its own. Your workouts are safe on this phone.</string>
+    <string name="account_sync_now">SYNC NOW</string>
     <string name="account_sign_out">SIGN OUT</string>
+
+    <!-- The sync status row (task 21). The detail follows the title, after a middle dot. -->
+    <string name="sync_synced">Synced</string>
+    <string name="sync_syncing">Syncing…</string>
+    <string name="sync_offline">Offline</string>
+    <string name="sync_waiting">Waiting to sync</string>
+    <string name="sync_failed">Sync failed</string>
+    <string name="sync_ago_now">· just now</string>
+    <string name="sync_ago_minutes">· %d min ago</string>
+    <string name="sync_ago_hours">· %d h ago</string>
+    <string name="sync_ago_days">· %d d ago</string>
+    <plurals name="sync_changes_waiting">
+        <item quantity="one">· %d change waiting</item>
+        <item quantity="other">· %d changes waiting</item>
+    </plurals>
 
     <!-- Sign-out dialog. -->
     <string name="account_sign_out_title">SIGN OUT?</string>
     <string name="account_sign_out_body">Your workouts stay on this phone.</string>
+    <plurals name="account_sign_out_body_pending">
+        <item quantity="one">Your workouts stay on this phone. %d change has not synced yet: it syncs the next time you sign in with this account.</item>
+        <item quantity="other">Your workouts stay on this phone. %d changes have not synced yet: they sync the next time you sign in with this account.</item>
+    </plurals>
 </resources>

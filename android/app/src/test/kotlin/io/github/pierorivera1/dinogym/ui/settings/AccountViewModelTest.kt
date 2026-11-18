@@ -8,6 +8,11 @@ import io.github.pierorivera1.dinogym.data.account.GoogleCredentialResult
 import io.github.pierorivera1.dinogym.data.account.MutableClock
 import io.github.pierorivera1.dinogym.data.account.SessionManager
 import io.github.pierorivera1.dinogym.data.account.storedSession
+import io.github.pierorivera1.dinogym.data.sync.LocalSyncState
+import io.github.pierorivera1.dinogym.data.sync.SyncSnapshot
+import io.github.pierorivera1.dinogym.data.sync.SyncStatus
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.HttpResponseData
@@ -33,6 +38,17 @@ import java.net.UnknownHostException
 class AccountViewModelTest {
 
     private val store = FakeSessionStore()
+    private val clock = MutableClock(10 * 60_000)
+
+    /** Sync's inputs, set by each test. By default: online, idle, synced just now. */
+    private val sync = object : SyncStatus {
+        val state = MutableStateFlow(SyncSnapshot(LocalSyncState(lastSyncedAt = clock.millis)))
+        var syncNowCalls = 0
+        override val snapshot: Flow<SyncSnapshot> = state
+        override fun syncNow() {
+            syncNowCalls++
+        }
+    }
 
     @Before
     fun setUp() {
@@ -47,7 +63,7 @@ class AccountViewModelTest {
     private fun TestScope.viewModel(
         server: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData = { error("no request expected") },
     ): AccountViewModel {
-        val vm = AccountViewModel(SessionManager(store, FakeServer(server).api.auth, MutableClock(0)))
+        val vm = AccountViewModel(SessionManager(store, FakeServer(server).api.auth, clock), sync, clock)
         // stateIn(WhileSubscribed) needs a collector.
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
         return vm
@@ -152,5 +168,68 @@ class AccountViewModelTest {
 
         assertTrue(vm.state.first { it is AccountUiState.SignedOut } is AccountUiState.SignedOut)
         assertNull(store.state.value)
+    }
+
+    // The sync row (task 21)
+
+    private suspend fun TestScope.signedIn(): AccountUiState.SignedIn {
+        store.state.value = storedSession()
+        val vm = viewModel()
+        return vm.state.first { it is AccountUiState.SignedIn } as AccountUiState.SignedIn
+    }
+
+    @Test
+    fun syncedTwoMinutesAgo() = runTest {
+        sync.state.value = SyncSnapshot(LocalSyncState(lastSyncedAt = clock.millis - 2 * 60_000 - 5_000))
+
+        val state = signedIn()
+
+        assertEquals(SyncRowState.Synced(minutesAgo = 2), state.sync)
+        assertTrue(state.canSyncNow)
+    }
+
+    @Test
+    fun offlineWithChangesWaiting_disablesSyncNow_andTellsTheSignOutDialog() = runTest {
+        sync.state.value = SyncSnapshot(LocalSyncState(pending = 3, lastSyncedAt = 0), online = false)
+
+        val state = signedIn()
+
+        assertEquals(SyncRowState.Offline(pending = 3), state.sync)
+        assertEquals(false, state.canSyncNow)
+        assertEquals(3, state.pendingChanges)
+    }
+
+    @Test
+    fun aRunInProgress_showsSyncing_andDisablesSyncNow() = runTest {
+        sync.state.value = SyncSnapshot(LocalSyncState(pending = 3), running = true)
+
+        val state = signedIn()
+
+        assertEquals(SyncRowState.Syncing, state.sync)
+        assertEquals(false, state.canSyncNow)
+    }
+
+    @Test
+    fun aFailedRun_showsTheError_untilASuccess() = runTest {
+        sync.state.value = SyncSnapshot(LocalSyncState(pending = 1, lastSyncedAt = 0, failed = true))
+
+        assertEquals(SyncRowState.Failed(pending = 1), signedIn().sync)
+    }
+
+    @Test
+    fun onlineWithChangesNotSentYet_isWaiting() = runTest {
+        sync.state.value = SyncSnapshot(LocalSyncState(pending = 2, lastSyncedAt = 0))
+
+        assertEquals(SyncRowState.Waiting(pending = 2), signedIn().sync)
+    }
+
+    @Test
+    fun syncNow_asksTheScheduler() = runTest {
+        store.state.value = storedSession()
+        val vm = viewModel()
+
+        vm.syncNow()
+
+        assertEquals(1, sync.syncNowCalls)
     }
 }

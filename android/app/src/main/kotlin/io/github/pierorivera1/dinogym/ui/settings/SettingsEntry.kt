@@ -48,6 +48,7 @@ fun SettingsEntry(
             onAskSignOut = accountViewModel::askSignOut,
             onCancelSignOut = accountViewModel::cancelSignOut,
             onConfirmSignOut = accountViewModel::confirmSignOut,
+            onSyncNow = accountViewModel::syncNow,
         ),
     )
 }
