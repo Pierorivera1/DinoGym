@@ -12,6 +12,12 @@ As of 2026-11-18. Remove an item when it is done or decided, and record decision
 - [x] Create a Grafana Cloud account (free tier). Tokens are created later, when observability is wired up.
 - [ ] Back up the release signing key, `~/.config/dinogym/` (both files), to a password manager. Without it no update installs over the app ([RELEASE.md](RELEASE.md), decision 45)
 
+## Task 24: to do and to verify
+
+- [ ] The owner reviews `Reminders.dc.html` before the REMINDERS section is built (decision 16)
+- [ ] The owner installs the Google Cloud CLI and applies `infra/google/` (decision 107), then registers the Android app (`io.github.pierorivera1.dinogym` and `.debug`) in the Firebase project `dinogym-3870b`
+- [ ] On staging: a schedule fires, the federation token exchange works and a phone receives both reminders
+
 ## Task 23: to do and to verify
 
 - [ ] On a phone: App Links verify (`adb shell pm get-app-links io.github.pierorivera1.dinogym.debug` shows `d1q286cdeyw8ks.cloudfront.net: verified`)

@@ -36,7 +36,8 @@ Decision 16 still applies: a screen is built only after its mock is approved.
 | Shared link page (web, `/r/<id>`): program and routine, loading, unknown link, error, not on Android | `SharePage.dc.html` | Mocked 2026-11-18, awaiting the owner's review. Built (task 23) |
 | Share a routine or program: SHARE button in the editors and the share sheet's states | `ShareFlow.dc.html` | Mocked 2026-11-18, awaiting the owner's review. Built (task 23) |
 | Import a shared link: paste, preview of a program or routine, loading and error states | `ImportShare.dc.html` | Mocked 2026-11-18, awaiting the owner's review. Built (task 23) |
-| Reminders, web dashboard | – | Later |
+| Reminders: Settings › REMINDERS (signed in, signed out, notifications blocked), the time sheet, the notifications | `Reminders.dc.html` | Mocked 2026-11-18, awaiting the owner's review (task 24, decisions 104–107) |
+| Web dashboard | – | Later |
 
 The build order in [ARCHITECTURE.md](ARCHITECTURE.md) is arranged so the code that has no screen, and the approved screens, are built while the remaining mocks are made.
 
@@ -172,6 +173,8 @@ These record behaviour shown in the mocks of 2026-11-16 that await review:
 
 - **Share (task 23, decision 103):** a secondary `SHARE ROUTINE` / `SHARE PROGRAM` button with the new share icon (`ic_px_share`) ends the routine editor's list and sits under the program editor's cycle. Its window sheet, SHARE: "Making the link…"; the link in a `bg` box with CLOSE and SEND LINK (Android's share sheet); signed out, with CANCEL and SETTINGS; offline and errors with TRY AGAIN; the limits (20 a day, too big, no routine in the cycle) in `danger` with CLOSE.
 - **Import (task 23, decision 102):** a pushed screen, IMPORT, with the top bar. Paste: a SHARED LINK field and OPEN LINK, with an error under the field when the text holds no link. Preview: SHARED PROGRAM / SHARED ROUTINE, the name in `title` 28sp, type and days or the exercise count, the mascot text box saying what ADD does (and whether the program becomes active), the compact cycle strip, one card per routine with 40dp exercise tiles and `sets × reps · rest`, a filled NEW tag on exercises the library lacks, then ADD PROGRAM / ADD ROUTINE fixed at the bottom (ADDING… while it writes). The `+ NEW` program sheet of task 22 gains a FROM A LINK row under EMPTY PROGRAM.
+
+- **Reminders (task 24, decision 104):** a REMINDERS section between ACCOUNT and THEME. Signed in: a card with two rows, each a title, a one-line explanation and a Switch: Workout day (with a secondary TIME button under it showing the time in the phone's 12 or 24-hour format) and Weekly summary (Sundays at 20:00). A note under the card says reminders follow the account and the phone's time zone. TIME opens a window sheet with the scroll picker (HOUR, MIN in 5-minute steps) and SAVE. Signed out: a muted card with the bell icon saying to sign in under ACCOUNT. When Android blocks DinoGym's notifications: a `danger` line and ALLOW NOTIFICATIONS at the top of the card (asks, or opens the app's notification settings once asking is no longer allowed). The notifications are drawn by Android, with the bell as the small icon in `primary`.
 
 ## Theme setting
 

@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reminders</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1760px; height: 960px; box-sizing: border-box; background: #E4E0EA; padding: 40px; display: flex; gap: 40px; font-family: Inter, sans-serif">
+
+  <!-- 1 · Settings › REMINDERS, signed in, both on (Night, English) -->
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">NIGHT · ENGLISH · SIGNED IN</div>
+    <div style="width: 390px; height: 844px; box-sizing: border-box; background: #0C0915; color: #F4F2F7; padding: 0 16px 20px; display: flex; flex-direction: column; gap: 16px; overflow: hidden">
+      <header style="height: 56px; flex-shrink: 0; display: grid; grid-template-columns: 48px 1fr 48px; gap: 8px; align-items: center">
+        <a href="Home.dc.html" aria-label="Back to home" style="width: 48px; height: 48px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: #1C1430; border: 2px solid #F0A030; clip-path: {{n}}; box-shadow: inset 0 2px 0 rgba(255,255,255,0.22), inset 0 -4px 0 rgba(0,0,0,0.45)"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.back}}" fill="#F0A030"></path></svg></a>
+        <h1 style="margin: 0; text-align: center; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 22px">SETTINGS</h1>
+        <span></span>
+      </header>
+
+      <section style="display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #A39BB6">ACCOUNT</span>
+        <div style="padding: 14px; display: flex; gap: 12px; align-items: center; background: #1C1430; border: 2px solid #F4F2F7; clip-path: {{n}}">
+          <div aria-hidden="true" style="width: 48px; height: 48px; flex-shrink: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid #F5D23A; color: #F5D23A; clip-path: {{n}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 24px">P</div>
+          <div style="display: flex; flex-direction: column; gap: 2px">
+            <span style="font-size: 16px; font-weight: 600">Piero</span>
+            <span style="font-size: 14px; color: #A39BB6">Synced · 2 min ago</span>
+          </div>
+        </div>
+      </section>
+
+      <section style="display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #A39BB6">REMINDERS</span>
+        <div style="background: #1C1430; border: 2px solid #F4F2F7; clip-path: {{n}}; display: flex; flex-direction: column">
+          <label style="min-height: 64px; padding: 12px 14px; display: flex; gap: 12px; align-items: center; justify-content: space-between">
+            <span style="display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 16px; font-weight: 600">Workout day</span>
+              <span style="font-size: 13px; line-height: 1.4; color: #A39BB6">The routine that is up next. Not on rest days, or once you have trained that day.</span>
+            </span>
+            <button type="button" role="switch" aria-checked="true" aria-label="Workout day" style="width: 64px; height: 48px; flex-shrink: 0; padding: 0; background: none; border: 0; display: flex; align-items: center; justify-content: center; cursor: pointer"><span style="width: 60px; height: 32px; box-sizing: border-box; padding: 4px; display: flex; justify-content: flex-end; background: #A98BFF; border: 2px solid #F4F2F7; clip-path: {{n}}"><span style="width: 20px; height: 20px; background: #0C0915"></span></span></button>
+          </label>
+          <button type="button" style="margin: 0 14px 12px; height: 52px; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; background: #1C1430; color: #F4F2F7; border: 2px solid #F0A030; clip-path: {{n}}; box-shadow: inset 0 2px 0 rgba(255,255,255,0.22), inset 0 -4px 0 rgba(0,0,0,0.45); font-family: Inter, sans-serif; font-size: 15px; cursor: pointer"><span>Time</span><b style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px">8:00 AM</b></button>
+          <label style="min-height: 64px; padding: 12px 14px; border-top: 2px dotted #2A1F45; display: flex; gap: 12px; align-items: center; justify-content: space-between">
+            <span style="display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 16px; font-weight: 600">Weekly summary</span>
+              <span style="font-size: 13px; line-height: 1.4; color: #A39BB6">Sundays at 8:00 PM: workouts, sets and time trained that week.</span>
+            </span>
+            <button type="button" role="switch" aria-checked="true" aria-label="Weekly summary" style="width: 64px; height: 48px; flex-shrink: 0; padding: 0; background: none; border: 0; display: flex; align-items: center; justify-content: center; cursor: pointer"><span style="width: 60px; height: 32px; box-sizing: border-box; padding: 4px; display: flex; justify-content: flex-end; background: #A98BFF; border: 2px solid #F4F2F7; clip-path: {{n}}"><span style="width: 20px; height: 20px; background: #0C0915"></span></span></button>
+          </label>
+        </div>
+        <span style="font-size: 13px; line-height: 1.4; color: #A39BB6">Reminders come from your account, so every phone you are signed in on gets them. Times follow this phone's time zone.</span>
+      </section>
+
+      <section style="display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #A39BB6">THEME</span>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px">
+          <button type="button" aria-pressed="true" style="height: 52px; background: #F5D23A; color: #0C0915; border: 2px solid #F4F2F7; clip-path: {{n}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 16px">SYSTEM</button>
+          <button type="button" aria-pressed="false" style="height: 52px; background: #1C1430; color: #F4F2F7; border: 2px solid #F0A030; clip-path: {{n}}; box-shadow: inset 0 2px 0 rgba(255,255,255,0.22), inset 0 -4px 0 rgba(0,0,0,0.45); font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 16px">NIGHT</button>
+          <button type="button" aria-pressed="false" style="height: 52px; background: #1C1430; color: #F4F2F7; border: 2px solid #F0A030; clip-path: {{n}}; box-shadow: inset 0 2px 0 rgba(255,255,255,0.22), inset 0 -4px 0 rgba(0,0,0,0.45); font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 16px">DAY</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- 2 · Reminder time sheet (Day, Spanish) -->
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">DAY · ESPAÑOL · HORA DEL RECORDATORIO</div>
+    <div style="width: 390px; height: 844px; box-sizing: border-box; background: #FBF3E8; color: #33213F; position: relative; overflow: hidden">
+      <div aria-hidden="true" style="padding: 0 16px; display: flex; flex-direction: column; gap: 14px">
+        <div style="height: 56px; display: flex; align-items: center; justify-content: center; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 22px">AJUSTES</div>
+        <div style="height: 80px; background: #FFFDF8; border: 2px solid #33213F"></div>
+        <div style="height: 260px; background: #FFFDF8; border: 2px solid #33213F"></div>
+      </div>
+      <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(51,33,63,0.55)"></div>
+
+      <section role="dialog" aria-label="HORA" style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFDF8; border-top: 2px solid #33213F; display: flex; flex-direction: column">
+        <div style="height: 56px; padding: 0 8px 0 16px; display: flex; align-items: center; justify-content: space-between; background: #9FDCD4; color: #33213F; border-bottom: 2px solid #33213F">
+          <h2 style="margin: 0; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px">HORA</h2>
+          <button type="button" aria-label="Cerrar" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #FFFDF8; border: 2px solid #33213F; cursor: pointer"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.close}}" fill="#33213F"></path></svg></button>
+        </div>
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 16px">
+          <p style="margin: 0; font-size: 14px; line-height: 1.4; color: #7A6684">Día de entreno · a esta hora, en la zona horaria de este celular (Lima)</p>
+
+          <div style="position: relative; border: 2px solid #33213F; outline: 2px solid #FFFDF8; outline-offset: -6px; background: #FBF3E8; padding: 8px 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr))">
+            <div style="position: absolute; left: 8px; right: 8px; top: 50%; height: 60px; margin-top: -21px; border: 2px solid #33213F; background: #FBDA61; clip-path: {{n}}"></div>
+            <div role="listbox" aria-label="HORA" style="position: relative; display: flex; flex-direction: column; align-items: center; font-family: 'Pixelify Sans', sans-serif; font-weight: 600">
+              <span style="font-family: Inter, sans-serif; font-size: 12px; letter-spacing: 0.08em; color: #7A6684; height: 18px">HORA</span>
+              <div role="option" aria-selected="false" style="height: 34px; display: flex; align-items: center; font-size: 18px; color: #7A6684">06</div>
+              <div role="option" aria-selected="false" style="height: 44px; display: flex; align-items: center; font-size: 26px; color: #7A6684">07</div>
+              <div role="option" aria-selected="true" style="height: 60px; display: flex; align-items: center; font-size: 40px; color: #33213F">08</div>
+              <div role="option" aria-selected="false" style="height: 44px; display: flex; align-items: center; font-size: 26px; color: #7A6684">09</div>
+              <div role="option" aria-selected="false" style="height: 34px; display: flex; align-items: center; font-size: 18px; color: #7A6684">10</div>
+            </div>
+            <div role="listbox" aria-label="MIN" style="position: relative; display: flex; flex-direction: column; align-items: center; font-family: 'Pixelify Sans', sans-serif; font-weight: 600">
+              <span style="font-family: Inter, sans-serif; font-size: 12px; letter-spacing: 0.08em; color: #7A6684; height: 18px">MIN</span>
+              <div role="option" aria-selected="false" style="height: 34px; display: flex; align-items: center; font-size: 18px; color: #7A6684">50</div>
+              <div role="option" aria-selected="false" style="height: 44px; display: flex; align-items: center; font-size: 26px; color: #7A6684">55</div>
+              <div role="option" aria-selected="true" style="height: 60px; display: flex; align-items: center; font-size: 40px; color: #33213F">00</div>
+              <div role="option" aria-selected="false" style="height: 44px; display: flex; align-items: center; font-size: 26px; color: #7A6684">05</div>
+              <div role="option" aria-selected="false" style="height: 34px; display: flex; align-items: center; font-size: 18px; color: #7A6684">10</div>
+            </div>
+          </div>
+
+          <button type="button" style="height: 60px; background: #6B4FC8; color: #FBF3E8; border: 2px solid #33213F; clip-path: {{n}}; box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), inset 0 -4px 0 rgba(51,33,63,0.25); font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px; cursor: pointer">GUARDAR</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- 3 · Signed out, and notifications blocked (Night, English) -->
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">NIGHT · ENGLISH · SIGNED OUT / BLOCKED</div>
+    <div style="width: 390px; height: 844px; box-sizing: border-box; background: #0C0915; color: #F4F2F7; padding: 0 16px 20px; display: flex; flex-direction: column; gap: 16px; overflow: hidden">
+      <header style="height: 56px; flex-shrink: 0; display: grid; grid-template-columns: 48px 1fr 48px; gap: 8px; align-items: center">
+        <a href="Home.dc.html" aria-label="Back to home" style="width: 48px; height: 48px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: #1C1430; border: 2px solid #F0A030; clip-path: {{n}}; box-shadow: inset 0 2px 0 rgba(255,255,255,0.22), inset 0 -4px 0 rgba(0,0,0,0.45)"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.back}}" fill="#F0A030"></path></svg></a>
+        <h1 style="margin: 0; text-align: center; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 22px">SETTINGS</h1>
+        <span></span>
+      </header>
+
+      <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #A39BB6">SIGNED OUT</span>
+      <section style="display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #A39BB6">REMINDERS</span>
+        <div style="padding: 14px; display: flex; flex-direction: column; gap: 12px; background: #1C1430; border: 2px solid #2A1F45; clip-path: {{n}}">
+          <div style="display: flex; gap: 12px; align-items: flex-start">
+            <div style="width: 48px; height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: #2A1F45; clip-path: {{n}}"><svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.bell}}" fill="#A98BFF"></path></svg></div>
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 16px; font-weight: 600">Workout day and weekly summary</span>
+              <span style="font-size: 14px; line-height: 1.45; color: #A39BB6">Reminders are sent from your account. Sign in under ACCOUNT to turn them on.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <span style="margin-top: 12px; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #A39BB6">SIGNED IN, NOTIFICATIONS BLOCKED</span>
+      <section style="display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #A39BB6">REMINDERS</span>
+        <div style="background: #1C1430; border: 2px solid #F4F2F7; clip-path: {{n}}; display: flex; flex-direction: column">
+          <div style="padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; border-bottom: 2px dotted #2A1F45">
+            <span style="font-size: 14px; line-height: 1.4; color: #FF4D4D; font-weight: 600">Notifications are off for DinoGym on this phone, so reminders cannot show here.</span>
+            <button type="button" style="height: 52px; background: #1C1430; color: #F4F2F7; border: 2px solid #F0A030; clip-path: {{n}}; box-shadow: inset 0 2px 0 rgba(255,255,255,0.22), inset 0 -4px 0 rgba(0,0,0,0.45); font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 16px; cursor: pointer">ALLOW NOTIFICATIONS</button>
+          </div>
+          <label style="min-height: 64px; padding: 12px 14px; display: flex; gap: 12px; align-items: center; justify-content: space-between">
+            <span style="font-size: 16px; font-weight: 600">Workout day</span>
+            <button type="button" role="switch" aria-checked="true" aria-label="Workout day" style="width: 64px; height: 48px; padding: 0; background: none; border: 0; display: flex; align-items: center; justify-content: center"><span style="width: 60px; height: 32px; box-sizing: border-box; padding: 4px; display: flex; justify-content: flex-end; background: #A98BFF; border: 2px solid #F4F2F7; clip-path: {{n}}"><span style="width: 20px; height: 20px; background: #0C0915"></span></span></button>
+          </label>
+          <label style="min-height: 64px; padding: 12px 14px; border-top: 2px dotted #2A1F45; display: flex; gap: 12px; align-items: center; justify-content: space-between">
+            <span style="font-size: 16px; font-weight: 600">Weekly summary</span>
+            <button type="button" role="switch" aria-checked="false" aria-label="Weekly summary" style="width: 64px; height: 48px; padding: 0; background: none; border: 0; display: flex; align-items: center; justify-content: center"><span style="width: 60px; height: 32px; box-sizing: border-box; padding: 4px; display: flex; justify-content: flex-start; background: #2A1F45; border: 2px solid #F4F2F7; clip-path: {{n}}"><span style="width: 20px; height: 20px; background: #F4F2F7"></span></span></button>
+          </label>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- 4 · The notifications in Android's shade (English above, Spanish below). Android draws these, so they are not in DinoGym's style -->
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">ANDROID NOTIFICATION SHADE</div>
+    <div style="width: 390px; height: 844px; box-sizing: border-box; background: #121316; color: #E6E1E6; padding: 24px 12px; display: flex; flex-direction: column; gap: 10px; overflow: hidden">
+      <span style="padding: 0 8px 6px; font-size: 13px; color: #9A969C">Workout day · English</span>
+      <article style="padding: 14px 16px; background: #26272B; border-radius: 22px; display: flex; gap: 12px">
+        <div style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; background: #A98BFF; display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 16 16" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.bell}}" fill="#0C0915"></path></svg></div>
+        <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+          <span style="font-size: 12px; color: #9A969C">DinoGym · now</span>
+          <span style="font-size: 15px; font-weight: 600">Today is Pull day</span>
+          <span style="font-size: 14px; line-height: 1.4; color: #C9C4CA">5 exercises · 17 sets. Tap to start.</span>
+        </div>
+      </article>
+
+      <span style="padding: 10px 8px 6px; font-size: 13px; color: #9A969C">Weekly summary · English</span>
+      <article style="padding: 14px 16px; background: #26272B; border-radius: 22px; display: flex; gap: 12px">
+        <div style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; background: #A98BFF; display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 16 16" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.bell}}" fill="#0C0915"></path></svg></div>
+        <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+          <span style="font-size: 12px; color: #9A969C">DinoGym · now</span>
+          <span style="font-size: 15px; font-weight: 600">Your week: 4 workouts</span>
+          <span style="font-size: 14px; line-height: 1.4; color: #C9C4CA">63 sets in 4 h 10 min. Up next: Legs.</span>
+        </div>
+      </article>
+      <article style="padding: 14px 16px; background: #26272B; border-radius: 22px; display: flex; gap: 12px">
+        <div style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; background: #A98BFF; display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 16 16" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.bell}}" fill="#0C0915"></path></svg></div>
+        <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+          <span style="font-size: 12px; color: #9A969C">DinoGym · now</span>
+          <span style="font-size: 15px; font-weight: 600">No workouts this week</span>
+          <span style="font-size: 14px; line-height: 1.4; color: #C9C4CA">Your Pull day is waiting.</span>
+        </div>
+      </article>
+
+      <span style="padding: 10px 8px 6px; font-size: 13px; color: #9A969C">Español</span>
+      <article style="padding: 14px 16px; background: #26272B; border-radius: 22px; display: flex; gap: 12px">
+        <div style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; background: #A98BFF; display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 16 16" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.bell}}" fill="#0C0915"></path></svg></div>
+        <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+          <span style="font-size: 12px; color: #9A969C">DinoGym · ahora</span>
+          <span style="font-size: 15px; font-weight: 600">Hoy toca Pull</span>
+          <span style="font-size: 14px; line-height: 1.4; color: #C9C4CA">5 ejercicios · 17 series. Toca para empezar.</span>
+        </div>
+      </article>
+      <article style="padding: 14px 16px; background: #26272B; border-radius: 22px; display: flex; gap: 12px">
+        <div style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; background: #A98BFF; display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 16 16" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.bell}}" fill="#0C0915"></path></svg></div>
+        <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+          <span style="font-size: 12px; color: #9A969C">DinoGym · ahora</span>
+          <span style="font-size: 15px; font-weight: 600">Tu semana: 4 entrenos</span>
+          <span style="font-size: 14px; line-height: 1.4; color: #C9C4CA">63 series en 4 h 10 min. Sigue: Legs.</span>
+        </div>
+      </article>
+      <span style="padding: 10px 8px 0; font-size: 13px; line-height: 1.4; color: #9A969C">Tapping a reminder opens DinoGym on Home. Each kind is its own Android notification channel, so either can be silenced in Android settings.</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1760,"height":960}}'>
+const N = 'polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px)';
+function px(rows) { let d = ''; rows.forEach(function (r, y) { for (let x = 0; x < r.length; x++) { if (r[x] === '#') d += 'M' + x + ' ' + y + 'h1v1h-1z'; } }); return d; }
+const I = {
+  back: px(['','','','......##','.....##','....##','...##','..############','..############','...##','....##','.....##','......##']),
+  close: px(['','','...##......##','....##....##','.....##..##','......####','......####','.....##..##','....##....##','...##......##']),
+  bell: px(['','.......##','......####','....########','...##########','...##########','...##########','...##########','...##########','..############','.##############','.##############','','......####','.......##'])
+};
+class Component extends DCLogic {
+  renderVals() {
+    return { n: N, ic: I };
+  }
+}
+</script>
+</body>
+</html>
