@@ -84,7 +84,7 @@ Publish a routine with an access token, then read it without one (decisions 96â€
 
 ```bash
 curl -s -X POST 127.0.0.1:8080/shares -H 'Authorization: Bearer <access token>' -H 'Content-Type: application/json' \
-  -d '{"version":1,"kind":"routine","routines":[{"name":"PULL","exercises":[{"exercise":{"name":"Pull-up","iconKey":"lever","kind":"REPS","weightEnabled":false},"sets":2,"repMin":5,"repMax":8,"restSeconds":150}]}]}'
+  -d '{"version":1,"kind":"routine","routines":[{"name":"PULL","exercises":[{"exercise":{"name":"Pull-up","iconKey":"LEVER","kind":"REPS","weightEnabled":false},"sets":2,"repMin":5,"repMax":8,"restSeconds":150}]}]}'
 curl -s 127.0.0.1:8080/shares/<id>
 ```
 

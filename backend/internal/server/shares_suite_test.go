@@ -17,7 +17,7 @@ import (
 // emulator.
 
 func sharedExercise(name string) api.SharedExercise {
-	return api.SharedExercise{Name: name, IconKey: "lever", Kind: api.SharedExerciseKindREPS, WeightEnabled: false}
+	return api.SharedExercise{Name: name, IconKey: "LEVER", Kind: api.SharedExerciseKindREPS, WeightEnabled: false}
 }
 
 func routineSnapshot() api.ShareSnapshot {
@@ -27,8 +27,8 @@ func routineSnapshot() api.ShareSnapshot {
 		Routines: []api.SharedRoutine{{
 			Name: "PULL",
 			Exercises: []api.SharedRoutineExercise{
-				{Exercise: api.SharedExercise{Name: "Muscle-up", IconKey: "lever", Kind: api.SharedExerciseKindTEMPLATE, Template: ptr("3s + {n} pulls + 3s"), WeightEnabled: false}, Sets: 2, RepMin: 3, RepMax: 5, RestSeconds: 150},
-				{Exercise: api.SharedExercise{Name: "Curl", IconKey: "curl", Kind: api.SharedExerciseKindREPS, WeightEnabled: true}, Sets: 3, RepMin: 10, RepMax: 10, RestSeconds: 90},
+				{Exercise: api.SharedExercise{Name: "Muscle-up", IconKey: "LEVER", Kind: api.SharedExerciseKindTEMPLATE, Template: ptr("3s + {n} pulls + 3s"), WeightEnabled: false}, Sets: 2, RepMin: 3, RepMax: 5, RestSeconds: 150},
+				{Exercise: api.SharedExercise{Name: "Curl", IconKey: "CURL", Kind: api.SharedExerciseKindREPS, WeightEnabled: true}, Sets: 3, RepMin: 10, RepMax: 10, RestSeconds: 90},
 			},
 		}},
 	}
@@ -206,7 +206,7 @@ func runSharesSuite(t *testing.T, newStore func(t *testing.T) Store) {
 
 	t.Run("a snapshot over 64 KiB is refused", func(t *testing.T) {
 		e := newSyncEnv(t, newStore(t), nil)
-		ex := api.SharedExercise{Name: strings.Repeat("x", 120), IconKey: "lever", Kind: api.SharedExerciseKindTEMPLATE, Template: ptr(strings.Repeat("y", 200))}
+		ex := api.SharedExercise{Name: strings.Repeat("x", 120), IconKey: "LEVER", Kind: api.SharedExerciseKindTEMPLATE, Template: ptr(strings.Repeat("y", 200))}
 		sn := api.ShareSnapshot{Version: 1, Kind: api.ShareSnapshotKindProgram, Program: &api.SharedProgram{Name: "Big", Type: api.SharedProgramTypeGYM}}
 		for i := range 14 {
 			r := api.SharedRoutine{Name: strings.Repeat("r", 120)}
