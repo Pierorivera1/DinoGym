@@ -58,6 +58,15 @@
             android:name=".timer.RestOverReceiver"
             android:exported="false" />
 
+        <!-- Reminders (task 24): the server's data messages and FCM's new tokens. -->
+        <service
+            android:name=".reminders.ReminderMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <!-- WorkManager starts on first use with DinoGymApp's configuration (the sync worker's
              factory), not from its default startup initializer. -->
         <provider

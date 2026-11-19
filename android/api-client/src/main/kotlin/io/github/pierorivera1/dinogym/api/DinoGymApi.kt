@@ -1,6 +1,7 @@
 package io.github.pierorivera1.dinogym.api
 
 import io.github.pierorivera1.dinogym.api.apis.AuthApi
+import io.github.pierorivera1.dinogym.api.apis.DevicesApi
 import io.github.pierorivera1.dinogym.api.apis.HealthApi
 import io.github.pierorivera1.dinogym.api.apis.SharesApi
 import io.github.pierorivera1.dinogym.api.apis.SyncApi
@@ -30,6 +31,7 @@ class DinoGymApi(
     val auth = AuthApi(baseUrl, engine, config)
     val sync = SyncApi(baseUrl, engine, config)
     val shares = SharesApi(baseUrl, engine, config)
+    val devices = DevicesApi(baseUrl, engine, config)
 
     /** Sends `Authorization: Bearer <token>` on the calls that need it. */
     fun setAccessToken(token: String) {

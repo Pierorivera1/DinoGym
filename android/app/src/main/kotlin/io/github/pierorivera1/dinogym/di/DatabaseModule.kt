@@ -11,6 +11,7 @@ import dagger.hilt.components.SingletonComponent
 import io.github.pierorivera1.dinogym.data.local.DinoDatabase
 import io.github.pierorivera1.dinogym.data.local.ALL_MIGRATIONS
 import io.github.pierorivera1.dinogym.data.local.ExerciseDao
+import io.github.pierorivera1.dinogym.data.local.LocalFlagDao
 import io.github.pierorivera1.dinogym.data.local.PreferenceDao
 import io.github.pierorivera1.dinogym.data.local.ProgramDao
 import io.github.pierorivera1.dinogym.data.local.RoutineDao
@@ -43,6 +44,9 @@ object DatabaseModule {
 
     @Provides
     fun provideProgramDao(db: DinoDatabase): ProgramDao = db.programDao()
+
+    @Provides
+    fun provideLocalFlagDao(db: DinoDatabase): LocalFlagDao = db.localFlagDao()
 
     @Provides
     fun provideRoutineDao(db: DinoDatabase): RoutineDao = db.routineDao()

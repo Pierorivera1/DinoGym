@@ -12,6 +12,8 @@ import io.github.pierorivera1.dinogym.ui.settings.SyncRowState
 import io.github.pierorivera1.dinogym.ui.settings.FontLicences
 import io.github.pierorivera1.dinogym.ui.settings.LicencesScreen
 import io.github.pierorivera1.dinogym.ui.settings.SettingsActions
+import io.github.pierorivera1.dinogym.reminders.ReminderSettings
+import io.github.pierorivera1.dinogym.ui.settings.RemindersUiState
 import io.github.pierorivera1.dinogym.ui.settings.SettingsScreen
 import io.github.pierorivera1.dinogym.ui.settings.SettingsUiState
 import io.github.pierorivera1.dinogym.ui.theme.DinoTheme
@@ -128,6 +130,61 @@ class SettingsScreenshotTest {
                     canSyncNow = false,
                     pendingChanges = 3,
                 ),
+            ),
+            SettingsActions.None,
+        )
+    }
+
+    // REMINDERS (task 24, `Reminders.dc.html`). The screen scrolls, so ACCOUNT is left
+    // signed out to keep the section in view.
+
+    @Test
+    fun remindersSignedInNightEnglish() = capture("settings_reminders_en_night", ThemeMode.NIGHT) {
+        SettingsScreen(
+            SettingsUiState(
+                ThemeMode.SYSTEM,
+                "2.0.0",
+                1,
+                AccountUiState.Loading,
+                RemindersUiState.SignedIn(ReminderSettings(workoutDay = true, weekly = true)),
+            ),
+            SettingsActions.None,
+        )
+    }
+
+    @Test
+    @Config(qualifiers = SPANISH)
+    fun remindersTimeSheetDaySpanish() = capture("settings_reminders_time_es_day", ThemeMode.DAY) {
+        SettingsScreen(
+            SettingsUiState(
+                ThemeMode.DAY,
+                "2.0.0",
+                1,
+                AccountUiState.Loading,
+                RemindersUiState.SignedIn(ReminderSettings(workoutDay = true), editingTime = true, zoneCity = "Lima"),
+                is24Hour = true,
+            ),
+            SettingsActions.None,
+        )
+    }
+
+    @Test
+    fun remindersSignedOutNightEnglish() = capture("settings_reminders_signed_out_en_night", ThemeMode.NIGHT) {
+        SettingsScreen(
+            SettingsUiState(ThemeMode.SYSTEM, "2.0.0", 1, AccountUiState.Loading, RemindersUiState.SignedOut),
+            SettingsActions.None,
+        )
+    }
+
+    @Test
+    fun remindersBlockedNightEnglish() = capture("settings_reminders_blocked_en_night", ThemeMode.NIGHT) {
+        SettingsScreen(
+            SettingsUiState(
+                ThemeMode.SYSTEM,
+                "2.0.0",
+                1,
+                AccountUiState.Loading,
+                RemindersUiState.SignedIn(ReminderSettings(workoutDay = true), notificationsAllowed = false),
             ),
             SettingsActions.None,
         )

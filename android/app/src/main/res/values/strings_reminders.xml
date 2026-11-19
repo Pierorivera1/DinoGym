@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Reminders (task 24, Reminders.dc.html): Settings › REMINDERS, its time sheet, and the
+     notifications the app builds when the server's message arrives (decision 104). -->
+<resources>
+    <string name="reminders_label">REMINDERS</string>
+    <string name="reminders_workout_day">Workout day</string>
+    <string name="reminders_workout_day_help">The routine that is up next. Not on rest days, or once you have trained that day.</string>
+    <string name="reminders_time">Time</string>
+    <string name="reminders_weekly">Weekly summary</string>
+    <!-- %1$s is 8:00 PM in the phone's 12 or 24-hour format. -->
+    <string name="reminders_weekly_help">Sundays at %1$s: workouts, sets and time trained that week.</string>
+    <string name="reminders_note">Reminders come from your account, so every phone you are signed in on gets them. Times follow this phone\'s time zone.</string>
+    <string name="reminders_signed_out_title">Workout day and weekly summary</string>
+    <string name="reminders_signed_out_body">Reminders are sent from your account. Sign in under ACCOUNT to turn them on.</string>
+    <string name="reminders_blocked">Notifications are off for DinoGym on this phone, so reminders cannot show here.</string>
+    <string name="reminders_allow">ALLOW NOTIFICATIONS</string>
+
+    <!-- The time sheet. %1$s is the time zone's city, such as Lima. -->
+    <string name="reminders_sheet_title">TIME</string>
+    <string name="reminders_sheet_scope">Workout day · at this time, in this phone\'s time zone (%1$s)</string>
+    <string name="reminders_hour">HOUR</string>
+
+    <!-- Android settings › Notifications: the two channels. -->
+    <string name="reminders_channel_day">Workout day</string>
+    <string name="reminders_channel_day_description">The routine that is up next, at the time you chose.</string>
+    <string name="reminders_channel_week">Weekly summary</string>
+    <string name="reminders_channel_week_description">Sundays at 8 PM: your week in workouts, sets and time.</string>
+
+    <!-- Workout day notification: "Today is Pull day" / "5 exercises · 17 sets. Tap to start." -->
+    <string name="reminders_day_title">Today is %1$s</string>
+    <plurals name="reminders_exercises">
+        <item quantity="one">%d exercise</item>
+        <item quantity="other">%d exercises</item>
+    </plurals>
+    <plurals name="reminders_sets">
+        <item quantity="one">%d set</item>
+        <item quantity="other">%d sets</item>
+    </plurals>
+    <!-- %1$s is "5 exercises", %2$s "17 sets". -->
+    <string name="reminders_day_body">%1$s · %2$s. Tap to start.</string>
+
+    <!-- Weekly summary: "Your week: 4 workouts" / "63 sets in 4 h 10 min. Up next: Legs." -->
+    <plurals name="reminders_week_title">
+        <item quantity="one">Your week: %d workout</item>
+        <item quantity="other">Your week: %d workouts</item>
+    </plurals>
+    <!-- %1$s is "63 sets", %2$s the time trained. -->
+    <string name="reminders_week_body">%1$s in %2$s.</string>
+    <string name="reminders_week_next">Up next: %1$s.</string>
+    <string name="reminders_hours_minutes">%1$d h %2$d min</string>
+    <string name="reminders_minutes">%1$d min</string>
+    <string name="reminders_week_empty_title">No workouts this week</string>
+    <string name="reminders_week_empty_body">Your %1$s is waiting.</string>
+</resources>

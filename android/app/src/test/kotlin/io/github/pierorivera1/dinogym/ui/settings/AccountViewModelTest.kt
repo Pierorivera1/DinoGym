@@ -11,6 +11,7 @@ import io.github.pierorivera1.dinogym.data.account.storedSession
 import io.github.pierorivera1.dinogym.data.sync.LocalSyncState
 import io.github.pierorivera1.dinogym.data.sync.SyncSnapshot
 import io.github.pierorivera1.dinogym.data.sync.SyncStatus
+import io.github.pierorivera1.dinogym.reminders.DeviceRegistry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import io.ktor.client.engine.mock.MockRequestHandleScope
@@ -50,6 +51,15 @@ class AccountViewModelTest {
         }
     }
 
+    /** Records the order of sign-out's steps: the device must go while the session is there. */
+    private val devices = object : DeviceRegistry {
+        val unregisteredWithSession = mutableListOf<Boolean>()
+        override suspend fun register(newToken: String?) = Unit
+        override suspend fun unregister() {
+            unregisteredWithSession += store.state.value != null
+        }
+    }
+
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -63,7 +73,7 @@ class AccountViewModelTest {
     private fun TestScope.viewModel(
         server: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData = { error("no request expected") },
     ): AccountViewModel {
-        val vm = AccountViewModel(SessionManager(store, FakeServer(server).api.auth, clock), sync, clock)
+        val vm = AccountViewModel(SessionManager(store, FakeServer(server).api.auth, clock), sync, clock, devices)
         // stateIn(WhileSubscribed) needs a collector.
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
         return vm
@@ -168,6 +178,7 @@ class AccountViewModelTest {
 
         assertTrue(vm.state.first { it is AccountUiState.SignedOut } is AccountUiState.SignedOut)
         assertNull(store.state.value)
+        assertEquals(listOf(true), devices.unregisteredWithSession)
     }
 
     // The sync row (task 21)

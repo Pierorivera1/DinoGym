@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 16x16 pixel icon "bell", redrawn from Reminders.dc.html. Tinted in code; the fill is a placeholder. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M7,1h2v1h-2zM6,2h4v1h-4zM4,3h8v1h-8zM3,4h10v1h-10zM3,5h10v1h-10zM3,6h10v1h-10zM3,7h10v1h-10zM3,8h10v1h-10zM2,9h12v1h-12zM1,10h14v1h-14zM1,11h14v1h-14zM6,13h4v1h-4zM7,14h2v1h-2z" />
+</vector>

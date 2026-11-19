@@ -36,7 +36,7 @@ Decision 16 still applies: a screen is built only after its mock is approved.
 | Shared link page (web, `/r/<id>`): program and routine, loading, unknown link, error, not on Android | `SharePage.dc.html` | Mocked 2026-11-18, awaiting the owner's review. Built (task 23) |
 | Share a routine or program: SHARE button in the editors and the share sheet's states | `ShareFlow.dc.html` | Mocked 2026-11-18, awaiting the owner's review. Built (task 23) |
 | Import a shared link: paste, preview of a program or routine, loading and error states | `ImportShare.dc.html` | Mocked 2026-11-18, awaiting the owner's review. Built (task 23) |
-| Reminders: Settings › REMINDERS (signed in, signed out, notifications blocked), the time sheet, the notifications | `Reminders.dc.html` | Mocked 2026-11-18, awaiting the owner's review (task 24, decisions 104–107) |
+| Reminders: Settings › REMINDERS (signed in, signed out, notifications blocked), the time sheet, the notifications | `Reminders.dc.html` | Approved 2026-11-19, built (task 24, decisions 104–107, 109) |
 | Web dashboard | – | Later |
 
 The build order in [ARCHITECTURE.md](ARCHITECTURE.md) is arranged so the code that has no screen, and the approved screens, are built while the remaining mocks are made.
