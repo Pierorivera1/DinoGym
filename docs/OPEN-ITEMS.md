@@ -1,6 +1,6 @@
 # Open items
 
-As of 2026-11-18. Remove an item when it is done or decided, and record decisions in [DECISIONS.md](DECISIONS.md).
+As of 2026-11-19. Remove an item when it is done or decided, and record decisions in [DECISIONS.md](DECISIONS.md).
 
 ## The owner will set up
 
@@ -14,12 +14,14 @@ As of 2026-11-18. Remove an item when it is done or decided, and record decision
 
 ## Task 24: to do and to verify
 
-- [ ] The owner reviews `Reminders.dc.html` before the REMINDERS section is built (decision 16)
+- [x] The owner reviews `Reminders.dc.html` before the REMINDERS section is built (approved 2026-11-19)
 - [x] The owner installs the Google Cloud CLI (AUR `google-cloud-cli` 594.0.0, 2026-11-18)
-- [ ] Before the backend PR merges: the owner applies `infra/bootstrap` (new boundary and deploy-role permissions, decision 108) and `infra/google` ([infra/README.md](../infra/README.md)). The project number (854486518090) is already in `envs/staging` and `envs/prod`
-- [ ] The owner registers the Android app (`io.github.pierorivera1.dinogym` and `.debug`) in the Firebase project `dinogym-3870b`
-- [ ] The Android part: REMINDERS in Settings, the four preferences, FCM token registration, notification channels and the messaging service (after the mock is approved)
-- [ ] On staging: a schedule fires, the federation token exchange works and a phone receives both reminders
+- [x] Before the backend PR merges: the owner applies `infra/bootstrap` (new boundary and deploy-role permissions, decision 108) and `infra/google` ([infra/README.md](../infra/README.md)). The project number (854486518090) is already in `envs/staging` and `envs/prod`
+- [x] The owner registers the Android app (`io.github.pierorivera1.dinogym` and `.debug`) in the Firebase project `dinogym-3870b`
+- [ ] Before the next release: the owner adds the GitHub secret `DINOGYM_FIREBASE_API_KEY` (the `current_key` in `google-services.json`); the release workflow fails without it (decision 109)
+- [ ] Optional: restrict the Firebase API key in Google Cloud › Credentials to the two Android apps (package and signing SHA-1) and the Firebase Installations and FCM Registration APIs
+- [x] The Android part: REMINDERS in Settings, the four preferences, FCM token registration, notification channels and the messaging service (decision 109)
+- [ ] On staging with a debug build on a phone: turn Workout day on for a few minutes ahead; the schedule fires, the federation token exchange works and the notification shows. Then the weekly summary (Sundays 20:00), the time sheet, ALLOW NOTIFICATIONS and sign-out (DELETE)
 
 ## Task 23: to do and to verify
 

@@ -63,7 +63,14 @@ jobs:
           DINOGYM_KEYSTORE_PASSWORD: ${{ secrets.DINOGYM_KEYSTORE_PASSWORD }}
           DINOGYM_KEY_ALIAS: ${{ secrets.DINOGYM_KEY_ALIAS }}
           DINOGYM_KEY_PASSWORD: ${{ secrets.DINOGYM_KEY_PASSWORD }}
-        run: ./gradlew :app:assembleRelease
+          # Firebase's Android API key (decision 109). Without it the APK has no reminders.
+          DINOGYM_FIREBASE_API_KEY: ${{ secrets.DINOGYM_FIREBASE_API_KEY }}
+        run: |
+          if [ -z "$DINOGYM_FIREBASE_API_KEY" ]; then
+            echo "::error::Secret DINOGYM_FIREBASE_API_KEY is not set"
+            exit 1
+          fi
+          ./gradlew :app:assembleRelease
 
       # Fails the job if the APK is unsigned or signed with something else than expected.
       - name: Verify the signature

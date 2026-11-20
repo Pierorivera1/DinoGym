@@ -8,6 +8,7 @@ import io.github.pierorivera1.dinogym.data.account.SessionManager
 import io.github.pierorivera1.dinogym.data.account.SignInResult
 import io.github.pierorivera1.dinogym.data.sync.SyncSnapshot
 import io.github.pierorivera1.dinogym.data.sync.SyncStatus
+import io.github.pierorivera1.dinogym.reminders.DeviceRegistry
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -69,6 +70,7 @@ class AccountViewModel @Inject constructor(
     private val sessions: SessionManager,
     private val sync: SyncStatus,
     private val clock: Clock,
+    private val devices: DeviceRegistry,
 ) : ViewModel() {
 
     private val signingIn = MutableStateFlow(false)
@@ -139,7 +141,11 @@ class AccountViewModel @Inject constructor(
 
     fun confirmSignOut() {
         confirmingSignOut.value = false
-        viewModelScope.launch { sessions.signOut() }
+        viewModelScope.launch {
+            // While the session is still there to authorize it: stop reminders to this phone.
+            devices.unregister()
+            sessions.signOut()
+        }
     }
 
     companion object {

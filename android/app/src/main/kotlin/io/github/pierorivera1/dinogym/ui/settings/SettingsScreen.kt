@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -40,6 +41,7 @@ import io.github.pierorivera1.dinogym.ui.theme.DinoTheme
 import io.github.pierorivera1.dinogym.ui.theme.SteppedShape
 import io.github.pierorivera1.dinogym.ui.theme.ThemeMode
 import io.github.pierorivera1.dinogym.ui.theme.steppedBorder
+import java.time.LocalTime
 
 /** What Settings shows. [themeMode] is null for the moment before the setting is read. */
 data class SettingsUiState(
@@ -47,6 +49,9 @@ data class SettingsUiState(
     val versionName: String,
     val versionCode: Int,
     val account: AccountUiState = AccountUiState.SignedOut(),
+    val reminders: RemindersUiState = RemindersUiState.Loading,
+    /** The phone's clock style, for the reminder times. */
+    val is24Hour: Boolean = false,
 )
 
 /** Settings' taps. The theme is stored as soon as it is picked. */
@@ -60,6 +65,12 @@ data class SettingsActions(
     val onCancelSignOut: () -> Unit = {},
     val onConfirmSignOut: () -> Unit = {},
     val onSyncNow: () -> Unit = {},
+    val onWorkoutDayChange: (Boolean) -> Unit = {},
+    val onWeeklyChange: (Boolean) -> Unit = {},
+    val onOpenReminderTime: () -> Unit = {},
+    val onCloseReminderTime: () -> Unit = {},
+    val onSaveReminderTime: (LocalTime) -> Unit = {},
+    val onAllowNotifications: () -> Unit = {},
 ) {
     companion object {
         /** No-op actions, for screenshot tests. */
@@ -76,7 +87,8 @@ private val ThemeChoices = listOf(
 
 /**
  * Settings (mock `Settings.dc.html`): top bar with back; ACCOUNT (task 20, `Account.dc.html`)
- * with its sign-out dialog drawn over the screen; THEME (System / Night / Day);
+ * with its sign-out dialog drawn over the screen; REMINDERS (task 24, `Reminders.dc.html`)
+ * with its time sheet; THEME (System / Night / Day);
  * LANGUAGE, read-only because the app follows the phone; ABOUT with the version, the source
  * code link, the open-source licences and the app's MIT licence; the mascot's text box at
  * the bottom. A pushed screen: no bottom bar. Stateless.
@@ -111,6 +123,7 @@ fun SettingsScreen(
                 backDescription = stringResource(R.string.settings_back_cd),
             )
             AccountSection(state.account, actions)
+            RemindersSection(state.reminders, state.is24Hour, LocalConfiguration.current.locales[0], actions)
             Field(stringResource(R.string.settings_theme_label)) {
                 SegmentedControl(
                     options = ThemeChoices.map { stringResource(it.second) },
@@ -142,6 +155,15 @@ fun SettingsScreen(
             }
             Spacer(Modifier.weight(1f))
             TextBox(stringResource(R.string.settings_bubble), showMascot = true, modifier = Modifier.fillMaxWidth())
+        }
+        val reminders = state.reminders as? RemindersUiState.SignedIn
+        if (reminders?.editingTime == true) {
+            ReminderTimeSheet(
+                initial = reminders.settings.time,
+                zoneCity = reminders.zoneCity,
+                onSave = actions.onSaveReminderTime,
+                onClose = actions.onCloseReminderTime,
+            )
         }
         val signedIn = state.account as? AccountUiState.SignedIn
         if (signedIn?.confirmingSignOut == true) {

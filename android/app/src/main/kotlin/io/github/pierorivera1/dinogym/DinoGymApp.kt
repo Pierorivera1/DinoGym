@@ -6,9 +6,16 @@ import dagger.hilt.android.HiltAndroidApp
 import io.github.pierorivera1.dinogym.data.seed.FirstRunSeeder
 import io.github.pierorivera1.dinogym.data.sync.SyncController
 import io.github.pierorivera1.dinogym.data.sync.SyncWorkerFactory
+import io.github.pierorivera1.dinogym.di.ApplicationScope
+import io.github.pierorivera1.dinogym.reminders.FcmDeviceRegistry
+import io.github.pierorivera1.dinogym.reminders.FirebaseSetup
+import io.github.pierorivera1.dinogym.reminders.ReminderNotifier
+import io.github.pierorivera1.dinogym.reminders.ReminderRepository
 import io.github.pierorivera1.dinogym.timer.AppVisibility
 import io.github.pierorivera1.dinogym.timer.RestNotifier
 import io.github.pierorivera1.dinogym.timer.RestTimer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -37,6 +44,22 @@ class DinoGymApp : Application(), Configuration.Provider {
     @Inject
     lateinit var syncWorkerFactory: SyncWorkerFactory
 
+    @Inject
+    lateinit var firebase: FirebaseSetup
+
+    @Inject
+    lateinit var reminderNotifier: ReminderNotifier
+
+    @Inject
+    lateinit var reminders: ReminderRepository
+
+    @Inject
+    lateinit var deviceRegistry: FcmDeviceRegistry
+
+    @Inject
+    @ApplicationScope
+    lateinit var appScope: CoroutineScope
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder().setWorkerFactory(syncWorkerFactory).build()
 
@@ -54,5 +77,12 @@ class DinoGymApp : Application(), Configuration.Provider {
 
         // Sync (task 21): follows the signed-in account in the background. Nothing waits on it.
         syncController.start()
+
+        // Reminders (task 24): Firebase from BuildConfig, the two channels, registering this
+        // phone whenever an account signs in, and moving the reminders to a new time zone.
+        firebase.start()
+        reminderNotifier.createChannels()
+        deviceRegistry.start()
+        appScope.launch { reminders.followZone() }
     }
 }

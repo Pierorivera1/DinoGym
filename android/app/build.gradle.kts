@@ -29,6 +29,14 @@ android {
             "GOOGLE_SERVER_CLIENT_ID",
             "\"854486518090-7sc6gs4dmbuo5lgsm9ss9g0p0chedm9a.apps.googleusercontent.com\"",
         )
+
+        // Firebase Cloud Messaging (task 24, decision 109). The project's ids are not secret.
+        // The API key is not secret either (it ships in the APK), but it stays out of git:
+        // it comes from DINOGYM_FIREBASE_API_KEY or the git-ignored app/google-services.json.
+        // Without it the build works and reminders are off.
+        buildConfigField("String", "FIREBASE_PROJECT_ID", "\"dinogym-3870b\"")
+        buildConfigField("String", "FIREBASE_SENDER_ID", "\"854486518090\"")
+        buildConfigField("String", "FIREBASE_API_KEY", "\"${firebaseApiKey()}\"")
     }
 
     // Release signing (decision in DECISIONS.md, "Release signing"). The keystore never enters
@@ -50,6 +58,8 @@ android {
         debug {
             // Lets a debug build and a release build install side by side.
             applicationIdSuffix = ".debug"
+            // The Firebase app registered for io.github.pierorivera1.dinogym.debug.
+            buildConfigField("String", "FIREBASE_APP_ID", "\"1:854486518090:android:3a446d3082b1f9cba819b3\"")
             // Staging's HTTP API. Changes if the API is ever recreated (android/README.md).
             buildConfigField("String", "API_BASE_URL", "\"https://ypn4asfnil.execute-api.us-east-1.amazonaws.com\"")
             // Staging's CloudFront domain: the host of its shared links (App Links, decision 99).
@@ -60,6 +70,8 @@ android {
             // Unsigned when no keystore is configured (CI builds on every push, lint), so
             // only the release workflow and the owner's machine produce an installable APK.
             signingConfig = signingConfigs.findByName("release")
+            // The Firebase app registered for io.github.pierorivera1.dinogym.
+            buildConfigField("String", "FIREBASE_APP_ID", "\"1:854486518090:android:26d3ad82c6fa95cea819b3\"")
             // Prod's HTTP API. Changes if the API is ever recreated (android/README.md).
             buildConfigField("String", "API_BASE_URL", "\"https://cm884h7had.execute-api.us-east-1.amazonaws.com\"")
             // Prod's CloudFront domain. Changes if the distribution is ever recreated (decision 23).
@@ -148,6 +160,9 @@ dependencies {
     implementation(libs.googleid)
     // Sync (task 21): background push and pull.
     implementation(libs.work.runtime)
+    // Reminders (task 24): receives the server's data messages and the phone's FCM token.
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -189,4 +204,20 @@ fun releaseSigning(): Map<String, String>? {
     val missing = keys.filter { props.getProperty(it).isNullOrBlank() }
     require(missing.isEmpty()) { "keystore.properties is missing: ${missing.joinToString()}" }
     return keys.associateWith { props.getProperty(it) }
+}
+
+/**
+ * The Firebase Android API key: DINOGYM_FIREBASE_API_KEY (the release workflow sets it from a
+ * GitHub secret), else the key in app/google-services.json (git-ignored, downloaded from the
+ * Firebase console), else empty, which leaves reminders off in that build.
+ */
+fun firebaseApiKey(): String {
+    System.getenv("DINOGYM_FIREBASE_API_KEY")?.takeIf { it.isNotBlank() }?.let { return it }
+    val file = file("google-services.json")
+    if (!file.exists()) return ""
+    @Suppress("UNCHECKED_CAST")
+    val json = groovy.json.JsonSlurper().parse(file) as Map<String, Any?>
+    val clients = json["client"] as? List<Map<String, Any?>> ?: return ""
+    val keys = clients.flatMap { it["api_key"] as? List<Map<String, Any?>> ?: emptyList() }
+    return keys.firstNotNullOfOrNull { it["current_key"] as? String }.orEmpty()
 }

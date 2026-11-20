@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="reminders_label">RECORDATORIOS</string>
+    <string name="reminders_workout_day">Día de entreno</string>
+    <string name="reminders_workout_day_help">La rutina que toca. No en días de descanso, ni si ya entrenaste ese día.</string>
+    <string name="reminders_time">Hora</string>
+    <string name="reminders_weekly">Resumen semanal</string>
+    <string name="reminders_weekly_help">Los domingos a las %1$s: entrenos, series y tiempo de la semana.</string>
+    <string name="reminders_note">Los recordatorios vienen de tu cuenta, así que llegan a cada celular donde iniciaste sesión. Las horas siguen la zona horaria de este celular.</string>
+    <string name="reminders_signed_out_title">Día de entreno y resumen semanal</string>
+    <string name="reminders_signed_out_body">Los recordatorios se envían desde tu cuenta. Inicia sesión en CUENTA para activarlos.</string>
+    <string name="reminders_blocked">Las notificaciones de DinoGym están desactivadas en este celular, así que los recordatorios no pueden mostrarse aquí.</string>
+    <string name="reminders_allow">PERMITIR NOTIFICACIONES</string>
+
+    <string name="reminders_sheet_title">HORA</string>
+    <string name="reminders_sheet_scope">Día de entreno · a esta hora, en la zona horaria de este celular (%1$s)</string>
+    <string name="reminders_hour">HORA</string>
+
+    <string name="reminders_channel_day">Día de entreno</string>
+    <string name="reminders_channel_day_description">La rutina que toca, a la hora que elegiste.</string>
+    <string name="reminders_channel_week">Resumen semanal</string>
+    <string name="reminders_channel_week_description">Los domingos a las 20:00: tu semana en entrenos, series y tiempo.</string>
+
+    <string name="reminders_day_title">Hoy toca %1$s</string>
+    <plurals name="reminders_exercises">
+        <item quantity="one">%d ejercicio</item>
+        <item quantity="other">%d ejercicios</item>
+        <item quantity="many">%d ejercicios</item>
+    </plurals>
+    <plurals name="reminders_sets">
+        <item quantity="one">%d serie</item>
+        <item quantity="other">%d series</item>
+        <item quantity="many">%d series</item>
+    </plurals>
+    <string name="reminders_day_body">%1$s · %2$s. Toca para empezar.</string>
+
+    <plurals name="reminders_week_title">
+        <item quantity="one">Tu semana: %d entreno</item>
+        <item quantity="other">Tu semana: %d entrenos</item>
+        <item quantity="many">Tu semana: %d entrenos</item>
+    </plurals>
+    <string name="reminders_week_body">%1$s en %2$s.</string>
+    <string name="reminders_week_next">Sigue: %1$s.</string>
+    <string name="reminders_hours_minutes">%1$d h %2$d min</string>
+    <string name="reminders_minutes">%1$d min</string>
+    <string name="reminders_week_empty_title">Sin entrenos esta semana</string>
+    <string name="reminders_week_empty_body">Tu %1$s te espera.</string>
+</resources>
