@@ -15,8 +15,11 @@ As of 2026-11-20. Remove an item when it is done or decided, and record decision
 ## Task 25: to do and to verify
 
 - [x] The owner reviews the dashboard mocks (approved 2026-11-20) (`WebHistory`, `WebProgress`, `WebWeight`, `WebPhone`, `WebSignIn`) before the web app is built (decisions 16 and 110)
-- [ ] Before building: add the dashboard's CloudFront origins (staging and prod) as authorized JavaScript origins on the Web OAuth client; this answers the `*.cloudfront.net` question under "To verify later"
-- [ ] Decide how the browser keeps the session (decision 110 leaves it to the build)
+- [x] Before building: add the dashboard's CloudFront origins (staging and prod) and `http://localhost`, `http://localhost:5173` as authorized JavaScript origins on the Web OAuth client (added 2026-11-20; Google accepted the `*.cloudfront.net` origins)
+- [x] Decide how the browser keeps the session: in memory only (decision 111)
+- [ ] The owner signs in at `npm run dev` (web/dashboard/README.md) and sees the counts of workouts and weigh-ins: proves Google sign-in, `/auth/google` and the pull from a browser
+- [ ] Pull request 2: the views from the approved mocks
+- [ ] Pull request 3: CloudFront behaviours for `/auth/*` and `/sync/*`, the dashboard's routes, the upload in `deploy.yml`, then staging and prod
 
 ## Task 24: to do and to verify
 
@@ -61,7 +64,6 @@ As of 2026-11-20. Remove an item when it is done or decided, and record decision
 - [ ] The AWS free-tier terms for a new account (AWS changed them in 2025); [WISHLIST.md](WISHLIST.md) assumes the always-free allowances
 - [ ] The r/bodyweightfitness Recommended Routine wiki against the mirror used in [research/exercise-selection.md](research/exercise-selection.md)
 
-- [ ] Google sign-in on the web dashboard accepts a `*.cloudfront.net` origin, since there is no custom domain
 
 ## State of the build
 
