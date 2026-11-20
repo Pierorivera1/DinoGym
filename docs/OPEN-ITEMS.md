@@ -1,6 +1,6 @@
 # Open items
 
-As of 2026-11-19. Remove an item when it is done or decided, and record decisions in [DECISIONS.md](DECISIONS.md).
+As of 2026-11-20. Remove an item when it is done or decided, and record decisions in [DECISIONS.md](DECISIONS.md).
 
 ## The owner will set up
 
@@ -21,7 +21,7 @@ As of 2026-11-19. Remove an item when it is done or decided, and record decision
 - [ ] Before the next release: the owner adds the GitHub secret `DINOGYM_FIREBASE_API_KEY` (the `current_key` in `google-services.json`); the release workflow fails without it (decision 109)
 - [ ] Optional: restrict the Firebase API key in Google Cloud › Credentials to the two Android apps (package and signing SHA-1) and the Firebase Installations and FCM Registration APIs
 - [x] The Android part: REMINDERS in Settings, the four preferences, FCM token registration, notification channels and the messaging service (decision 109)
-- [ ] On staging with a debug build on a phone: turn Workout day on for a few minutes ahead; the schedule fires, the federation token exchange works and the notification shows. Then the weekly summary (Sundays 20:00), the time sheet, ALLOW NOTIFICATIONS and sign-out (DELETE)
+- [x] On staging with a debug build on a phone (checked by the owner 2026-11-20): turn Workout day on for a few minutes ahead; the schedule fires, the federation token exchange works and the notification shows. Then the weekly summary (Sundays 20:00), the time sheet, ALLOW NOTIFICATIONS and sign-out (DELETE)
 
 ## Task 23: to do and to verify
 
@@ -59,6 +59,7 @@ As of 2026-11-19. Remove an item when it is done or decided, and record decision
 
 ## State of the build
 
+- Task 24: the backend stores device tokens (`PUT`/`DELETE /devices/{installationId}`) and each reminder preference as an EventBridge Scheduler schedule; a separate reminder Lambda reaches FCM through workload identity federation (decisions 104–108). The app registers its FCM token, has REMINDERS in Settings and shows the workout-day and weekly-summary notifications (decision 109). Checked on a phone against staging by the owner (2026-11-20).
 - Task 23: the API publishes and serves shares (`POST /shares`, public `GET /shares/{id}`, decisions 96–97); CloudFront serves the page `/r/<id>`, its files and `assetlinks.json` from a private bucket and sends `/shares/*` to the API (decisions 98–101); the app shares from the routine and program editors and imports through task 22's installer (decisions 102–103). Checked with Go unit tests, the emulator (including requests to the distribution it serves), JVM tests and screenshots; the installer's new test runs in CI. Staging and prod serve the page, `assetlinks.json` and shares through CloudFront (`d1q286cdeyw8ks` and `d1ktti3qymlgmy`.cloudfront.net, 2026-11-18); publishing and importing are not yet tried on a phone.
 - Task 22: `+ NEW` on the Programs tab opens a sheet with an empty program and four starter programs (Gym and Calisthenics, 5 and 4 days, decision 92). Starters, the first-run seed and later imports are installed by `ProgramInstaller`, which reuses library exercises by name and kind (decision 93). Checked with JVM tests and screenshots; the installer's instrumented tests run in CI.
 - Task 21: the backend's `/sync/push` and `/sync/pull` work on the laptop and the emulator (decisions 86–87). The app tracks changes with SQLite triggers, pushes and pulls through WorkManager while signed in, uploads the whole history on the first sign-in, and shows the sync row in Settings › ACCOUNT (decisions 88–91). Checked with JVM tests and CI's instrumented tests; not yet tried on a phone against staging.
