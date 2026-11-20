@@ -14,7 +14,7 @@ As of 2026-11-20. Remove an item when it is done or decided, and record decision
 
 ## Task 25: to do and to verify
 
-- [ ] The owner reviews the dashboard mocks (`WebHistory`, `WebProgress`, `WebWeight`, `WebPhone`, `WebSignIn`) before the web app is built (decisions 16 and 110)
+- [x] The owner reviews the dashboard mocks (approved 2026-11-20) (`WebHistory`, `WebProgress`, `WebWeight`, `WebPhone`, `WebSignIn`) before the web app is built (decisions 16 and 110)
 - [ ] Before building: add the dashboard's CloudFront origins (staging and prod) as authorized JavaScript origins on the Web OAuth client; this answers the `*.cloudfront.net` question under "To verify later"
 - [ ] Decide how the browser keeps the session (decision 110 leaves it to the build)
 
