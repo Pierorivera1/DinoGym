@@ -12,6 +12,12 @@ As of 2026-11-20. Remove an item when it is done or decided, and record decision
 - [x] Create a Grafana Cloud account (free tier). Tokens are created later, when observability is wired up.
 - [ ] Back up the release signing key, `~/.config/dinogym/` (both files), to a password manager. Without it no update installs over the app ([RELEASE.md](RELEASE.md), decision 45)
 
+## Task 25: to do and to verify
+
+- [x] The owner reviews the dashboard mocks (approved 2026-11-20) (`WebHistory`, `WebProgress`, `WebWeight`, `WebPhone`, `WebSignIn`) before the web app is built (decisions 16 and 110)
+- [ ] Before building: add the dashboard's CloudFront origins (staging and prod) as authorized JavaScript origins on the Web OAuth client; this answers the `*.cloudfront.net` question under "To verify later"
+- [ ] Decide how the browser keeps the session (decision 110 leaves it to the build)
+
 ## Task 24: to do and to verify
 
 - [x] The owner reviews `Reminders.dc.html` before the REMINDERS section is built (approved 2026-11-19)

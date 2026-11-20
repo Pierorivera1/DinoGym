@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Web dashboard: sign-in and states</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1370px; height: 960px; box-sizing: border-box; background: #E4E0EA; padding: 40px; display: flex; gap: 40px; font-family: Inter, sans-serif">
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">{{label}}</div>
+    <div style="width: 860px; height: 843px; box-sizing: border-box; background: {{t.bg}}; color: {{t.outline}}; display: flex; flex-direction: column; overflow: hidden">
+      <div style="height: 32px; flex-shrink: 0; padding: 0 14px; display: flex; align-items: center; background: {{t.surface2}}; color: {{t.muted}}; font-size: 12px">d1ktti3qymlgmy.cloudfront.net</div>
+      <main style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px">
+        <div style="width: 440px; display: flex; flex-direction: column; gap: 18px">
+          <div style="display: flex; align-items: center; gap: 14px">
+            <svg viewBox="0 0 8 8" width="56" height="56" shape-rendering="crispEdges" aria-hidden="true"><path d="{{cur.y}}" fill="{{t.select}}"></path><path d="{{cur.o}}" fill="{{t.outline}}"></path></svg>
+            <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 34px; letter-spacing: 0.04em">DINOGYM</span>
+          </div>
+          <h1 style="margin: 0; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 30px; line-height: 1.15">{{s.title}}</h1>
+          <div style="background: {{t.bg}}; border: 3px solid {{t.outline}}; box-shadow: 4px 4px 0 {{t.shadow}}; padding: 12px 14px; font-size: 15px; line-height: 1.5">{{s.box}}</div>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <button style="height: 44px; width: 260px; display: flex; align-items: center; justify-content: center; gap: 10px; background: #FFFFFF; color: #1F1F1F; border: 1px solid #747775; border-radius: 4px; font-family: Inter, sans-serif; font-size: 14px; font-weight: 500">
+              <span aria-hidden="true" style="width: 18px; height: 18px; border: 1px dashed #747775; font-size: 9px; display: flex; align-items: center; justify-content: center; color: #747775">G</span>{{s.google}}
+            </button>
+            <span style="font-size: 12px; color: {{t.muted}}">{{s.googleNote}}</span>
+          </div>
+          <div style="font-size: 13px; line-height: 1.5; color: {{t.muted}}">{{s.privacy}}</div>
+          <div style="height: 0; border-top: 2px dotted {{t.surface2}}"></div>
+          <div style="display: flex; align-items: center; gap: 14px">
+            <a href="#" style="height: 48px; padding: 0 16px; display: flex; align-items: center; background: {{t.surface}}; color: {{t.outline}}; border: 2px solid {{t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{t.hi}}, inset 0 -4px 0 {{t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 16px; text-decoration: none">{{s.getApp}}</a>
+            <span style="font-size: 13px; color: {{t.muted}}">{{s.getAppNote}}</span>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px; width: 390px">
+    <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">{{s.statesLabel}}</div>
+    <sc-for list="{{states}}" as="st" hint-placeholder-count="5">
+      <div style="box-sizing: border-box; background: {{t.bg}}; color: {{t.outline}}; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+        <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: {{t.muted}}">{{st.k}}</div>
+        <div style="font-size: 14px; line-height: 1.45; color: {{st.c}}">{{st.text}}</div>
+        <sc-if value="{{st.hasButton}}" hint-placeholder-val="{{false}}">
+          <a href="#" style="height: 48px; display: flex; align-items: center; justify-content: center; background: {{t.surface}}; color: {{t.outline}}; border: 2px solid {{t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{t.hi}}, inset 0 -4px 0 {{t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 16px; text-decoration: none">{{st.button}}</a>
+        </sc-if>
+      </div>
+    </sc-for>
+    <div style="font-size: 13px; line-height: 1.5; color: #3B3447">{{s.footnote}}</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Night · English","Day · Español"],"default":"Night · English"},"$preview":{"width":1370,"height":960}}'>
+const T = {
+  night: { name: 'NIGHT', bg: '#0C0915', surface: '#1C1430', surface2: '#2A1F45', outline: '#F4F2F7', muted: '#A39BB6', select: '#F5D23A', action: '#F0A030', danger: '#FF4D4D', shadow: '#4A3A80', hi: 'rgba(255,255,255,0.22)', lo: 'rgba(0,0,0,0.45)' },
+  day: { name: 'DAY', bg: '#FBF3E8', surface: '#FFFDF8', surface2: '#F3E6D6', outline: '#33213F', muted: '#7A6684', select: '#FBDA61', action: '#33213F', danger: '#B8326A', shadow: '#33213F', hi: 'rgba(255,255,255,0.6)', lo: 'rgba(51,33,63,0.25)' }
+};
+const N = 'polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px)';
+function px(rows) { let d = ''; rows.forEach(function (r, y) { for (let x = 0; x < r.length; x++) { if (r[x] === '#') d += 'M' + x + ' ' + y + 'h1v1h-1z'; } }); return d; }
+const CUR = { o: px(['..####..', '.#....#.', '#......#', '#.#..#.#', '#......#', '#..##..#', '.#....#.', '..####..']), y: px(['........', '..####..', '.######.', '.#.##.#.', '.######.', '.##..##.', '..####..', '........']) };
+const S = {
+  en: {
+    title: 'Your training, on a bigger screen.',
+    box: '* Sign in with the Google account you use in the DinoGym app. You will see your workouts, progress and body weight. Logging still happens on your phone.',
+    google: 'Sign in with Google', googleNote: 'Google draws this button (Google Identity Services); shown here as a placeholder.',
+    privacy: 'DinoGym gets your name and email from Google to show them on this page. The server stores neither: only a random id.',
+    getApp: 'GET THE APP', getAppNote: 'Android · free and open source · APK on GitHub Releases',
+    statesLabel: 'STATES (SAME THEME AND LANGUAGE)',
+    states: [
+      ['LOADING YOUR DATA (AFTER SIGN-IN AND ON REFRESH)', 'Loading your workouts…', 'muted', ''],
+      ['NOTHING SYNCED YET', '* No workouts here yet. In the app, open Settings › ACCOUNT and sign in with this Google account. Your history uploads by itself.', 'outline', 'GET THE APP'],
+      ['SIGN-IN FAILED', 'Could not sign in. Try again in a moment.', 'danger', 'TRY AGAIN'],
+      ['COULD NOT LOAD (OFFLINE OR SERVER ERROR)', 'Could not load your data. Check your connection and try again.', 'danger', 'TRY AGAIN'],
+      ['SESSION ENDED (SIGN-IN PAGE WITH THIS LINE ON TOP)', 'You were signed out. Sign in again to see your data.', 'muted', '']
+    ],
+    footnote: 'Night or Day follows the browser; English or Spanish follows its language. SIGN OUT forgets the session in this browser only; the phone stays signed in.'
+  },
+  es: {
+    title: 'Tu entrenamiento, en una pantalla más grande.',
+    box: '* Inicia sesión con la cuenta de Google que usas en la app DinoGym. Verás tus entrenos, tu progreso y tu peso. Se siguen registrando en el teléfono.',
+    google: 'Acceder con Google', googleNote: 'Google dibuja este botón (Google Identity Services); aquí es un marcador.',
+    privacy: 'DinoGym recibe tu nombre y correo de Google para mostrarlos en esta página. El servidor no guarda ninguno: solo un id aleatorio.',
+    getApp: 'DESCARGAR LA APP', getAppNote: 'Android · gratis y de código abierto · APK en GitHub Releases',
+    statesLabel: 'ESTADOS (MISMO TEMA E IDIOMA)',
+    states: [
+      ['CARGANDO TUS DATOS (TRAS INICIAR SESIÓN Y AL ACTUALIZAR)', 'Cargando tus entrenos…', 'muted', ''],
+      ['TODAVÍA NO HAY NADA SINCRONIZADO', '* Aún no hay entrenos. En la app, abre Ajustes › CUENTA e inicia sesión con esta cuenta de Google. Tu historial se sube solo.', 'outline', 'DESCARGAR LA APP'],
+      ['NO SE PUDO INICIAR SESIÓN', 'No se pudo iniciar sesión. Inténtalo de nuevo en un momento.', 'danger', 'REINTENTAR'],
+      ['NO SE PUDO CARGAR (SIN CONEXIÓN O ERROR DEL SERVIDOR)', 'No se pudieron cargar tus datos. Revisa tu conexión e inténtalo de nuevo.', 'danger', 'REINTENTAR'],
+      ['SESIÓN TERMINADA (PÁGINA DE INICIO CON ESTA LÍNEA ARRIBA)', 'Se cerró tu sesión. Vuelve a iniciarla para ver tus datos.', 'muted', '']
+    ],
+    footnote: 'Noche o Día sigue al navegador; inglés o español, a su idioma. CERRAR SESIÓN solo olvida la sesión en este navegador; el teléfono sigue conectado.'
+  }
+};
+class Component extends DCLogic {
+  renderVals() {
+    const es = (this.props.theme ?? 'Night · English') !== 'Night · English';
+    const t = es ? T.day : T.night, s = es ? S.es : S.en;
+    return {
+      t: t, s: s, n: N, cur: CUR,
+      label: 'WEB · ' + t.name + ' · ' + (es ? 'ESPAÑOL' : 'ENGLISH') + ' · SIGNED OUT',
+      states: s.states.map(function (x) { return { k: x[0], text: x[1], c: t[x[2]], hasButton: x[3] !== '', button: x[3] }; })
+    };
+  }
+}
+</script>
+</body>
+</html>
