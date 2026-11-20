@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Web dashboard: body weight</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1360px; height: 960px; box-sizing: border-box; background: #E4E0EA; padding: 40px; display: flex; flex-direction: column; gap: 12px; font-family: Inter, sans-serif">
+  <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">{{label}}</div>
+  <div style="width: 1280px; height: 843px; box-sizing: border-box; background: {{t.bg}}; color: {{t.outline}}; display: flex; flex-direction: column; overflow: hidden">
+    <div style="height: 32px; flex-shrink: 0; padding: 0 14px; display: flex; align-items: center; background: {{t.surface2}}; color: {{t.muted}}; font-size: 12px">d1ktti3qymlgmy.cloudfront.net/weight</div>
+    <div style="flex-grow: 1; padding: 0 32px 24px; display: flex; flex-direction: column; gap: 16px; min-height: 0">
+
+      <header style="height: 72px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; border-bottom: 2px dotted {{t.surface2}}">
+        <svg viewBox="0 0 8 8" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path d="{{cur.y}}" fill="{{t.select}}"></path><path d="{{cur.o}}" fill="{{t.outline}}"></path></svg>
+        <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 22px; letter-spacing: 0.04em">DINOGYM</span>
+        <nav aria-label="{{s.navAria}}" style="display: flex; gap: 4px; margin-left: 24px">
+          <sc-for list="{{tabs}}" as="tab" hint-placeholder-count="3">
+            <a href="{{tab.href}}" aria-current="{{tab.current}}" style="height: 44px; box-sizing: border-box; padding: 0 18px; display: flex; align-items: center; background: {{tab.bg}}; color: {{tab.fg}}; border: 2px solid {{tab.border}}; clip-path: {{n}}; box-shadow: {{tab.shadow}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 16px; text-decoration: none">{{tab.label}}</a>
+          </sc-for>
+        </nav>
+        <span style="flex-grow: 1"></span>
+        <span style="font-size: 13px; color: {{t.muted}}">{{s.updated}}</span>
+        <button style="height: 44px; padding: 0 14px; background: {{t.surface}}; color: {{t.outline}}; border: 2px solid {{t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{t.hi}}, inset 0 -4px 0 {{t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 15px">{{s.refresh}}</button>
+        <span style="display: flex; align-items: center; gap: 8px; margin-left: 8px">
+          <span aria-hidden="true" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: {{t.surface2}}; clip-path: {{n}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px">A</span>
+          <span style="font-size: 14px; font-weight: 600">Alex M.</span>
+        </span>
+        <button style="height: 44px; padding: 0 14px; background: {{t.surface}}; color: {{t.outline}}; border: 2px solid {{t.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{t.hi}}, inset 0 -4px 0 {{t.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 15px">{{s.signOut}}</button>
+      </header>
+
+      <div style="flex-grow: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px">
+        <div style="display: flex; flex-direction: column; gap: 14px">
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+            <sc-for list="{{panels}}" as="p" hint-placeholder-count="3">
+              <div style="background: {{t.surface}}; border: 2px solid {{t.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{t.hi}}, inset 0 -4px 0 {{t.lo}}; padding: 12px 14px 16px; display: flex; flex-direction: column; gap: 6px">
+                <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: {{t.muted}}">{{p.k}}</span>
+                <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 36px; line-height: 1; color: {{p.c}}">{{p.v}}</span>
+                <span style="font-size: 13px; color: {{t.muted}}">{{p.sub}}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <figure style="margin: 0; padding: 12px 16px 10px; background: {{t.surface}}; border: 2px solid {{t.outline}}; clip-path: {{n}}; display: flex; flex-direction: column; gap: 10px">
+            <figcaption style="display: flex; align-items: center; gap: 16px; font-size: 13px; color: {{t.muted}}">
+              <span style="flex-grow: 1; font-weight: 600; letter-spacing: 0.06em">{{s.chartLabel}}</span>
+              <span style="display: flex; gap: 6px; align-items: center"><span style="width: 16px; height: 2px; background: {{t.primary}}"></span>{{s.legendAvg}}</span>
+              <span style="display: flex; gap: 6px; align-items: center"><span style="width: 6px; height: 6px; background: {{t.muted}}"></span>{{s.legendRaw}}</span>
+              <span style="display: flex; gap: 6px; align-items: center"><span style="width: 16px; height: 0; border-top: 2px dashed {{t.select}}"></span>{{s.legendGoal}}</span>
+              <span role="group" aria-label="{{s.rangeAria}}" style="display: flex; gap: 4px">
+                <sc-for list="{{ranges}}" as="r" hint-placeholder-count="4">
+                  <button aria-pressed="{{r.on}}" style="height: 40px; min-width: 52px; padding: 0 8px; background: {{r.bg}}; color: {{r.fg}}; border: 2px solid {{r.border}}; clip-path: {{n}}; box-shadow: {{r.shadow}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 14px">{{r.label}}</button>
+                </sc-for>
+              </span>
+            </figcaption>
+            <div role="img" aria-label="{{s.chartAria}}" style="position: relative; width: 820px; height: 470px">
+              <sc-for list="{{yTicks}}" as="y" hint-placeholder-count="6">
+                <span style="position: absolute; left: 0; top: {{y.top}}; width: 28px; text-align: right; font-size: 11px; line-height: 16px; color: {{t.muted}}">{{y.label}}</span>
+              </sc-for>
+              <svg viewBox="0 0 780 440" width="780" height="440" shape-rendering="crispEdges" aria-hidden="true" style="position: absolute; left: 40px; top: 4px">
+                <path d="{{chart.grid}}" stroke="{{t.muted}}" stroke-opacity="0.4" stroke-width="2" stroke-dasharray="2 4" fill="none"></path>
+                <path d="{{chart.goal}}" stroke="{{t.select}}" stroke-width="2" stroke-dasharray="8 6" fill="none"></path>
+                <path d="{{chart.dots}}" fill="{{t.muted}}"></path>
+                <path d="{{chart.avg}}" fill="none" stroke="{{t.primary}}" stroke-width="2"></path>
+                <line x1="0" y1="439" x2="780" y2="439" stroke="{{t.muted}}" stroke-width="2"></line>
+                <rect x="{{chart.lx}}" y="{{chart.ly}}" width="10" height="10" fill="{{t.select}}" stroke="{{t.outline}}" stroke-width="2"></rect>
+              </svg>
+              <sc-for list="{{months}}" as="m" hint-placeholder-count="4">
+                <span style="position: absolute; top: 450px; left: {{m.left}}; width: 40px; text-align: center; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: {{t.muted}}">{{m.label}}</span>
+              </sc-for>
+            </div>
+          </figure>
+        </div>
+
+        <section aria-label="{{s.listLabel}}" style="display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow: hidden">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{t.muted}}"><span>{{s.listLabel}}</span><span>{{s.newest}}</span></div>
+          <ul style="margin: 0; padding: 0; list-style: none; background: {{t.surface}}; border: 2px solid {{t.outline}}; clip-path: {{n}}">
+            <sc-for list="{{entries}}" as="e" hint-placeholder-count="10">
+              <li style="height: 44px; padding: 0 14px; display: flex; align-items: center; gap: 10px; border-bottom: 2px dotted {{t.surface2}}">
+                <span style="flex-grow: 1; font-size: 15px">{{e.date}}</span>
+                <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 19px">{{e.kg}}</span>
+              </li>
+            </sc-for>
+          </ul>
+          <span style="font-size: 13px; line-height: 1.45; color: {{t.muted}}">{{s.readOnly}}</span>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Night · English","Day · Español"],"default":"Night · English"},"$preview":{"width":1360,"height":960}}'>
+const T = {
+  night: { name: 'NIGHT', bg: '#0C0915', surface: '#1C1430', surface2: '#2A1F45', outline: '#F4F2F7', muted: '#A39BB6', primary: '#A98BFF', select: '#F5D23A', onSelect: '#0C0915', action: '#F0A030', success: '#5CD27A', hi: 'rgba(255,255,255,0.22)', lo: 'rgba(0,0,0,0.45)' },
+  day: { name: 'DAY', bg: '#FBF3E8', surface: '#FFFDF8', surface2: '#F3E6D6', outline: '#33213F', muted: '#7A6684', primary: '#6B4FC8', select: '#FBDA61', onSelect: '#33213F', action: '#33213F', success: '#2F7D45', hi: 'rgba(255,255,255,0.6)', lo: 'rgba(51,33,63,0.25)' }
+};
+const N = 'polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px)';
+function px(rows) { let d = ''; rows.forEach(function (r, y) { for (let x = 0; x < r.length; x++) { if (r[x] === '#') d += 'M' + x + ' ' + y + 'h1v1h-1z'; } }); return d; }
+const CUR = { o: px(['..####..', '.#....#.', '#......#', '#.#..#.#', '#......#', '#..##..#', '.#....#.', '..####..']), y: px(['........', '..####..', '.######.', '.#.##.#.', '.######.', '.##..##.', '..####..', '........']) };
+// 90 days, 18 August to 16 November. A weigh-in on most days, trending from 74.0 to 72.4 kg.
+const DAYS = 90, LO = 69.5, HI = 74.5, GOAL = 70.0;
+const W = [];
+for (let d = 0; d <= DAYS; d++) {
+  if (d % 7 === 2 || d % 7 === 5) continue;
+  const trend = 74.0 - 1.6 * d / DAYS;
+  const noise = 0.35 * Math.sin(d * 1.7) + 0.2 * Math.sin(d * 0.6 + 1);
+  W.push([d, Math.round((trend + noise) * 10) / 10]);
+}
+const S = {
+  en: {
+    navAria: 'Dashboard', tabs: ['HISTORY', 'PROGRESS', 'WEIGHT'], updated: 'Updated 2 min ago', refresh: 'REFRESH', signOut: 'SIGN OUT', dec: '.',
+    panels: [['CURRENT', '72.4', '7-day average, kg'], ['CHANGE', '−1.6', 'kg in 3 months'], ['GOAL', '70.0', '2.4 kg to go']],
+    chartLabel: 'BODY WEIGHT · KG', legendAvg: '7-day average', legendRaw: 'weigh-in', legendGoal: 'goal', rangeAria: 'Chart range', ranges: ['1M', '3M', '1Y', 'ALL'],
+    chartAria: 'Body weight over three months: the 7-day average falls from 74.0 to 72.4 kg; the goal is 70.0 kg.',
+    months: ['AUG', 'SEP', 'OCT', 'NOV'], listLabel: 'WEIGH-INS', newest: 'NEWEST FIRST',
+    dows: ['Mon', 'Sun', 'Sat', 'Fri', 'Thu', 'Wed', 'Tue'], mon: 'Nov',
+    readOnly: 'Log weigh-ins and change the goal in the app. They show here after the next sync.'
+  },
+  es: {
+    navAria: 'Panel', tabs: ['HISTORIAL', 'PROGRESO', 'PESO'], updated: 'Actualizado hace 2 min', refresh: 'ACTUALIZAR', signOut: 'CERRAR SESIÓN', dec: ',',
+    panels: [['ACTUAL', '72,4', 'promedio 7 días, kg'], ['CAMBIO', '−1,6', 'kg en 3 meses'], ['OBJETIVO', '70,0', 'faltan 2,4 kg']],
+    chartLabel: 'PESO CORPORAL · KG', legendAvg: 'promedio 7 días', legendRaw: 'pesaje', legendGoal: 'objetivo', rangeAria: 'Rango del gráfico', ranges: ['1M', '3M', '1A', 'TODO'],
+    chartAria: 'Peso corporal en tres meses: el promedio de 7 días baja de 74,0 a 72,4 kg; el objetivo es 70,0 kg.',
+    months: ['AGO', 'SEP', 'OCT', 'NOV'], listLabel: 'PESAJES', newest: 'MÁS RECIENTE PRIMERO',
+    dows: ['lun', 'dom', 'sáb', 'vie', 'jue', 'mié', 'mar'], mon: 'nov',
+    readOnly: 'Registra pesajes y cambia el objetivo en la app. Aparecen aquí después de la próxima sincronización.'
+  }
+};
+function X(d) { return Math.round(d * 770 / DAYS) + 5; }
+function Y(v) { return Math.round(439 - (v - LO) * 88); }
+class Component extends DCLogic {
+  renderVals() {
+    const es = (this.props.theme ?? 'Night · English') !== 'Night · English';
+    const t = es ? T.day : T.night, s = es ? S.es : S.en;
+    const bands = 'inset 0 2px 0 ' + t.hi + ', inset 0 -4px 0 ' + t.lo;
+    const hrefs = ['WebHistory.dc.html', 'WebProgress.dc.html', 'WebWeight.dc.html'];
+    let grid = '';
+    for (let v = 70; v <= 74; v++) grid += 'M0 ' + Y(v) + 'H780';
+    let dots = '';
+    W.forEach(function (p) { dots += 'M' + (X(p[0]) - 2) + ' ' + (Y(p[1]) - 2) + 'h4v4h-4z'; });
+    let avg = '', avgEnd = 0;
+    W.forEach(function (p, i) {
+      const win = W.filter(function (q) { return q[0] <= p[0] && q[0] > p[0] - 7; });
+      const a = win.reduce(function (sum, q) { return sum + q[1]; }, 0) / win.length;
+      avgEnd = a;
+      avg += (i === 0 ? 'M' : 'H') + X(p[0]) + (i === 0 ? ' ' : 'V') + Y(a);
+    });
+    const end = W[W.length - 1];
+    const fmt = function (v) { return v.toFixed(1).replace('.', s.dec); };
+    const recent = W.slice(-10).reverse();
+    return {
+      t: t, s: s, n: N, cur: CUR,
+      label: 'WEB · ' + t.name + ' · ' + (es ? 'ESPAÑOL' : 'ENGLISH') + ' · BODY WEIGHT, READ ONLY',
+      tabs: s.tabs.map(function (l, i) { const on = i === 2; return { label: l, href: hrefs[i], current: on ? 'page' : 'false', bg: on ? t.select : t.surface, fg: on ? t.onSelect : t.outline, border: on ? t.outline : t.action, shadow: on ? 'none' : bands }; }),
+      ranges: s.ranges.map(function (l, i) { const on = i === 1; return { label: l, on: on ? 'true' : 'false', bg: on ? t.select : t.surface, fg: on ? t.onSelect : t.outline, border: on ? t.outline : t.action, shadow: on ? 'none' : bands }; }),
+      panels: s.panels.map(function (p, i) { return { k: p[0], v: p[1], sub: p[2], c: i === 1 ? t.success : t.outline }; }),
+      chart: { grid: grid, goal: 'M0 ' + Y(GOAL) + 'H780', dots: dots, avg: avg, lx: X(end[0]) - 5, ly: Y(avgEnd) - 5 },
+      yTicks: [70, 71, 72, 73, 74].map(function (v) { return { label: String(v), top: (Y(v) - 4) + 'px' }; }),
+      months: s.months.map(function (m, i) { return { label: m, left: (40 + X([7, 29, 59, 82][i]) - 20) + 'px' }; }),
+      entries: recent.map(function (p) { const back = DAYS - p[0]; return { date: s.dows[back % 7] + ' ' + (16 - back) + ' ' + s.mon, kg: fmt(p[1]) }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

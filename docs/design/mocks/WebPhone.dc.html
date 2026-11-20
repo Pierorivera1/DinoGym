@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Web dashboard at phone width</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1330px; height: 960px; box-sizing: border-box; background: #E4E0EA; padding: 40px; display: flex; gap: 40px; font-family: Inter, sans-serif">
+
+  <!-- 1 · History list, Day, English -->
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">WEB · PHONE · DAY · ENGLISH · HISTORY</div>
+    <div style="width: 390px; height: 844px; box-sizing: border-box; background: {{d.bg}}; color: {{d.outline}}; padding: 0 16px 16px; display: flex; flex-direction: column; gap: 12px; overflow: hidden">
+      <div style="height: 28px; flex-shrink: 0; margin: 0 -16px; padding: 0 12px; display: flex; align-items: center; background: {{d.surface2}}; color: {{d.muted}}; font-size: 12px">d1ktti3qymlgmy.cloudfront.net/history</div>
+      <header style="height: 48px; flex-shrink: 0; display: flex; align-items: center; gap: 10px">
+        <svg viewBox="0 0 8 8" width="28" height="28" shape-rendering="crispEdges" aria-hidden="true"><path d="{{cur.y}}" fill="{{d.select}}"></path><path d="{{cur.o}}" fill="{{d.outline}}"></path></svg>
+        <span style="flex-grow: 1; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px; letter-spacing: 0.04em">DINOGYM</span>
+        <button aria-label="Account: Alex M. Refresh or sign out" style="width: 48px; height: 48px; background: {{d.surface}}; color: {{d.outline}}; border: 2px solid {{d.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{d.hi}}, inset 0 -4px 0 {{d.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px">A</button>
+      </header>
+      <nav aria-label="Dashboard" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px">
+        <sc-for list="{{dTabs}}" as="tab" hint-placeholder-count="3">
+          <a href="#" aria-current="{{tab.current}}" style="height: 48px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: {{tab.bg}}; color: {{tab.fg}}; border: 2px solid {{tab.border}}; clip-path: {{n}}; box-shadow: {{tab.shadow}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 15px; text-decoration: none">{{tab.label}}</a>
+        </sc-for>
+      </nav>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+        <sc-for list="{{dPanels}}" as="p" hint-placeholder-count="4">
+          <div style="background: {{d.surface}}; border: 2px solid {{d.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{d.hi}}, inset 0 -4px 0 {{d.lo}}; padding: 8px 12px 12px; display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: {{d.muted}}">{{p.k}}</span>
+            <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 26px; line-height: 1; color: {{p.c}}">{{p.v}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{d.muted}}">NOVEMBER 2026</div>
+      <sc-for list="{{dRows}}" as="r" hint-placeholder-count="6">
+        <a href="#" style="height: 60px; flex-shrink: 0; box-sizing: border-box; padding: 0 12px 0 8px; display: flex; align-items: center; gap: 10px; background: {{d.surface}}; color: {{d.outline}}; border: 2px solid {{d.surface2}}; clip-path: {{n}}; text-decoration: none">
+          <span style="width: 44px; height: 44px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: {{d.surface2}}; clip-path: {{n}}">
+            <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.04em; color: {{d.muted}}">{{r.dow}}</span>
+            <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px; line-height: 1">{{r.day}}</span>
+          </span>
+          <span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
+            <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 18px">{{r.routine}}</span>
+            <span style="font-size: 13px; color: {{d.muted}}">{{r.meta}}</span>
+          </span>
+          <sc-if value="{{r.hasBest}}" hint-placeholder-val="{{false}}"><span style="padding: 2px 6px; background: {{d.select}}; color: {{d.onSelect}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 13px">{{r.best}}</span></sc-if>
+          <svg viewBox="0 0 16 16" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.chevR}}" fill="{{d.muted}}"></path></svg>
+        </a>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- 2 · One workout, Night, Spanish -->
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">WEB · PHONE · NIGHT · ESPAÑOL · ENTRENO</div>
+    <div style="width: 390px; height: 844px; box-sizing: border-box; background: {{nt.bg}}; color: {{nt.outline}}; padding: 0 16px 16px; display: flex; flex-direction: column; gap: 12px; overflow: hidden">
+      <div style="height: 28px; flex-shrink: 0; margin: 0 -16px; padding: 0 12px; display: flex; align-items: center; background: {{nt.surface2}}; color: {{nt.muted}}; font-size: 12px">d1ktti3qymlgmy.cloudfront.net/history/2026-11-16</div>
+      <header style="height: 56px; flex-shrink: 0; display: grid; grid-template-columns: 48px 1fr 48px; gap: 8px; align-items: center">
+        <a href="#" aria-label="Volver al historial" style="width: 48px; height: 48px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: {{nt.surface}}; border: 2px solid {{nt.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{nt.hi}}, inset 0 -4px 0 {{nt.lo}}"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path d="{{ic.back}}" fill="{{nt.action}}"></path></svg></a>
+        <h1 style="margin: 0; text-align: center; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 22px">PULL</h1>
+        <span></span>
+      </header>
+      <div style="text-align: center; font-size: 14px; color: {{nt.muted}}">lun 16 nov · 42:10 · 14 series</div>
+      <sc-for list="{{nExs}}" as="e" hint-placeholder-count="5">
+        <div style="padding: 10px 12px 12px; background: {{e.bg}}; border: 2px solid {{nt.surface2}}; clip-path: {{n}}; display: flex; flex-direction: column; gap: 8px">
+          <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap">
+            <a href="#" style="font-size: 15px; font-weight: 600; color: {{nt.outline}}">{{e.name}}</a>
+            <span style="font-size: 13px; color: {{e.noteC}}">{{e.note}}</span>
+          </div>
+          <div style="display: flex; gap: 6px">
+            <sc-for list="{{e.sets}}" as="c" hint-placeholder-count="3">
+              <span style="width: 48px; height: 46px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; background: {{nt.bg}}; border: 2px solid {{c.border}}; clip-path: {{n}}">
+                <span style="font-size: 10px; font-weight: 600; color: {{nt.muted}}">{{c.k}}</span>
+                <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 19px; line-height: 1">{{c.v}}</span>
+              </span>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+      <div style="font-size: 13px; line-height: 1.4; color: {{nt.muted}}">El panel solo muestra. Para cambiar una serie, abre el entreno en la app.</div>
+    </div>
+  </div>
+
+  <!-- 3 · Progress, Night, English -->
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #3B3447">WEB · PHONE · NIGHT · ENGLISH · PROGRESS</div>
+    <div style="width: 390px; height: 844px; box-sizing: border-box; background: {{nt.bg}}; color: {{nt.outline}}; padding: 0 16px 16px; display: flex; flex-direction: column; gap: 12px; overflow: hidden">
+      <div style="height: 28px; flex-shrink: 0; margin: 0 -16px; padding: 0 12px; display: flex; align-items: center; background: {{nt.surface2}}; color: {{nt.muted}}; font-size: 12px">d1ktti3qymlgmy.cloudfront.net/progress/pull-ups</div>
+      <header style="height: 48px; flex-shrink: 0; display: flex; align-items: center; gap: 10px">
+        <svg viewBox="0 0 8 8" width="28" height="28" shape-rendering="crispEdges" aria-hidden="true"><path d="{{cur.y}}" fill="{{nt.select}}"></path><path d="{{cur.o}}" fill="{{nt.outline}}"></path></svg>
+        <span style="flex-grow: 1; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px; letter-spacing: 0.04em">DINOGYM</span>
+        <button aria-label="Account: Alex M. Refresh or sign out" style="width: 48px; height: 48px; background: {{nt.surface}}; color: {{nt.outline}}; border: 2px solid {{nt.action}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{nt.hi}}, inset 0 -4px 0 {{nt.lo}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px">A</button>
+      </header>
+      <nav aria-label="Dashboard" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px">
+        <sc-for list="{{nTabs}}" as="tab" hint-placeholder-count="3">
+          <a href="#" aria-current="{{tab.current}}" style="height: 48px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: {{tab.bg}}; color: {{tab.fg}}; border: 2px solid {{tab.border}}; clip-path: {{n}}; box-shadow: {{tab.shadow}}; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 15px; text-decoration: none">{{tab.label}}</a>
+        </sc-for>
+      </nav>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{nt.muted}}">EXERCISE
+        <select style="height: 52px; box-sizing: border-box; padding: 0 12px; background: {{nt.bg}}; color: {{nt.outline}}; border: 2px solid {{nt.outline}}; clip-path: {{n}}; font-family: Inter, sans-serif; font-size: 16px"><option>Pull-ups · best 7</option><option>Rows · best 10</option><option>Squat · best 60 kg × 8</option></select>
+      </label>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+        <sc-for list="{{nPanels}}" as="p" hint-placeholder-count="3">
+          <div style="background: {{nt.surface}}; border: 2px solid {{nt.outline}}; clip-path: {{n}}; box-shadow: inset 0 2px 0 {{nt.hi}}, inset 0 -4px 0 {{nt.lo}}; padding: 8px 12px 12px; display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: {{nt.muted}}">{{p.k}}</span>
+            <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 26px; line-height: 1; color: {{p.c}}">{{p.v}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <figure style="margin: 0; padding: 10px 12px 8px; background: {{nt.surface}}; border: 2px solid {{nt.outline}}; clip-path: {{n}}; display: flex; flex-direction: column; gap: 8px">
+        <figcaption style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: {{nt.muted}}">SET 1 OVER TIME · 6M</figcaption>
+        <div role="img" aria-label="Set 1 best for pull-ups: 4 on 7 July, 5 on 4 August, 6 on 15 September, 7 on 16 November" style="position: relative; width: 330px; height: 196px">
+          <sc-for list="{{yTicks}}" as="y" hint-placeholder-count="5">
+            <span style="position: absolute; left: 0; top: {{y.top}}; width: 20px; text-align: right; font-size: 11px; line-height: 16px; color: {{nt.muted}}">{{y.label}}</span>
+          </sc-for>
+          <svg viewBox="0 0 298 168" width="298" height="168" shape-rendering="crispEdges" aria-hidden="true" style="position: absolute; left: 28px; top: 4px">
+            <path d="M0 8H298M0 40H298M0 72H298M0 104H298M0 136H298" stroke="{{nt.muted}}" stroke-opacity="0.4" stroke-width="2" stroke-dasharray="2 4" fill="none"></path>
+            <path d="M58 166 V136 H104 V104 H174 V72 H286 V40 V166 Z" fill="{{nt.tint}}"></path>
+            <path d="M58 136 H104 V104 H174 V72 H286 V40" fill="none" stroke="{{nt.primary}}" stroke-width="2"></path>
+            <line x1="0" y1="167" x2="298" y2="167" stroke="{{nt.muted}}" stroke-width="2"></line>
+            <path d="M56 134h4v4h-4zM102 102h4v4h-4zM172 70h4v4h-4z" fill="{{nt.primary}}"></path>
+            <rect x="282" y="36" width="8" height="8" fill="{{nt.select}}" stroke="{{nt.outline}}" stroke-width="2"></rect>
+          </svg>
+          <sc-for list="{{months}}" as="m" hint-placeholder-count="6">
+            <span style="position: absolute; top: 178px; left: {{m.left}}; width: 36px; text-align: center; font-size: 11px; font-weight: 600; color: {{nt.muted}}">{{m.label}}</span>
+          </sc-for>
+        </div>
+      </figure>
+      <ul style="margin: 0; padding: 0; list-style: none; background: {{nt.surface}}; border: 2px solid {{nt.outline}}; clip-path: {{n}}">
+        <sc-for list="{{records}}" as="r" hint-placeholder-count="3">
+          <li style="height: 44px; padding: 0 12px; display: flex; align-items: center; gap: 10px; border-bottom: 2px dotted {{nt.surface2}}; background: {{r.bg}}">
+            <span style="flex-grow: 1; font-size: 15px">{{r.date}}</span>
+            <span style="font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 20px">{{r.reps}}</span>
+            <span style="width: 56px; text-align: right; font-family: 'Pixelify Sans', sans-serif; font-weight: 600; font-size: 14px; color: {{nt.success}}">▲ +1</span>
+          </li>
+        </sc-for>
+      </ul>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1330,"height":960}}'>
+const T = {
+  night: { bg: '#0C0915', surface: '#1C1430', surface2: '#2A1F45', outline: '#F4F2F7', muted: '#A39BB6', primary: '#A98BFF', select: '#F5D23A', onSelect: '#0C0915', action: '#F0A030', success: '#5CD27A', hi: 'rgba(255,255,255,0.22)', lo: 'rgba(0,0,0,0.45)', tint: 'rgba(169,139,255,0.20)', bestBg: 'rgba(92,210,122,0.14)' },
+  day: { bg: '#FBF3E8', surface: '#FFFDF8', surface2: '#F3E6D6', outline: '#33213F', muted: '#7A6684', primary: '#6B4FC8', select: '#FBDA61', onSelect: '#33213F', action: '#33213F', success: '#2F7D45', hi: 'rgba(255,255,255,0.6)', lo: 'rgba(51,33,63,0.25)', tint: 'rgba(107,79,200,0.15)', bestBg: '#E3F3E6' }
+};
+const N = 'polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px)';
+function px(rows) { let d = ''; rows.forEach(function (r, y) { for (let x = 0; x < r.length; x++) { if (r[x] === '#') d += 'M' + x + ' ' + y + 'h1v1h-1z'; } }); return d; }
+const CUR = { o: px(['..####..', '.#....#.', '#......#', '#.#..#.#', '#......#', '#..##..#', '.#....#.', '..####..']), y: px(['........', '..####..', '.######.', '.#.##.#.', '.######.', '.##..##.', '..####..', '........']) };
+const I = {
+  back: px(['', '', '', '......##', '.....##', '....##', '...##', '..############', '..############', '...##', '....##', '.....##', '......##']),
+  chevR: px(['', '', '.....##', '.....###', '......###', '.......###', '........###', '........###', '.......###', '......###', '.....###', '.....##'])
+};
+function tabs(t, labels, sel) {
+  const bands = 'inset 0 2px 0 ' + t.hi + ', inset 0 -4px 0 ' + t.lo;
+  return labels.map(function (l, i) { const on = i === sel; return { label: l, current: on ? 'page' : 'false', bg: on ? t.select : t.surface, fg: on ? t.onSelect : t.outline, border: on ? t.outline : t.action, shadow: on ? 'none' : bands }; });
+}
+class Component extends DCLogic {
+  renderVals() {
+    const d = T.day, nt = T.night;
+    const rows = [['MON', '16', 'PULL', '42:10 · 14 sets', '▲ 1 BEST'], ['SAT', '14', 'LOWER', '31:05 · 5 sets', ''], ['FRI', '13', 'UPPER', '48:30 · 15 sets', '▲ 2 BESTS'], ['WED', '11', 'LEGS', '29:40 · 5 sets', ''], ['TUE', '10', 'PUSH', '38:15 · 11 sets', '▲ 1 BEST'], ['MON', '9', 'PULL', '41:50 · 14 sets', '']];
+    const exs = [['Front lever + dominadas', '3s + {n} dominadas + 3s', [3, 3]], ['Curl de antebrazo', '', [15, 12]], ['Dominadas', '▲ Récord en la serie 1', [7, 6, 5]], ['Curl inverso', '', [12, 10]], ['Remo', '', [10, 10, 9]], ['Curl de bíceps', '', [10, 8]]];
+    return {
+      d: d, nt: nt, n: N, cur: CUR, ic: I,
+      dTabs: tabs(d, ['HISTORY', 'PROGRESS', 'WEIGHT'], 0),
+      nTabs: tabs(nt, ['HISTORY', 'PROGRESS', 'WEIGHT'], 1),
+      dPanels: [['THIS WEEK', '3'], ['THIS MONTH', '11'], ['TIME THIS MONTH', '6:42'], ['BESTS THIS MONTH', '▲ 5']].map(function (p, i) { return { k: p[0], v: p[1], c: i === 3 ? d.success : d.outline }; }),
+      dRows: rows.map(function (r) { return { dow: r[0], day: r[1], routine: r[2], meta: r[3], hasBest: r[4] !== '', best: r[4] }; }),
+      nExs: exs.map(function (e, i) {
+        const best = i === 2;
+        return { name: e[0], note: e[1], noteC: best ? nt.success : nt.muted, bg: best ? nt.bestBg : nt.surface, sets: e[2].map(function (v, j) { return { k: 'S' + (j + 1), v: String(v), border: best && j === 0 ? nt.success : nt.outline }; }) };
+      }),
+      nPanels: [['BEST', '7'], ['GAIN', '+3'], ['RECORDS', '4']].map(function (p, i) { return { k: p[0], v: p[1], c: i === 1 ? nt.success : nt.outline }; }),
+      yTicks: ['8', '7', '6', '5', '4'].map(function (l, i) { return { label: l, top: (4 + i * 32) + 'px' }; }),
+      months: ['JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV'].map(function (m, i) { return { label: m, left: (28 + 8 + i * 50 - 10) + 'px' }; }),
+      records: [['Mon 16 Nov', '7', nt.bestBg], ['Tue 15 Sep', '6', 'transparent'], ['Mon 4 Aug', '5', 'transparent']].map(function (r) { return { date: r[0], reps: r[1], bg: r[2] }; })
+    };
+  }
+}
+</script>
+</body>
+</html>
