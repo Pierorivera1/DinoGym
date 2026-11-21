@@ -35,6 +35,12 @@ module "dinogym" {
   lambda_zip    = "${path.root}/../../../backend/bin/api.zip"
   reminders_zip = "${path.root}/../../../backend/bin/reminders.zip"
   protect_data  = false
+  # Grafana Cloud's OTLP gateway for the stack generousfence3427 (decision 118).
+  # Not secret; the token is read from /dinogym-staging/grafana-token in SSM.
+  grafana = {
+    otlp_endpoint = "https://otlp-gateway-prod-us-east-6.grafana.net/otlp"
+    instance_id   = "1926627"
+  }
   # From infra/google's `fcm` output (decision 107). Not secret.
   fcm = {
     project         = "dinogym-3870b"
