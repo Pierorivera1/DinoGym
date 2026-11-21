@@ -22,7 +22,7 @@ As of 2026-11-20. Remove an item when it is done or decided, and record decision
 - [x] The owner reviews the views (2026-11-21, on the desktop with SEE AN EXAMPLE and `npm run dev`; changes in decisions 113–114)
 - [x] Pull request 3: CloudFront behaviours for `/auth/*` and `/sync/*`, the dashboard's routes, the upload in `deploy.yml` (decision 116)
 - [x] The owner approves the prod deploy in GitHub Actions (2026-11-21; staging and prod deployed and passed their smoke tests)
-- [ ] On staging and prod (`d1q286cdeyw8ks` and `d1ktti3qymlgmy`.cloudfront.net): sign in with Google, open SEE AN EXAMPLE, switch to Night and check Google's button has no white frame, and open a `/history/<day>` link directly. Proves Google accepts the `*.cloudfront.net` origin from a real deploy, the CSP lets Google Identity Services run, and `/auth/*` and `/sync/*` reach the API through CloudFront
+- [x] On staging and prod (`d1q286cdeyw8ks` and `d1ktti3qymlgmy`.cloudfront.net): sign in with Google, open SEE AN EXAMPLE, switch to Night and check Google's button has no white frame, and open a `/history/<day>` link directly. Proves Google accepts the `*.cloudfront.net` origin from a real deploy, the CSP lets Google Identity Services run, and `/auth/*` and `/sync/*` reach the API through CloudFront (checked by the owner 2026-11-21, after the fix in decision 117)
 - [ ] Optional: sign in to a debug build on the phone so staging has real data, then look at it on the staging dashboard
 
 ## Task 24: to do and to verify
