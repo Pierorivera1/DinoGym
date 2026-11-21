@@ -13,7 +13,9 @@
 //	DINOGYM_FCM_PROJECT      Firebase project id, such as dinogym-3870b
 //	DINOGYM_GCP_AUDIENCE     the workload identity provider, //iam.googleapis.com/projects/...
 //	DINOGYM_FCM_SERVICE_ACCOUNT  the service account to impersonate
-//	DINOGYM_LOG_LEVEL, DINOGYM_TELEMETRY  as for the API
+//	DINOGYM_LOG_LEVEL  default INFO
+//	DINOGYM_TELEMETRY, DINOGYM_OTLP_INSTANCE_ID, DINOGYM_OTLP_TOKEN_PARAM,
+//	OTEL_EXPORTER_OTLP_*  as for the API (internal/config)
 package main
 
 import (
@@ -25,9 +27,12 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 
+	"github.com/Pierorivera1/DinoGym/backend/internal/config"
 	"github.com/Pierorivera1/DinoGym/backend/internal/reminders"
+	"github.com/Pierorivera1/DinoGym/backend/internal/secrets"
 	"github.com/Pierorivera1/DinoGym/backend/internal/store"
 	"github.com/Pierorivera1/DinoGym/backend/internal/telemetry"
 )
@@ -58,19 +63,29 @@ func run() error {
 			return fmt.Errorf("DINOGYM_LOG_LEVEL=%q: %w", v, err)
 		}
 	}
-	mode := os.Getenv("DINOGYM_TELEMETRY")
-	if mode == "" {
-		mode = "none"
-	}
-
-	ctx := context.Background()
-	tel, log, err := telemetry.Setup(ctx, mode, env, version, level, os.Stdout)
+	telCfg, err := config.LoadTelemetry(os.Getenv)
 	if err != nil {
 		return err
 	}
+
+	ctx := context.Background()
 	awsCfg, err := awsconfig.LoadDefaultConfig(ctx)
 	if err != nil {
 		return fmt.Errorf("load AWS config: %w", err)
+	}
+	secret, err := secrets.Read(ctx, ssm.NewFromConfig(awsCfg), telCfg.TokenParam)
+	if err != nil {
+		return err
+	}
+	var headers map[string]string
+	if telCfg.TokenParam != "" {
+		headers = telemetry.BasicAuth(telCfg.InstanceID, secret[telCfg.TokenParam])
+	}
+	tel, log, err := telemetry.Setup(ctx, telemetry.Options{
+		Mode: telCfg.Mode, Env: env, Version: version, Level: level, Stdout: os.Stdout, Headers: headers,
+	})
+	if err != nil {
+		return err
 	}
 	otelaws.AppendMiddlewares(&awsCfg.APIOptions)
 

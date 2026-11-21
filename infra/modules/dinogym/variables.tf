@@ -82,3 +82,18 @@ variable "releases_url" {
   type        = string
   default     = "https://github.com/Pierorivera1/DinoGym/releases/latest"
 }
+
+variable "grafana" {
+  description = <<-EOT
+    Grafana Cloud's OTLP gateway, where both Lambdas send traces, metrics and
+    logs (decision 118): the endpoint (https://otlp-gateway-<zone>.grafana.net/otlp)
+    and the stack's instance id. Neither is secret; the token is read from
+    /dinogym-<env>/grafana-token in SSM, which must exist before this is set.
+    null: telemetry is off and nothing reads the token.
+  EOT
+  type = object({
+    otlp_endpoint = string
+    instance_id   = string
+  })
+  default = null
+}

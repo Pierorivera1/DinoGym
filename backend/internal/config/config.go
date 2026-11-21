@@ -15,8 +15,8 @@ type Config struct {
 	Addr string
 	// LogLevel is the lowest level written. Defaults to DEBUG except in prod (decision 22).
 	LogLevel slog.Level
-	// Telemetry is "otlp", "console" or "none" (decision 63).
-	Telemetry string
+	// Telemetry picks the exporter and how Grafana Cloud is reached (decisions 64 and 118).
+	Telemetry Telemetry
 	// Table is the DynamoDB table (decision 52).
 	Table string
 	// GoogleClientID is the Web OAuth client ID that Google ID tokens must be
@@ -46,6 +46,9 @@ type Config struct {
 //	DINOGYM_LOG_LEVEL  DEBUG, INFO, WARN, ERROR; default WARN in prod, DEBUG elsewhere
 //	DINOGYM_TELEMETRY  otlp, console, none; default otlp when OTEL_EXPORTER_OTLP_ENDPOINT
 //	                   is set, otherwise none
+//	DINOGYM_OTLP_INSTANCE_ID, DINOGYM_OTLP_TOKEN_PARAM
+//	                   Grafana Cloud's instance id and the SSM parameter with its
+//	                   token; both or none (decision 118)
 //	DINOGYM_TABLE      DynamoDB table name, default dinogym
 //	DINOGYM_GOOGLE_CLIENT_ID   Web OAuth client ID; required in staging and prod
 //	DINOGYM_SESSION_KEY_PARAM  SSM parameter with the session signing key
@@ -90,17 +93,9 @@ func Load(getenv func(string) string) (Config, error) {
 		}
 	}
 
-	c.Telemetry = "none"
-	if getenv("OTEL_EXPORTER_OTLP_ENDPOINT") != "" {
-		c.Telemetry = "otlp"
-	}
-	if v := getenv("DINOGYM_TELEMETRY"); v != "" {
-		c.Telemetry = v
-	}
-	switch c.Telemetry {
-	case "otlp", "console", "none":
-	default:
-		return Config{}, fmt.Errorf("DINOGYM_TELEMETRY=%q: want otlp, console or none", c.Telemetry)
+	var err error
+	if c.Telemetry, err = LoadTelemetry(getenv); err != nil {
+		return Config{}, err
 	}
 
 	if c.SessionKeyParam != "" && c.SessionKey != "" {
@@ -115,6 +110,47 @@ func Load(getenv func(string) string) (Config, error) {
 		}
 	}
 	return c, nil
+}
+
+// Telemetry is how the process exports traces, metrics and logs.
+type Telemetry struct {
+	// Mode is "otlp", "console" or "none" (decision 64).
+	Mode string
+	// InstanceID is the Grafana Cloud stack's OTLP user, sent with the token
+	// as HTTP Basic auth. Not secret.
+	InstanceID string
+	// TokenParam is the SSM SecureString parameter holding the Grafana Cloud
+	// token (decision 69). Empty: the exporters send no credentials.
+	TokenParam string
+}
+
+// LoadTelemetry reads the telemetry settings. The API and the reminder
+// function share them.
+func LoadTelemetry(getenv func(string) string) (Telemetry, error) {
+	t := Telemetry{
+		Mode:       "none",
+		InstanceID: getenv("DINOGYM_OTLP_INSTANCE_ID"),
+		TokenParam: getenv("DINOGYM_OTLP_TOKEN_PARAM"),
+	}
+	endpoint := getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
+	if endpoint != "" {
+		t.Mode = "otlp"
+	}
+	if v := getenv("DINOGYM_TELEMETRY"); v != "" {
+		t.Mode = v
+	}
+	switch t.Mode {
+	case "otlp", "console", "none":
+	default:
+		return Telemetry{}, fmt.Errorf("DINOGYM_TELEMETRY=%q: want otlp, console or none", t.Mode)
+	}
+	if countSet(t.InstanceID, t.TokenParam) == 1 {
+		return Telemetry{}, fmt.Errorf("set both DINOGYM_OTLP_INSTANCE_ID and DINOGYM_OTLP_TOKEN_PARAM, or neither")
+	}
+	if t.Mode == "otlp" && endpoint == "" {
+		return Telemetry{}, fmt.Errorf("DINOGYM_TELEMETRY=otlp needs OTEL_EXPORTER_OTLP_ENDPOINT")
+	}
+	return t, nil
 }
 
 func countSet(vs ...string) int {

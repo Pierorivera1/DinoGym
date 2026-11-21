@@ -56,6 +56,15 @@ data "aws_caller_identity" "current" {}
 
 locals {
   session_key_param = "/${local.name}/session-signing-key"
+  grafana_arn       = "arn:aws:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter/${local.name}/grafana-token"
+
+  # Both Lambdas' telemetry settings (backend/internal/config, decision 118).
+  # The mode defaults to otlp once the endpoint is set.
+  telemetry_env = var.grafana == null ? { DINOGYM_TELEMETRY = "none" } : {
+    OTEL_EXPORTER_OTLP_ENDPOINT = var.grafana.otlp_endpoint
+    DINOGYM_OTLP_INSTANCE_ID    = var.grafana.instance_id
+    DINOGYM_OTLP_TOKEN_PARAM    = "/${local.name}/grafana-token"
+  }
   secret_arns = [
     for s in ["session-signing-key", "grafana-token"] :
     "arn:aws:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter/${local.name}/${s}"

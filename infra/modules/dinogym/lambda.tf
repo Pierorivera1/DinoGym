@@ -99,10 +99,9 @@ resource "aws_lambda_function" "api" {
 
   # Read by backend/internal/config. The log level follows DINOGYM_ENV (decision 22).
   environment {
-    variables = {
-      DINOGYM_ENV       = var.env
-      DINOGYM_TABLE     = aws_dynamodb_table.main.name
-      DINOGYM_TELEMETRY = "none" # Grafana Cloud is wired up in task 26 (decision 64)
+    variables = merge(local.telemetry_env, {
+      DINOGYM_ENV   = var.env
+      DINOGYM_TABLE = aws_dynamodb_table.main.name
       # Decisions 79 and 80. The key itself is read from SSM at cold start.
       DINOGYM_GOOGLE_CLIENT_ID  = var.google_client_id
       DINOGYM_SESSION_KEY_PARAM = local.session_key_param
@@ -112,7 +111,7 @@ resource "aws_lambda_function" "api" {
       DINOGYM_SCHEDULE_GROUP        = aws_scheduler_schedule_group.reminders.name
       DINOGYM_REMINDER_FUNCTION_ARN = aws_lambda_function.reminders.arn
       DINOGYM_SCHEDULER_ROLE_ARN    = aws_iam_role.scheduler.arn
-    }
+    })
   }
 
   depends_on = [aws_iam_role_policy.api]
