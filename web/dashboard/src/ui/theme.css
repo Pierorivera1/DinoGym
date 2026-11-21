@@ -270,7 +270,9 @@ a { color: inherit; }
 .signin h1 { margin: 0; font-family: var(--pixel); font-weight: 600; font-size: 30px; line-height: 1.15; }
 /* Google draws its button in a light iframe. With the page in Night, the browser would
    paint that iframe opaque white around the button unless its container is light too. */
-.signin-google { min-height: 44px; color-scheme: light; }
+.signin-google { height: 44px; overflow: hidden; color-scheme: light; }
+/* Before Google's stylesheet applies, its markup is unstyled; keep its logo icon-sized. */
+.signin-google svg { width: 18px; height: 18px; }
 .signin-example { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .signin-example .btn { min-height: 48px; font-size: 16px; }
 

@@ -919,3 +919,9 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
   - Forwarding `Authorization` through an origin request policy: CloudFront does not allow it there.
   - Separate GET-only and POST behaviours: CloudFront matches on path, not method.
 - **Tested:** the function's rewrite rules with Node against every kind of address; `terraform validate` for staging and the emulator; the build's paths (`/app/assets/…`, the font under `/app/assets/`). The emulator checks run in this pull request's CI. **Not provable on the emulator:** real CloudFront forwarding to the Lambda, and Google sign-in under the CSP. Staging's smoke test and the owner's sign-in on staging and prod (OPEN-ITEMS) cover those.
+
+## 117. Google's button stylesheet is loaded with the page (2026-11-21)
+
+- **Decision:** `index.html` links `https://accounts.google.com/gsi/style` before the GIS script. The button's container is fixed at 44 px high with `overflow: hidden`, and any SVG in it is held to icon size.
+- **Why:** On staging, the sign-in page showed a page-wide Google "G" for about a second. GIS inserts fallback markup (with that logo as an unsized SVG) when it draws the button, then fetches its own stylesheet, which hides the fallback. Loading the stylesheet up front removes the gap. The size limits are a second guard if the stylesheet is slow or blocked. The CSP already allows that URL (decision 116).
+- **Rejected:** hiding the button until Google's iframe appears (it relies on GIS's internal markup, which Google can change).
