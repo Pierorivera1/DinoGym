@@ -38,3 +38,22 @@ If the Google account sheet closes and the button comes back with no message, th
 | Release | prod, `https://cm884h7had.execute-api.us-east-1.amazonaws.com` | Yes (the release key's SHA-1 is registered) |
 
 The URLs are `BuildConfig.API_BASE_URL` in `app/build.gradle.kts`. They are API Gateway's generated URLs, so they change if an HTTP API is ever recreated; update them there (later: a custom domain, or reading the Terraform output). The Web OAuth client ID in `BuildConfig.GOOGLE_SERVER_CLIENT_ID` is not secret (decision 80).
+
+## Crash reports (task 26)
+
+Firebase Crashlytics starts with Firebase in `FirebaseSetup`, so only builds with the Firebase API key report (decision 109). There is no Crashlytics code and no Crashlytics Gradle plugin: `build.gradle.kts` writes the build id resource the SDK needs at start (decision 120). If `isMinifyEnabled` is ever turned on, add the plugin, so R8 mapping files are uploaded.
+
+Debug and release builds are separate Firebase apps, so their crashes show up separately in the Firebase console › Crashlytics (pick the app at the top).
+
+To check delivery on a phone (no button in the app; `am crash` throws on the app's main thread):
+
+```bash
+adb shell am crash io.github.pierorivera1.dinogym.debug   # or io.github.pierorivera1.dinogym for a release build
+```
+
+Then open the app again: Crashlytics sends the report at the next start. It shows up in the console within a few minutes. To watch the SDK work, turn on its log first:
+
+```bash
+adb shell setprop log.tag.FirebaseCrashlytics DEBUG
+adb logcat -s FirebaseCrashlytics
+```

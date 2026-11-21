@@ -21,7 +21,9 @@ As of 2026-11-21. Remove an item when it is done or decided, and record decision
 - [ ] Reminder function traces show in Grafana Cloud after a reminder fires on staging
 - [x] Prod: `grafana` set in `envs/prod` (#55); the owner's sign-in on prod shows in Grafana Cloud as `POST /auth/google` and `GET /sync/pull` with `deployment.environment.name=prod` (2026-11-21)
 - [ ] Pull request 2: dashboards and alerts in Terraform with the Grafana provider; needs a Grafana service account token
-- [ ] Pull request 3: Crashlytics in the app
+- [x] Pull request 3: Crashlytics in the app (decision 120)
+- [ ] On a phone, debug build: force a crash with `adb shell am crash io.github.pierorivera1.dinogym.debug`, open the app again, and see it in the Firebase console › Crashlytics for the `.debug` app ([android/README.md](../android/README.md))
+- [ ] The same with the next release APK (`io.github.pierorivera1.dinogym`), which also proves the release workflow's API key reaches Crashlytics
 
 ## Task 25: to do and to verify
 
@@ -43,7 +45,7 @@ As of 2026-11-21. Remove an item when it is done or decided, and record decision
 - [x] Before the backend PR merges: the owner applies `infra/bootstrap` (new boundary and deploy-role permissions, decision 108) and `infra/google` ([infra/README.md](../infra/README.md)). The project number (854486518090) is already in `envs/staging` and `envs/prod`
 - [x] The owner registers the Android app (`io.github.pierorivera1.dinogym` and `.debug`) in the Firebase project `dinogym-3870b`
 - [x] Before the next release (set 2026-11-20): the owner adds the GitHub secret `DINOGYM_FIREBASE_API_KEY` (the `current_key` in `google-services.json`); the release workflow fails without it (decision 109)
-- [ ] Optional: restrict the Firebase API key in Google Cloud › Credentials to the two Android apps (package and signing SHA-1) and the Firebase Installations and FCM Registration APIs
+- [ ] Optional: restrict the Firebase API key in Google Cloud › Credentials to the two Android apps (package and signing SHA-1) and the Firebase Installations and FCM Registration APIs. Afterwards, force a test crash again to check Crashlytics still reports (decision 120)
 - [x] The Android part: REMINDERS in Settings, the four preferences, FCM token registration, notification channels and the messaging service (decision 109)
 - [x] On staging with a debug build on a phone (checked by the owner 2026-11-20): turn Workout day on for a few minutes ahead; the schedule fires, the federation token exchange works and the notification shows. Then the weekly summary (Sundays 20:00), the time sheet, ALLOW NOTIFICATIONS and sign-out (DELETE)
 

@@ -79,6 +79,7 @@ androidx-credentials-play-services-auth = { module = "androidx.credentials:crede
 work-runtime = { module = "androidx.work:work-runtime", version.ref = "work" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleId" }
 
 [plugins]

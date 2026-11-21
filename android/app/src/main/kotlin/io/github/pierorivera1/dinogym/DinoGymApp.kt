@@ -65,6 +65,10 @@ class DinoGymApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        // Firebase from BuildConfig (decision 109), first, so Crashlytics, which starts with it,
+        // also catches a crash in the rest of start-up (decision 120).
+        firebase.start()
+
         // Runs on the IO dispatcher; screens observe Flows, so they update when the seed lands.
         firstRunSeeder.seedInBackground()
 
@@ -78,9 +82,8 @@ class DinoGymApp : Application(), Configuration.Provider {
         // Sync (task 21): follows the signed-in account in the background. Nothing waits on it.
         syncController.start()
 
-        // Reminders (task 24): Firebase from BuildConfig, the two channels, registering this
-        // phone whenever an account signs in, and moving the reminders to a new time zone.
-        firebase.start()
+        // Reminders (task 24): the two channels, registering this phone whenever an account
+        // signs in, and moving the reminders to a new time zone.
         reminderNotifier.createChannels()
         deviceRegistry.start()
         appScope.launch { reminders.followZone() }
