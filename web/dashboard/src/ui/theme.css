@@ -2,7 +2,7 @@
  * The dashboard's look (decision 110): the app's tokens from docs/DESIGN.md, stepped
  * corners, raised buttons, Pixelify Sans for titles, numbers and buttons, and the
  * system sans-serif for reading (as on the shared link page, decision 98).
- * Night when the browser is dark, Day when it is light.
+ * Day by default; the header's NIGHT / DAY button switches (decision 113).
  *
  * Pixelify Sans, Copyright 2021 The Pixelify Sans Project Authors, under the
  * SIL Open Font License 1.1 (web/share/pixelify_sans_OFL.txt).
@@ -15,6 +15,34 @@
 }
 
 :root {
+  --bg: #FBF3E8;
+  --surface: #FFFDF8;
+  --surface2: #F3E6D6;
+  --outline: #33213F;
+  --muted: #7A6684;
+  --primary: #6B4FC8;
+  --select: #FBDA61;
+  --on-select: #33213F;
+  --action: #33213F;
+  --danger: #B8326A;
+  --success: #2F7D45;
+  --shadow: #33213F;
+  --band-high: rgba(255, 255, 255, 0.6);
+  --band-low: rgba(51, 33, 63, 0.25);
+  --sel-bg: var(--select);
+  --sel-border: var(--outline);
+  --sel-text: var(--outline);
+  --tint: rgba(107, 79, 200, 0.15);
+  --best-row: #E3F3E6;
+  color-scheme: light;
+  --step: polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px);
+  --raised: inset 0 2px 0 var(--band-high), inset 0 -4px 0 var(--band-low);
+  --pixel: "Pixelify Sans", ui-monospace, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Night, when chosen with the NIGHT / DAY button (decision 113). */
+:root[data-theme="dark"] {
   --bg: #0C0915;
   --surface: #1C1430;
   --surface2: #2A1F45;
@@ -34,36 +62,7 @@
   --sel-text: var(--select);
   --tint: rgba(169, 139, 255, 0.20);
   --best-row: rgba(92, 210, 122, 0.14);
-  --step: polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px);
-  --raised: inset 0 2px 0 var(--band-high), inset 0 -4px 0 var(--band-low);
-  --pixel: "Pixelify Sans", ui-monospace, monospace;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color-scheme: dark;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #FBF3E8;
-    --surface: #FFFDF8;
-    --surface2: #F3E6D6;
-    --outline: #33213F;
-    --muted: #7A6684;
-    --primary: #6B4FC8;
-    --select: #FBDA61;
-    --on-select: #33213F;
-    --action: #33213F;
-    --danger: #B8326A;
-    --success: #2F7D45;
-    --shadow: #33213F;
-    --band-high: rgba(255, 255, 255, 0.6);
-    --band-low: rgba(51, 33, 63, 0.25);
-    --sel-bg: var(--select);
-    --sel-border: var(--outline);
-    --sel-text: var(--outline);
-    --tint: rgba(107, 79, 200, 0.15);
-    --best-row: #E3F3E6;
-    color-scheme: light;
-  }
 }
 
 * { box-sizing: border-box; }

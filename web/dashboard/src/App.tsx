@@ -9,6 +9,7 @@ import { dayKey, dayNumber, localTimeZone } from "./rules/days";
 import { parseRoute, routePath, type Route } from "./routes";
 import { buildModel, displayName } from "./ui/model";
 import { Cursor } from "./ui/Pixel";
+import { useThemeMode, type ThemeMode } from "./ui/themeMode";
 import { GetTheApp, HistoryView, NotFound } from "./views/HistoryView";
 import { Link, navigate, usePathname, usePhone } from "./views/Link";
 import { ProgressView } from "./views/ProgressView";
@@ -28,6 +29,7 @@ type State =
 export function App() {
   const [state, setState] = useState<State>({ kind: "signedOut", reason: undefined });
   const [name, setName] = useState("");
+  const [theme, toggleTheme] = useThemeMode();
 
   // `npm run dev`, then /?demo: a made-up account, to look at the views without signing in
   // (/?demo=empty: an account with nothing synced).
@@ -81,18 +83,39 @@ export function App() {
   };
 
   if (state.kind === "loaded") {
-    return <Dashboard state={state} name={name} onRefresh={refresh} onSignOut={signOut} />;
+    return <Dashboard state={state} name={name} onRefresh={refresh} onSignOut={signOut} theme={theme} onToggleTheme={toggleTheme} />;
   }
-  return <SignIn state={state} onCredential={signIn} onRetry={load} />;
+  return <SignIn state={state} onCredential={signIn} onRetry={load} theme={theme} onToggleTheme={toggleTheme} />;
 }
 
 // ---------- Signed out (WebSignIn.dc.html) ----------
 
-function SignIn({ state, onCredential, onRetry }: { state: Exclude<State, { kind: "loaded" }>; onCredential: (c: string) => void; onRetry: () => void }) {
+/** NIGHT in Day, DAY in Night: the button names the theme it switches to (decision 113). */
+function ThemeButton({ theme, onToggle }: { theme: ThemeMode; onToggle: () => void }) {
+  const toNight = theme === "day";
+  return (
+    <button className="btn" onClick={onToggle} aria-label={toNight ? s.themeToNightAria : s.themeToDayAria}>
+      {toNight ? s.themeNight : s.themeDay}
+    </button>
+  );
+}
+
+interface SignInProps {
+  state: Exclude<State, { kind: "loaded" }>;
+  onCredential: (c: string) => void;
+  onRetry: () => void;
+  theme: ThemeMode;
+  onToggleTheme: () => void;
+}
+
+function SignIn({ state, onCredential, onRetry, theme, onToggleTheme }: SignInProps) {
   const button = useRef<HTMLDivElement>(null);
   const signedOut = state.kind === "signedOut";
   const callback = useRef(onCredential);
   callback.current = onCredential;
+  // One Tap is offered once per sign-out, not again when the theme redraws the button.
+  const prompted = useRef(false);
+  if (!signedOut) prompted.current = false;
 
   useEffect(() => {
     if (!signedOut) return;
@@ -100,14 +123,14 @@ function SignIn({ state, onCredential, onRetry }: { state: Exclude<State, { kind
     void whenGoogleReady().then((gis) => {
       if (cancelled || !button.current) return;
       gis.initialize({ client_id: GOOGLE_CLIENT_ID, auto_select: true, callback: ({ credential }) => callback.current(credential) });
-      const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      gis.renderButton(button.current, { theme: dark ? "filled_black" : "outline", size: "large", text: "signin_with", locale: language });
-      gis.prompt();
+      gis.renderButton(button.current, { theme: theme === "night" ? "filled_black" : "outline", size: "large", text: "signin_with", locale: language });
+      if (!prompted.current) gis.prompt();
+      prompted.current = true;
     });
     return () => {
       cancelled = true;
     };
-  }, [signedOut]);
+  }, [signedOut, theme]);
 
   return (
     <main className="signin">
@@ -115,7 +138,8 @@ function SignIn({ state, onCredential, onRetry }: { state: Exclude<State, { kind
         {state.kind === "signedOut" && state.reason === "ended" && <p className="muted" role="status" style={{ margin: 0 }}>{s.sessionEnded}</p>}
         <div className="signin-brand px">
           <Cursor size={56} />
-          <span>DINOGYM</span>
+          <span style={{ flexGrow: 1 }}>DINOGYM</span>
+          <ThemeButton theme={theme} onToggle={onToggleTheme} />
         </div>
         <h1>{s.title}</h1>
         <div className="textbox">{s.intro}</div>
@@ -163,7 +187,16 @@ function useNow(intervalMs: number): number {
   return now;
 }
 
-function Dashboard({ state, name, onRefresh, onSignOut }: { state: Loaded; name: string; onRefresh: () => void; onSignOut: () => void }) {
+interface DashboardProps {
+  state: Loaded;
+  name: string;
+  onRefresh: () => void;
+  onSignOut: () => void;
+  theme: ThemeMode;
+  onToggleTheme: () => void;
+}
+
+function Dashboard({ state, name, onRefresh, onSignOut, theme, onToggleTheme }: DashboardProps) {
   const path = usePathname();
   const phone = usePhone();
   const now = useNow(30_000);
@@ -187,7 +220,7 @@ function Dashboard({ state, name, onRefresh, onSignOut }: { state: Loaded; name:
 
   return (
     <div className="shell">
-      <Header route={route} name={name} updated={updated} refreshing={state.refreshing} onRefresh={onRefresh} onSignOut={onSignOut} phone={phone} />
+      <Header route={route} name={name} updated={updated} refreshing={state.refreshing} onRefresh={onRefresh} onSignOut={onSignOut} phone={phone} theme={theme} onToggleTheme={onToggleTheme} />
       {state.refreshFailed && (
         <div className="alert" role="alert">
           <span>{s.refreshFailed}</span>
@@ -230,9 +263,11 @@ interface HeaderProps {
   onRefresh: () => void;
   onSignOut: () => void;
   phone: boolean;
+  theme: ThemeMode;
+  onToggleTheme: () => void;
 }
 
-function Header({ route, name, updated, refreshing, onRefresh, onSignOut, phone }: HeaderProps) {
+function Header({ route, name, updated, refreshing, onRefresh, onSignOut, phone, theme, onToggleTheme }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const initial = (name.trim().charAt(0) || "?").toUpperCase();
   const hideTabs = phone && route.view === "history" && route.workout != null;
@@ -266,6 +301,7 @@ function Header({ route, name, updated, refreshing, onRefresh, onSignOut, phone 
               <button className="btn" onClick={onRefresh} disabled={refreshing}>
                 {s.refresh}
               </button>
+              <ThemeButton theme={theme} onToggle={onToggleTheme} />
               <button className="btn" onClick={onSignOut}>
                 {s.signOut}
               </button>
@@ -291,6 +327,7 @@ function Header({ route, name, updated, refreshing, onRefresh, onSignOut, phone 
       <button className="btn" onClick={onRefresh} disabled={refreshing}>
         {s.refresh}
       </button>
+      <ThemeButton theme={theme} onToggle={onToggleTheme} />
       {name && (
         <span className="who">
           <span className="tile avatar" aria-hidden="true">
