@@ -12,6 +12,7 @@ The DinoGym API in Go. One binary serves HTTP on the laptop and runs as the Lamb
 | `internal/store` | DynamoDB: the sync rules of decision 51 on the table of decisions 52 and 65; accounts and refresh tokens in `sessions.go`; shares and their daily counter in `shares.go` (decision 97) |
 | `internal/telemetry` | OpenTelemetry traces, metrics and logs (decision 64) |
 | `internal/config` | Settings from environment variables |
+| `internal/postinvoke` | Runs the telemetry flush after the API's response is sent, as an internal Lambda extension (decision 119) |
 | `internal/secrets` | Reads the SSM SecureStrings (session key, Grafana token) in one call at cold start |
 | `internal/awstest` | Connects integration tests to the AWS Emulator; holds the SQS, S3 and Scheduler checks |
 

@@ -16,8 +16,8 @@ import (
 )
 
 // Handler turns h into a Lambda handler. after, if not nil, runs once the
-// response is ready and before it is returned, for example to flush telemetry
-// before Lambda freezes the process.
+// response is ready and before it is returned: either the telemetry flush
+// itself, or the signal that lets postinvoke flush once the response is sent.
 func Handler(h http.Handler, after func(context.Context)) func(context.Context, events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 	return func(ctx context.Context, e events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 		if after != nil {
