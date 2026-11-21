@@ -37,40 +37,6 @@ DinoGym logs workouts on the phone with no connection needed, then syncs them th
   <a href="https://github.com/Pierorivera1/DinoGym/releases/latest"><strong>Download the latest APK</strong></a>
 </p>
 
-## Features
-
-### Training, fully offline
-
-- Follow a program as a rotating cycle of routines. Home shows what comes next, and rest days are part of the cycle.
-- Log sets as reps or a custom metric, with optional weight. Each set is pre-filled from your last session.
-- Run a rest timer that keeps going in the background and survives an app restart, as does the workout itself.
-- Build programs from starter templates (Gym and Calisthenics Upper/Lower and PPL, 4-day Upper/Lower) or from scratch, using an exercise library with archive and restore.
-- Track progress by the best first set, browse history by date and edit past sessions.
-- Log body weight, with a 7-day average and a goal line.
-- Use the app in English or Spanish, in a Night or Day theme.
-
-| Programs | Body weight |
-| --- | --- |
-| [![Program editor in Spanish with a cycle of routines and a rest day](docs/images/app-programs.png)](docs/images/app-programs.png) | [![Body weight chart with the 7-day average and goal line](docs/images/app-weight.png)](docs/images/app-weight.png) |
-
-### Cloud features
-
-- **Sign in with Google.** The phone gets a Google ID token, and the backend checks it and issues its own short-lived access tokens with single-use refresh tokens.
-- **Sync between devices.** WorkManager pushes local changes and pulls by a server change number. The newest edit per row wins. The app stays fully usable if the backend is turned off.
-- **Shareable routines.** Publish a routine as a public link. The link opens a static page on CloudFront, and the app imports the routine from it through Android App Links.
-- **Reminders.** "Today is pull day" and a weekly summary, sent by EventBridge Scheduler and Firebase Cloud Messaging and timed to each phone's time zone.
-- **Web dashboard.** History, progress and body weight after signing in, computed in the browser from synced data. It is read-only, because the phone is the only writer. SEE AN EXAMPLE on the sign-in page shows it with a made-up account, without signing in.
-
-| Shared routine page | Reminder settings |
-| --- | --- |
-| [![Public page for a shared Pull routine listing its exercises, sets, rep ranges and rest times](docs/images/web-share.png)](docs/images/web-share.png) | [![Reminder settings in Spanish with the workout-day time picker open](docs/images/app-reminders.png)](docs/images/app-reminders.png) |
-
-[![Web dashboard history view with stat panels, an 18-week activity grid and the selected workout](docs/images/web-history.png)](docs/images/web-history.png)
-
-| Progress (Night) | Body weight (Day) |
-| --- | --- |
-| [![Dashboard progress view with a stepped best-set chart and records list](docs/images/web-progress.png)](docs/images/web-progress.png) | [![Dashboard body weight view with the 7-day average and weigh-ins](docs/images/web-weight.png)](docs/images/web-weight.png) |
-
 ## Architecture
 
 <img src="docs/architecture/architecture.png" alt="The Android app calls API Gateway over HTTPS with a JWT; the web dashboard reaches CloudFront, which serves S3 through origin access control and forwards /auth, /sync and /shares to API Gateway. API Gateway proxies to the Go API Lambda, which reads and writes one DynamoDB table, reads secrets from Systems Manager Parameter Store and creates one EventBridge Scheduler schedule per user. Schedules invoke the reminders Lambda, which reads devices from DynamoDB and sends through Firebase Cloud Messaging to the phone." width="100%">
@@ -113,6 +79,40 @@ The AWS Emulator proves that the code and Terraform use the AWS APIs correctly, 
 - **Secrets.** Signing keys and the Grafana token live in SSM Parameter Store as SecureStrings. The owner creates them with the AWS CLI, so their values never enter Terraform state.
 - **Telemetry.** The Go code is instrumented with OpenTelemetry and flushes after every invocation. Grafana Cloud holds traces, metrics and logs, and its dashboards and alerts are defined in Terraform. CloudWatch keeps a 7-day safety net of Lambda logs, and Crashlytics reports app crashes.
 - **Cost.** An AWS Budgets alert emails at 50% and 100% of $10 a month, and API Gateway throttling caps runaway traffic.
+
+## Features
+
+### Training, fully offline
+
+- Follow a program as a rotating cycle of routines. Home shows what comes next, and rest days are part of the cycle.
+- Log sets as reps or a custom metric, with optional weight. Each set is pre-filled from your last session.
+- Run a rest timer that keeps going in the background and survives an app restart, as does the workout itself.
+- Build programs from starter templates (Gym and Calisthenics Upper/Lower and PPL, 4-day Upper/Lower) or from scratch, using an exercise library with archive and restore.
+- Track progress by the best first set, browse history by date and edit past sessions.
+- Log body weight, with a 7-day average and a goal line.
+- Use the app in English or Spanish, in a Night or Day theme.
+
+| Programs | Body weight |
+| --- | --- |
+| [![Program editor in Spanish with a cycle of routines and a rest day](docs/images/app-programs.png)](docs/images/app-programs.png) | [![Body weight chart with the 7-day average and goal line](docs/images/app-weight.png)](docs/images/app-weight.png) |
+
+### Cloud features
+
+- **Sign in with Google.** The phone gets a Google ID token, and the backend checks it and issues its own short-lived access tokens with single-use refresh tokens.
+- **Sync between devices.** WorkManager pushes local changes and pulls by a server change number. The newest edit per row wins. The app stays fully usable if the backend is turned off.
+- **Shareable routines.** Publish a routine as a public link. The link opens a static page on CloudFront, and the app imports the routine from it through Android App Links.
+- **Reminders.** "Today is pull day" and a weekly summary, sent by EventBridge Scheduler and Firebase Cloud Messaging and timed to each phone's time zone.
+- **Web dashboard.** History, progress and body weight after signing in, computed in the browser from synced data. It is read-only, because the phone is the only writer. SEE AN EXAMPLE on the sign-in page shows it with a made-up account, without signing in.
+
+| Shared routine page | Reminder settings |
+| --- | --- |
+| [![Public page for a shared Pull routine listing its exercises, sets, rep ranges and rest times](docs/images/web-share.png)](docs/images/web-share.png) | [![Reminder settings in Spanish with the workout-day time picker open](docs/images/app-reminders.png)](docs/images/app-reminders.png) |
+
+[![Web dashboard history view with stat panels, an 18-week activity grid and the selected workout](docs/images/web-history.png)](docs/images/web-history.png)
+
+| Progress (Night) | Body weight (Day) |
+| --- | --- |
+| [![Dashboard progress view with a stepped best-set chart and records list](docs/images/web-progress.png)](docs/images/web-progress.png) | [![Dashboard body weight view with the 7-day average and weigh-ins](docs/images/web-weight.png)](docs/images/web-weight.png) |
 
 ## Run locally
 
