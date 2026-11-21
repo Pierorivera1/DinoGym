@@ -43,6 +43,13 @@ jobs:
           go-version-file: backend/go.mod
           cache-dependency-path: backend/go.sum
 
+      # check.sh builds the web dashboard, which web.tf uploads.
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: web/dashboard/.nvmrc
+          cache: npm
+          cache-dependency-path: web/dashboard/package-lock.json
+
       # The same version the roots require (decision 18). Without the wrapper,
       # terraform's own exit codes reach the script (plan -detailed-exitcode).
       - uses: hashicorp/setup-terraform@v4

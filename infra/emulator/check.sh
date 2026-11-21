@@ -13,7 +13,7 @@
 #
 # It sources env.sh itself, so the calling shell is never pointed at the
 # emulator, and it refuses to start when the emulator is not healthy.
-# Needs Go, Terraform 1.17.2, zip and curl.
+# Needs Go, Terraform 1.17.2, Node (web/dashboard/.nvmrc), zip and curl.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -34,6 +34,11 @@ fi
 export TF_PLUGIN_CACHE_DIR="${TF_PLUGIN_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/dinogym/terraform-plugins}"
 mkdir -p "$TF_PLUGIN_CACHE_DIR"
 export TF_IN_AUTOMATION=1
+
+# The web module reads web/dashboard/dist (filemd5 of index.html), so validate,
+# plan and apply all need a fresh build first.
+step "Build the web dashboard"
+(cd "$ROOT/web/dashboard" && npm ci --no-audit --no-fund && npm run build)
 
 step "terraform fmt"
 terraform fmt -check -recursive "$ROOT/infra"
@@ -96,12 +101,28 @@ id=AAAAAAAAAAAAAAAAAAAAAA
 expect "/r/<id> is the page" "$(req "$web/r/$id")" '^content-type: text/html'
 expect "the page names the debug app" \
   "$(docker exec aws-emulator curl -sk "$web/r/$id" | grep -o 'data-package="[^"]*"')" 'data-package="io\.github\.pierorivera1\.dinogym\.debug"'
-expect "the page has a CSP" "$(req "$web/r/$id")" "^content-security-policy: default-src 'none'"
+expect "the page has its own strict CSP" "$(req "$web/r/$id")" "^content-security-policy: default-src 'none'; script-src 'self';"
 expect "/web/r.js is served" "$(req "$web/web/r.js")" '^HTTP/[0-9.]+ 200'
 expect "assetlinks.json is JSON" "$(req "$web/.well-known/assetlinks.json")" '^content-type: application/json'
 expect "/shares/* goes to API Gateway" "$(req "$web/shares/$id")" '^x-amzn-requestid:'
 expect "publishing cannot go through CloudFront" "$(req -X POST "$web/shares/$id")" '^HTTP/[0-9.]+ 403'
 expect "other paths are not public" "$(req "$web/web/missing")" '^HTTP/[0-9.]+ 403'
+
+step "web dashboard checks on the emulator's CloudFront"
+body() { docker exec aws-emulator curl -sk "$@"; }
+expect "/ is the dashboard" "$(body "$web/")" '<div id="root">'
+expect "/history/<day> is the dashboard" "$(body "$web/history/2026-11-16")" '<div id="root">'
+expect "/progress/<slug> is the dashboard" "$(body "$web/progress/pull-ups")" '<div id="root">'
+expect "the dashboard is revalidated" "$(req "$web/weight")" '^cache-control: no-cache'
+expect "the dashboard allows Google sign-in in its CSP" "$(req "$web/")" '^content-security-policy: .*script-src .self. https://accounts\.google\.com/gsi/client'
+expect "the dashboard keeps the origin in the referrer" "$(req "$web/")" '^referrer-policy: strict-origin-when-cross-origin'
+asset="$(body "$web/" | grep -o '/app/assets/[^"]*\.js' | head -1)"
+expect "the dashboard's script is served" "$(req "$web$asset")" '^HTTP/[0-9.]+ 200'
+expect "the dashboard's files are cached for a year" "$(req "$web$asset")" '^cache-control: public, max-age=31536000, immutable'
+expect "/auth/* goes to API Gateway, POST included" \
+  "$(req -X POST -H 'Content-Type: application/json' -d '{}' "$web/auth/google")" '^x-amzn-requestid:'
+expect "/sync/* goes to API Gateway" "$(req "$web/sync/pull?since=0")" '^x-amzn-requestid:'
+expect "unknown paths are still not public" "$(req "$web/nope")" '^HTTP/[0-9.]+ 403'
 expect "plain HTTP redirects to HTTPS" "$(req "$http_url/r/$id")" '^HTTP/[0-9.]+ 301'
 
 step "terraform destroy"

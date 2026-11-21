@@ -12,6 +12,6 @@ output "lambda_name" {
 }
 
 output "web_url" {
-  description = "Base URL of the shared routine links, https://<distribution>.cloudfront.net (decision 23)."
+  description = "Base URL of the web dashboard and the shared routine links, https://<distribution>.cloudfront.net (decision 23)."
   value       = "https://${aws_cloudfront_distribution.web.domain_name}"
 }

@@ -6,8 +6,11 @@ import { defineConfig } from "vitest/config";
 // proxy, to staging unless DINOGYM_API_URL points elsewhere (the laptop's API).
 const api = process.env.DINOGYM_API_URL ?? "https://ypn4asfnil.execute-api.us-east-1.amazonaws.com";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [react()],
+  // The build lives under /app/ in the web bucket, next to the shared link page's
+  // /web/ (infra/modules/dinogym/web.tf); the dev server stays at the root.
+  base: command === "build" ? "/app/" : "/",
   server: {
     port: 5173,
     strictPort: true,
@@ -21,4 +24,4 @@ export default defineConfig({
   test: {
     environment: "node",
   },
-});
+}));
