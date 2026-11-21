@@ -1,6 +1,7 @@
-# Deploys the backend from main: staging first, then prod after a person
-# approves (docs/WORKFLOW.md, stages 3 and 4). The Lambda zip is built once, so
-# prod runs exactly the binary that passed staging's smoke test.
+# Deploys the backend and the web side from main: staging first, then prod
+# after a person approves (docs/WORKFLOW.md, stages 3 and 4). The Lambda zip and
+# the web dashboard are built once, so prod runs exactly what passed staging's
+# smoke tests.
 #
 # AWS access is OIDC only (infra/bootstrap): each job asks GitHub for a token
 # and swaps it for an hour of credentials on its environment's deploy role.
@@ -38,7 +39,7 @@ jobs:
     uses: ./.github/workflows/infra.yml
 
   build:
-    name: Build the Lambda zip
+    name: Build the Lambda zip and the dashboard
     needs: checks
     if: vars.DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
@@ -55,6 +56,17 @@ jobs:
       - name: Build
         run: infra/scripts/build-lambda.sh
 
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: web/dashboard/.nvmrc
+          cache: npm
+          cache-dependency-path: web/dashboard/package-lock.json
+
+      # web.tf uploads web/dashboard/dist (decision 116).
+      - name: Build the web dashboard
+        working-directory: web/dashboard
+        run: npm ci --no-audit --no-fund && npm run build
+
       - uses: actions/upload-artifact@v7
         with:
           name: lambda-zip
@@ -63,6 +75,13 @@ jobs:
             backend/bin/reminders.zip
           if-no-files-found: error
           # Must outlive the wait for prod's approval, which GitHub caps at 30 days.
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: web-dashboard
+          path: web/dashboard/dist
+          if-no-files-found: error
           retention-days: 30
 
   staging:
@@ -94,6 +113,11 @@ jobs:
         with:
           name: lambda-zip
           path: backend/bin
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: web-dashboard
+          path: web/dashboard/dist
 
       - uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -153,6 +177,28 @@ jobs:
           check "/.well-known/assetlinks.json" 200 'package_name'
           check "/shares/$id" 404 '"not_found"'
 
+      # The web dashboard through real CloudFront: its addresses serve the page,
+      # its script loads, and /sync/* reaches the Lambda (no token is a 401
+      # from the API, not a 403 from CloudFront or S3).
+      - name: Smoke test the web dashboard
+        run: |
+          web="$(terraform output -raw web_url)"
+          check() { # check <path> <expected status> <grep pattern in body>
+            for try in 1 2 3 4 5 6; do
+              code="$(curl -s -o body.txt -w '%{http_code}' --max-time 10 "$web$1" || true)"
+              echo "try $try: $web$1 -> $code"
+              if [ "$code" = "$2" ] && grep -q "$3" body.txt; then return 0; fi
+              sleep 10
+            done
+            echo "::error::$web$1 did not answer $2 with $3"
+            exit 1
+          }
+          check "/" 200 '<div id="root">'
+          check "/history/2026-11-16" 200 '<div id="root">'
+          script="$(grep -o '/app/assets/[^"]*\.js' body.txt | head -1)"
+          check "$script" 200 'accounts.google.com\|createRoot\|react'
+          check "/sync/pull?since=0" 401 '"invalid_token"'
+
   prod:
     name: Prod
     needs: staging
@@ -181,6 +227,11 @@ jobs:
         with:
           name: lambda-zip
           path: backend/bin
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: web-dashboard
+          path: web/dashboard/dist
 
       - uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -235,3 +286,25 @@ jobs:
           check "/r/$id" 200 'data-package='
           check "/.well-known/assetlinks.json" 200 'package_name'
           check "/shares/$id" 404 '"not_found"'
+
+      # The web dashboard through real CloudFront: its addresses serve the page,
+      # its script loads, and /sync/* reaches the Lambda (no token is a 401
+      # from the API, not a 403 from CloudFront or S3).
+      - name: Smoke test the web dashboard
+        run: |
+          web="$(terraform output -raw web_url)"
+          check() { # check <path> <expected status> <grep pattern in body>
+            for try in 1 2 3 4 5 6; do
+              code="$(curl -s -o body.txt -w '%{http_code}' --max-time 10 "$web$1" || true)"
+              echo "try $try: $web$1 -> $code"
+              if [ "$code" = "$2" ] && grep -q "$3" body.txt; then return 0; fi
+              sleep 10
+            done
+            echo "::error::$web$1 did not answer $2 with $3"
+            exit 1
+          }
+          check "/" 200 '<div id="root">'
+          check "/history/2026-11-16" 200 '<div id="root">'
+          script="$(grep -o '/app/assets/[^"]*\.js' body.txt | head -1)"
+          check "$script" 200 'accounts.google.com\|createRoot\|react'
+          check "/sync/pull?since=0" 401 '"invalid_token"'

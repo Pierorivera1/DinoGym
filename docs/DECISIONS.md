@@ -899,3 +899,23 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
   - **Diagrams.** Three diagrams, architecture, CI/CD, and keyless access with observability, made with the `stack-diagram` skill (caru-ini/stack-diagram v0.7.0), using AWS's official icons. The light PNGs are committed in `docs/architecture/`, with the generator `src/gen.py` and the HTML drafts. The icon files are not committed (redistribution is unconfirmed) and are fetched on each rebuild ([architecture/README.md](architecture/README.md)). The skill itself is installed in the git-ignored `.claude/skills/`.
 - **Why:** A reviewer for a cloud or DevOps role reads the diagrams first: request path, deploy pipeline and how credentials work without keys. Generated diagrams from a checked-in source can be redrawn when the stack changes, which a hand-drawn image cannot. The diagrams leave out SQS, because the stack does not use it yet.
 - **Rejected:** Mermaid in the README (no vendor icons, so the AWS view reads as generic boxes); draw.io files (hand-placed, with nothing to regenerate from); a single screenshots section (the owner asked for images beside the features); dark-theme variants with `<picture>` (the owner chose the light diagrams).
+
+## 116. The web dashboard is served from the shared link distribution and deployed with the backend (2026-11-21)
+
+- **Decision:**
+  - **Files.** `npm run build` (base `/app/`) produces `web/dashboard/dist`. Terraform uploads `index.html` as `app/index.html` with `Cache-Control: no-cache`, and every file under `assets/` (hashed names) with a one-year immutable cache. A missing build fails `terraform plan` (`filemd5` of `index.html`) instead of deleting the live site.
+  - **Addresses.** The existing CloudFront Function now also rewrites `/`, `/history…`, `/progress…` and `/weight…` to `/app/index.html`, so a bookmarked or reloaded view loads. Other unknown paths are still a 403 from S3.
+  - **Behaviours.** The default behaviour serves the dashboard with its own response headers policy. `/r/*`, `/web/*` and `/.well-known/*` keep the shared link page's stricter policy. `/auth/*` and `/sync/*` go to API Gateway:
+    - They allow every method, since CloudFront has no GET+POST set.
+    - A zero-TTL cache policy keys on `Authorization` and the query string. It forwards them; nothing is cached, because the API sends no `Cache-Control` on these routes.
+    - The managed AllViewerExceptHostHeader origin request policy forwards `Content-Type` and keeps API Gateway's own Host.
+  - **Dashboard headers.** The CSP allows only our files plus Google Identity Services' published hosts (`/gsi/client` script, `/gsi/style`, `/gsi/` frames and connections). The referrer policy is `strict-origin-when-cross-origin`, because GIS checks the page's origin. HSTS, `nosniff` and `DENY` framing are as on the share page.
+  - **Pipeline.** `deploy.yml`'s build job builds the dashboard once, next to the Lambda zip, and staging and prod deploy that same artifact. A new smoke test requests `/`, a deep link, the script, and `/sync/pull` without a token (a 401 `invalid_token` from the Lambda through CloudFront). `check.sh` builds the dashboard before `apply` and checks the same paths on the emulator's CloudFront. `infra.yml` installs Node for that.
+- **Why:** One distribution and one bucket keep the cost at the free CloudFront tier (decision 110), and same-origin API calls need no CORS (decision 111). Uploading through Terraform matches the shared link page: one tool owns every object, and a plan shows what a deploy changes. No new IAM: the deploy roles can already write `dinogym-<env>-web-*/*` and manage CloudFront policies, so `infra/bootstrap` needs no hand-applied change.
+- **Rejected:**
+  - `aws s3 sync` in the workflow: a second owner of the bucket's objects, invisible to `plan`.
+  - The dashboard at the bucket root: its `assets/` would sit beside `web/` and `.well-known/` with nothing marking whose they are.
+  - A custom error page that serves `index.html` for 403/404: it would also rewrite the API's own 404s.
+  - Forwarding `Authorization` through an origin request policy: CloudFront does not allow it there.
+  - Separate GET-only and POST behaviours: CloudFront matches on path, not method.
+- **Tested:** the function's rewrite rules with Node against every kind of address; `terraform validate` for staging and the emulator; the build's paths (`/app/assets/…`, the font under `/app/assets/`). The emulator checks run in this pull request's CI. **Not provable on the emulator:** real CloudFront forwarding to the Lambda, and Google sign-in under the CSP. Staging's smoke test and the owner's sign-in on staging and prod (OPEN-ITEMS) cover those.

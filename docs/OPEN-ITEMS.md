@@ -19,8 +19,11 @@ As of 2026-11-20. Remove an item when it is done or decided, and record decision
 - [x] Decide how the browser keeps the session: in memory only (decision 111)
 - [x] The owner signs in at `npm run dev` (web/dashboard/README.md) and sees the counts of workouts and weigh-ins: proves Google sign-in, `/auth/google` and the pull from a browser (2026-11-21: signed in against staging; 0 workouts and 0 weigh-ins, since staging has no synced data from the owner's phone)
 - [x] Pull request 2: the views from the approved mocks (decision 112)
-- [ ] The owner reviews the views on a phone and a desktop with real data (`npm run dev` against staging after syncing a debug build, or SEE AN EXAMPLE for made-up data)
-- [ ] Pull request 3: CloudFront behaviours for `/auth/*` and `/sync/*`, the dashboard's routes, the upload in `deploy.yml`, then staging and prod
+- [x] The owner reviews the views (2026-11-21, on the desktop with SEE AN EXAMPLE and `npm run dev`; changes in decisions 113–114)
+- [x] Pull request 3: CloudFront behaviours for `/auth/*` and `/sync/*`, the dashboard's routes, the upload in `deploy.yml` (decision 116)
+- [ ] The owner approves the prod deploy in GitHub Actions
+- [ ] On staging and prod (`d1q286cdeyw8ks` and `d1ktti3qymlgmy`.cloudfront.net): sign in with Google, open SEE AN EXAMPLE, switch to Night and check Google's button has no white frame, and open a `/history/<day>` link directly. Proves Google accepts the `*.cloudfront.net` origin from a real deploy, the CSP lets Google Identity Services run, and `/auth/*` and `/sync/*` reach the API through CloudFront
+- [ ] Optional: sign in to a debug build on the phone so staging has real data, then look at it on the staging dashboard
 
 ## Task 24: to do and to verify
 
