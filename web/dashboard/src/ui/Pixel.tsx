@@ -12,12 +12,21 @@ function px(rows: string[]): string {
 const CURSOR_OUTLINE = px(["..####..", ".#....#.", "#......#", "#.#..#.#", "#......#", "#..##..#", ".#....#.", "..####.."]);
 const CURSOR_FILL = px(["........", "..####..", ".######.", ".#.##.#.", ".######.", ".##..##.", "..####..", "........"]);
 
-export function Cursor({ size, fill = "var(--select)" }: { size: number; fill?: string }) {
+/**
+ * The cursor always has its dark outline, as in Day (DESIGN.md). In Night it sits on a
+ * small cream tile (theme.css › .cursor) instead of switching to a white outline.
+ * [size] is the whole box; the face is drawn inside a 1/8 padding.
+ */
+export function Cursor({ size }: { size: number }) {
+  const pad = Math.max(2, Math.round(size / 8));
+  const face = size - 2 * pad;
   return (
-    <svg viewBox="0 0 8 8" width={size} height={size} shapeRendering="crispEdges" aria-hidden="true">
-      <path d={CURSOR_FILL} fill={fill} />
-      <path d={CURSOR_OUTLINE} fill="var(--outline)" />
-    </svg>
+    <span className="cursor" style={{ width: size, height: size, padding: pad }} aria-hidden="true">
+      <svg viewBox="0 0 8 8" width={face} height={face} shapeRendering="crispEdges">
+        <path d={CURSOR_FILL} fill="var(--cursor-fill)" />
+        <path d={CURSOR_OUTLINE} fill="var(--cursor-outline)" />
+      </svg>
+    </span>
   );
 }
 

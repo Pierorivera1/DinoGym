@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { applyChanges } from "../data/dataset";
 import { dayKey, dayNumber } from "../rules/days";
 import { D, dataset, workout } from "../test/fixtures";
-import { buildModel, displayName, progressInRange, rangeStart, weightInRange } from "./model";
+import { buildModel, displayName, initialRange, progressInRange, rangeStart, weightInRange } from "./model";
 
 const UTC = "UTC";
 const day = (key: string) => Date.parse(`${key}T10:00:00Z`);
@@ -87,5 +87,20 @@ describe("displayName", () => {
   it("falls back to the name or nothing", () => {
     expect(displayName(token({ name: "Alex" }))).toBe("Alex");
     expect(displayName("garbage")).toBe("");
+  });
+});
+
+describe("initialRange", () => {
+  const today = dayNumber("2026-11-20");
+  const ranges = ["3M", "6M", "1Y", "ALL"] as const;
+
+  it("opens a new account on the shortest range that shows everything", () => {
+    expect(initialRange([...ranges], today - 60, today, "6M")).toBe("3M");
+  });
+
+  it("keeps the usual range for a longer history, and for no data", () => {
+    expect(initialRange([...ranges], today - 150, today, "6M")).toBe("6M");
+    expect(initialRange([...ranges], today - 900, today, "6M")).toBe("6M");
+    expect(initialRange([...ranges], null, today, "6M")).toBe("6M");
   });
 });

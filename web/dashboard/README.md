@@ -15,13 +15,14 @@ npm run gen:api   # after api/openapi.yaml changes; commit src/api/schema.d.ts
 `DINOGYM_API_URL=http://localhost:8080 npm run dev` points the proxy at the API
 running on the laptop instead of staging.
 
-To look at the views without signing in, open http://localhost:5173/?demo (a made-up
-account; `?demo=empty` for one with nothing synced). It only exists in `npm run dev`. Google sign-in works only on the
-origins listed on the Web OAuth client (`localhost:5173`, staging and prod).
+Google sign-in works only on the origins listed on the Web OAuth client
+(`localhost:5173`, staging and prod). To look at the views without signing in, press
+SEE AN EXAMPLE on the sign-in page: two months of made-up workouts, built in the
+browser (`src/example.ts`, decision 114).
 
 - `src/api/`: the generated contract types, the HTTP client and the in-memory session.
 - `src/data/`: pulling every row through `/sync/pull` into an in-memory dataset.
 - `src/rules/`: the app's progress, body weight and history rules, ported from Kotlin with their tests.
 - `src/ui/`: the theme (`theme.css`), what each view shows (`model.ts`), the chart geometry, formatting and pixel icons.
 - `src/views/`: HISTORY, PROGRESS and WEIGHT, and history-API navigation (`Link.tsx`). URLs are in `src/routes.ts`.
-- `src/dev/`: the demo account, left out of production builds.
+- `src/example.ts`: the example account behind SEE AN EXAMPLE.
