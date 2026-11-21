@@ -11,6 +11,8 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
+    // theme.css takes Pixelify Sans from the app's resources, outside this folder.
+    fs: { allow: [".", "../../android/app/src/main/res/font"] },
     proxy: {
       "/auth": { target: api, changeOrigin: true },
       "/sync": { target: api, changeOrigin: true },

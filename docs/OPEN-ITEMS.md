@@ -17,8 +17,9 @@ As of 2026-11-20. Remove an item when it is done or decided, and record decision
 - [x] The owner reviews the dashboard mocks (approved 2026-11-20) (`WebHistory`, `WebProgress`, `WebWeight`, `WebPhone`, `WebSignIn`) before the web app is built (decisions 16 and 110)
 - [x] Before building: add the dashboard's CloudFront origins (staging and prod) and `http://localhost`, `http://localhost:5173` as authorized JavaScript origins on the Web OAuth client (added 2026-11-20; Google accepted the `*.cloudfront.net` origins)
 - [x] Decide how the browser keeps the session: in memory only (decision 111)
-- [ ] The owner signs in at `npm run dev` (web/dashboard/README.md) and sees the counts of workouts and weigh-ins: proves Google sign-in, `/auth/google` and the pull from a browser
-- [ ] Pull request 2: the views from the approved mocks
+- [x] The owner signs in at `npm run dev` (web/dashboard/README.md) and sees the counts of workouts and weigh-ins: proves Google sign-in, `/auth/google` and the pull from a browser (2026-11-21: signed in against staging; 0 workouts and 0 weigh-ins, since staging has no synced data from the owner's phone)
+- [x] Pull request 2: the views from the approved mocks (decision 112)
+- [ ] The owner reviews the views on a phone and a desktop with real data (`npm run dev` against staging after syncing a debug build, or `/?demo` for made-up data)
 - [ ] Pull request 3: CloudFront behaviours for `/auth/*` and `/sync/*`, the dashboard's routes, the upload in `deploy.yml`, then staging and prod
 
 ## Task 24: to do and to verify
