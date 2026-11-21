@@ -1,0 +1,50 @@
+# Checks the web dashboard (task 25, decision 111): its contract types, unit tests and build.
+# Deploying it is part of deploy.yml.
+name: Web
+
+on:
+  push:
+    paths:
+      - "web/dashboard/**"
+      - "api/openapi.yaml"
+      - ".github/workflows/web.yml"
+
+concurrency:
+  group: web-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  dashboard:
+    name: Dashboard
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: web/dashboard
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: web/dashboard/.nvmrc
+          cache: npm
+          cache-dependency-path: web/dashboard/package-lock.json
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      # The contract types are committed. Regenerating must change nothing, or
+      # the contract changed without `npm run gen:api`.
+      - name: Contract types are up to date
+        run: |
+          npm run gen:api
+          git diff --exit-code -- src/api/schema.d.ts
+
+      - name: Test
+        run: npm test
+
+      - name: Type-check and build
+        run: npm run build
