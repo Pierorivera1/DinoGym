@@ -19,7 +19,7 @@ As of 2026-11-21. Remove an item when it is done or decided, and record decision
 - [x] On staging with `grafana` set (2026-11-21): traces (with DynamoDB spans), metrics (`http_server_request_duration_seconds_*`) and logs (`sync pull` at DEBUG) from `dinogym-api` show in Grafana Cloud
 - [x] Staging latency: with the flush before the response, `/health` took about 1.4 s against 0.33 s on prod; after decision 119 (#54) it is 0.33–0.44 s, like prod's (2026-11-21)
 - [ ] Reminder function traces show in Grafana Cloud after a reminder fires on staging
-- [ ] Prod: `grafana` set in `envs/prod`; after the deploy, prod's traces show in Grafana Cloud with `deployment.environment.name=prod` (prod logs only WARN and above, so few logs are expected)
+- [x] Prod: `grafana` set in `envs/prod` (#55); the owner's sign-in on prod shows in Grafana Cloud as `POST /auth/google` and `GET /sync/pull` with `deployment.environment.name=prod` (2026-11-21)
 - [ ] Pull request 2: dashboards and alerts in Terraform with the Grafana provider; needs a Grafana service account token
 - [ ] Pull request 3: Crashlytics in the app
 
