@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"sync"
 
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/otel"
@@ -159,11 +160,20 @@ func dropBodySizes(i sdkmetric.Instrument) (sdkmetric.Stream, bool) {
 
 // Flush sends everything buffered. On Lambda it runs after every invocation,
 // because the runtime may freeze the process before a background export.
+//
+// The three exports run at the same time, so a flush takes one round trip to
+// the collector, not three (decision 119).
 func (t *Telemetry) Flush(ctx context.Context) error {
-	errs := []error{t.tracer.ForceFlush(ctx), t.meter.ForceFlush(ctx)}
+	flushes := []func(context.Context) error{t.tracer.ForceFlush, t.meter.ForceFlush}
 	if t.logger != nil {
-		errs = append(errs, t.logger.ForceFlush(ctx))
+		flushes = append(flushes, t.logger.ForceFlush)
 	}
+	errs := make([]error, len(flushes))
+	var wg sync.WaitGroup
+	for i, flush := range flushes {
+		wg.Go(func() { errs[i] = flush(ctx) })
+	}
+	wg.Wait()
 	return errors.Join(errs...)
 }
 

@@ -15,8 +15,11 @@ As of 2026-11-21. Remove an item when it is done or decided, and record decision
 
 - [x] The owner sends the Grafana Cloud stack's OTLP endpoint and instance ID (2026-11-21: `otlp-gateway-prod-us-east-6`, instance 1926627, set in `envs/staging`)
 - [ ] The owner creates a Grafana Cloud access policy token (`metrics:write`, `logs:write`, `traces:write`) and stores it as `/dinogym-staging/grafana-token` and `/dinogym-prod/grafana-token` ([infra/README.md](../infra/README.md)). Both must exist before `grafana` is set in `envs/staging` and `envs/prod`, or the Lambdas fail at cold start (decision 118)
-- [ ] Pull request 1 (decision 118): the API and the reminder function export to Grafana Cloud
-- [ ] On staging, after `grafana` is set: traces, metrics and logs from `dinogym-api` and the reminder function show in Grafana Cloud with `deployment.environment.name=staging`; compare `/sync/pull` latency before and after (the per-request flush)
+- [x] Pull request 1 (decision 118): the API and the reminder function export to Grafana Cloud (#51); staging turned on (#53)
+- [x] On staging with `grafana` set (2026-11-21): traces from `dinogym-api` show in Grafana Cloud. Metrics and logs: the owner checks
+- [ ] Staging latency: with the flush before the response, `/health` took about 1.4 s against 0.33 s on prod. After decision 119, staging's `/health` should be back near prod's; if a warning `flushing telemetry before each response` shows in the logs, the extension did not register
+- [ ] Reminder function traces show in Grafana Cloud after a reminder fires on staging
+- [ ] Prod: set `grafana` in `envs/prod` once staging's latency is fixed
 - [ ] Pull request 2: dashboards and alerts in Terraform with the Grafana provider; needs a Grafana service account token
 - [ ] Pull request 3: Crashlytics in the app
 

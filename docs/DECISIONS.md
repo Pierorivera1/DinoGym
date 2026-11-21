@@ -951,3 +951,21 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
   - On the emulator: a SecureString written as the owner writes it is read back decrypted, and a missing one is named. This proves the API usage only; the emulator evaluates neither IAM nor KMS.
   - `terraform validate` for the emulator, staging and prod roots, with `grafana` both unset and set.
   - **Not tested here:** that Grafana Cloud accepts the data, and the reminder role's access on real AWS. Staging shows both.
+
+## 119. The API flushes telemetry after its response is sent, through an internal Lambda extension (2026-11-21, changes decision 64)
+
+- **Decision:**
+  - At cold start, the API registers itself as an internal Lambda extension for `INVOKE` events (`internal/postinvoke`). The handler signals when it is done. The extension's loop then runs the telemetry flush, with at most 3 seconds and never past the invocation's deadline, and only after that asks Lambda for the next event.
+  - If registration fails, the API logs a warning and flushes before responding, as before.
+  - `Telemetry.Flush` now runs the trace, metric and log exports at the same time.
+  - The reminder function keeps the plain flush: Scheduler invokes it asynchronously, so nobody waits on it.
+- **Why:**
+  - The first staging deploy with Grafana Cloud (decision 118) answered `/health` in about 1.4 s, against 0.33 s for prod without telemetry. Grafana's traces showed the handler itself taking about 0.1 ms. The rest was three OTLP exports in a row before the response.
+  - Lambda returns the function's response to the client as soon as the runtime posts it, and freezes the environment only once every extension has asked for its next event (AWS Lambda Extensions API). That keeps decision 64's guarantee, that nothing is left unsent when the process freezes, without the client waiting.
+- **Rejected:**
+  - Flushing in a goroutine without an extension: Lambda may freeze the process mid-export, and the data would be lost or sent late.
+  - The ADOT or OpenTelemetry collector Lambda layer: rejected in decision 64, for a separate process and more cold-start time.
+  - Flushing only every N seconds: some requests would still pay the full cost, and data would wait in a frozen process.
+  - Sampling or turning off a signal: it hides the problem without fixing it.
+- **Cost:** The flush still counts toward each invocation's billed duration; CloudWatch reports it as `PostRuntimeExtensionsDuration`. At one user's traffic that stays inside Lambda's free tier. A request arriving while the previous flush runs waits for it, since one environment handles one invocation at a time.
+- **Tested:** Unit tests against a fake Extensions API check the order register → next → (handler done) → work → next. They also check the work's deadline (the limit, or the invocation's deadline if sooner), the inline fallback once the loop stops, and that a failed registration is an error. They ran three times with `-race`, and the arm64 Lambda binary builds. **Not tested here:** that real Lambda accepts the registration and returns the response before the flush. The staging latency check in OPEN-ITEMS covers it.

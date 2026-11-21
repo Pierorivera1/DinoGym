@@ -34,6 +34,7 @@ import (
 	"github.com/Pierorivera1/DinoGym/backend/internal/auth"
 	"github.com/Pierorivera1/DinoGym/backend/internal/config"
 	"github.com/Pierorivera1/DinoGym/backend/internal/lambdahttp"
+	"github.com/Pierorivera1/DinoGym/backend/internal/postinvoke"
 	"github.com/Pierorivera1/DinoGym/backend/internal/reminders"
 	"github.com/Pierorivera1/DinoGym/backend/internal/secrets"
 	"github.com/Pierorivera1/DinoGym/backend/internal/server"
@@ -108,13 +109,23 @@ func run() error {
 	handler := srv.Handler()
 
 	// Lambda sets AWS_LAMBDA_RUNTIME_API for the runtime client.
-	if os.Getenv("AWS_LAMBDA_RUNTIME_API") != "" {
+	if runtimeAPI := os.Getenv("AWS_LAMBDA_RUNTIME_API"); runtimeAPI != "" {
 		flush := func(ctx context.Context) {
 			if err := tel.Flush(ctx); err != nil {
 				log.WarnContext(ctx, "telemetry flush failed", "error", err)
 			}
 		}
-		lambda.Start(lambdahttp.Handler(handler, flush))
+		// Flush after the response has gone back, not before (decision 119).
+		// If the extension cannot register, flush before responding as before.
+		after := flush
+		if cfg.Telemetry.Mode == "otlp" {
+			if post, err := postinvoke.Start(ctx, http.DefaultClient, runtimeAPI, 3*time.Second, flush); err != nil {
+				log.Warn("flushing telemetry before each response", "error", err)
+			} else {
+				after = post.Done
+			}
+		}
+		lambda.Start(lambdahttp.Handler(handler, after))
 		return nil // not reached: lambda.Start exits the process
 	}
 	return serveLocal(cfg, log, tel, handler)
