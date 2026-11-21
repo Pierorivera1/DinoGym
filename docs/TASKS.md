@@ -39,5 +39,5 @@ Order agreed 2026-11-16. Tasks 1–10 are planned in detail; from task 11 on the
 - [x] **22. Starter programs and program builder.** Gym UL/PPL, Calisthenics UL/PPL, 4-day Upper/Lower (decisions 92–94).
 - [x] **23. Shareable routines.** A public web link that imports into the app. Decisions 96–103.
 - [x] **24. Reminders.** EventBridge Scheduler → Lambda → Firebase Cloud Messaging: "today is pull day", weekly summary (decisions 104–109).
-- [ ] **25. Web dashboard.** React on S3 and CloudFront; history and progress charts after logging in.
+- [x] **25. Web dashboard.** React on S3 and CloudFront; history and progress charts after logging in (decisions 110–117).
 - [ ] **26. Observability.** Grafana Cloud dashboards and alerts in Terraform; Crashlytics in the app.
