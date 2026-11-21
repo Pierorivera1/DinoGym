@@ -34,6 +34,10 @@
   --sel-text: var(--outline);
   --tint: rgba(107, 79, 200, 0.15);
   --best-row: #E3F3E6;
+  /* The cursor keeps Day's colours in both themes; Night gives it a cream tile. */
+  --cursor-fill: #FBDA61;
+  --cursor-outline: #33213F;
+  --cursor-tile: transparent;
   color-scheme: light;
   --step: polygon(2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 2px 2px);
   --raised: inset 0 2px 0 var(--band-high), inset 0 -4px 0 var(--band-low);
@@ -62,6 +66,7 @@
   --sel-text: var(--select);
   --tint: rgba(169, 139, 255, 0.20);
   --best-row: rgba(92, 210, 122, 0.14);
+  --cursor-tile: #FBF3E8;
   color-scheme: dark;
 }
 
@@ -93,6 +98,13 @@ a { color: inherit; }
 }
 
 /* ---------- Building blocks ---------- */
+
+.cursor {
+  flex-shrink: 0;
+  display: inline-flex;
+  background: var(--cursor-tile);
+  clip-path: var(--step);
+}
 
 .px { font-family: var(--pixel); font-weight: 600; }
 
@@ -198,7 +210,7 @@ a { color: inherit; }
   border-color: var(--sel-border);
 }
 .row[aria-current="true"] .row-title { color: var(--sel-text); }
-.row-cursor { width: 16px; flex-shrink: 0; display: flex; justify-content: center; }
+.row-cursor { width: 20px; flex-shrink: 0; display: flex; justify-content: center; }
 
 .list {
   margin: 0;
@@ -256,7 +268,12 @@ a { color: inherit; }
 .signin-body { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 18px; }
 .signin-brand { display: flex; align-items: center; gap: 14px; font-size: 34px; letter-spacing: 0.04em; }
 .signin h1 { margin: 0; font-family: var(--pixel); font-weight: 600; font-size: 30px; line-height: 1.15; }
-.signin-google { min-height: 44px; }
+/* Google draws its button in a light iframe. With the page in Night, the browser would
+   paint that iframe opaque white around the button unless its container is light too. */
+.signin-google { min-height: 44px; color-scheme: light; }
+.signin-example { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.signin-example .btn { min-height: 48px; font-size: 16px; }
+
 .signin-divider { border-top: 2px dotted var(--surface2); }
 .signin-app { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 

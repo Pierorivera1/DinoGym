@@ -1,6 +1,6 @@
 # Diagrams
 
-The three diagrams in the main README, made with the [stack-diagram](https://github.com/caru-ini/stack-diagram) skill (v0.7.0, decision 114).
+The three diagrams in the main README, made with the [stack-diagram](https://github.com/caru-ini/stack-diagram) skill (v0.7.0, decision 115).
 
 | Image | Shows |
 |---|---|

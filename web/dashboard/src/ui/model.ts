@@ -94,6 +94,20 @@ export function rangeStart(range: RangeId, todayN: number): number | null {
   return days == null ? null : todayN - days;
 }
 
+/**
+ * The range a chart opens on: the shortest of [ranges] that holds every point since
+ * [firstDay], so a new account does not open on an empty chart; otherwise [fallback].
+ */
+export function initialRange(ranges: RangeId[], firstDay: number | null, todayN: number, fallback: RangeId): RangeId {
+  if (firstDay == null) return fallback;
+  const fits = ranges.filter((r) => {
+    const start = rangeStart(r, todayN);
+    return start == null || start <= firstDay;
+  });
+  const shortest = fits[0];
+  return shortest && ranges.indexOf(shortest) < ranges.indexOf(fallback) ? shortest : fallback;
+}
+
 export interface ProgressRecordRow {
   result: SetOneResult;
   day: string;

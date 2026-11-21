@@ -19,7 +19,7 @@ As of 2026-11-20. Remove an item when it is done or decided, and record decision
 - [x] Decide how the browser keeps the session: in memory only (decision 111)
 - [x] The owner signs in at `npm run dev` (web/dashboard/README.md) and sees the counts of workouts and weigh-ins: proves Google sign-in, `/auth/google` and the pull from a browser (2026-11-21: signed in against staging; 0 workouts and 0 weigh-ins, since staging has no synced data from the owner's phone)
 - [x] Pull request 2: the views from the approved mocks (decision 112)
-- [ ] The owner reviews the views on a phone and a desktop with real data (`npm run dev` against staging after syncing a debug build, or `/?demo` for made-up data)
+- [ ] The owner reviews the views on a phone and a desktop with real data (`npm run dev` against staging after syncing a debug build, or SEE AN EXAMPLE for made-up data)
 - [ ] Pull request 3: CloudFront behaviours for `/auth/*` and `/sync/*`, the dashboard's routes, the upload in `deploy.yml`, then staging and prod
 
 ## Task 24: to do and to verify

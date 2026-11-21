@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ApiClient } from "./api/client";
 import { SessionEndedError, SessionManager } from "./api/session";
 import { emptyDataset, type Dataset } from "./data/dataset";
+import { EXAMPLE_NAME, exampleDataset } from "./example";
 import { pullInto } from "./data/load";
 import { GOOGLE_CLIENT_ID, whenGoogleReady } from "./google";
 import { language, strings as s } from "./i18n";
@@ -24,32 +25,29 @@ type State =
   | { kind: "signedOut"; reason: SignedOutReason }
   | { kind: "loading" }
   | { kind: "loadFailed" }
-  | { kind: "loaded"; dataset: Dataset; cursor: number; version: number; loadedAt: number; refreshing: boolean; refreshFailed: boolean };
+  | {
+      kind: "loaded";
+      dataset: Dataset;
+      cursor: number;
+      version: number;
+      loadedAt: number;
+      refreshing: boolean;
+      refreshFailed: boolean;
+      /** The made-up account from SEE AN EXAMPLE (decision 114): nothing is pulled or refreshed. */
+      example: boolean;
+    };
 
 export function App() {
   const [state, setState] = useState<State>({ kind: "signedOut", reason: undefined });
   const [name, setName] = useState("");
   const [theme, toggleTheme] = useThemeMode();
 
-  // `npm run dev`, then /?demo: a made-up account, to look at the views without signing in
-  // (/?demo=empty: an account with nothing synced).
-  // import.meta.env.DEV is false in a production build, which leaves this out.
-  useEffect(() => {
-    const demo = new URLSearchParams(location.search).get("demo");
-    if (!import.meta.env.DEV || demo == null) return;
-    void import("./dev/demo").then(({ demoDataset }) => {
-      setName("Alex M.");
-      const dataset = demo === "empty" ? emptyDataset() : demoDataset(language === "es");
-      setState({ kind: "loaded", dataset, cursor: 0, version: 1, loadedAt: Date.now(), refreshing: false, refreshFailed: false });
-    });
-  }, []);
-
   const load = async () => {
     setState({ kind: "loading" });
     const dataset = emptyDataset();
     try {
       const cursor = await pullInto(dataset, api, session, 0);
-      setState({ kind: "loaded", dataset, cursor, version: 1, loadedAt: Date.now(), refreshing: false, refreshFailed: false });
+      setState({ kind: "loaded", dataset, cursor, version: 1, loadedAt: Date.now(), refreshing: false, refreshFailed: false, example: false });
     } catch (e) {
       setState(e instanceof SessionEndedError ? { kind: "signedOut", reason: "ended" } : { kind: "loadFailed" });
     }
@@ -57,7 +55,7 @@ export function App() {
 
   // REFRESH pulls from the last cursor into the same rows (decision 110).
   const refresh = async () => {
-    if (state.kind !== "loaded" || state.refreshing) return;
+    if (state.kind !== "loaded" || state.refreshing || state.example) return;
     const { dataset, cursor } = state;
     setState({ ...state, refreshing: true, refreshFailed: false });
     try {
@@ -75,9 +73,18 @@ export function App() {
     session.signIn(credential).then(load, () => setState({ kind: "signedOut", reason: "failed" }));
   };
 
+  const showExample = () => {
+    setName(EXAMPLE_NAME);
+    setState({ kind: "loaded", dataset: exampleDataset(language === "es"), cursor: 0, version: 1, loadedAt: Date.now(), refreshing: false, refreshFailed: false, example: true });
+    navigate(routePath({ view: "history", workout: null }), true);
+  };
+
+  /** SIGN OUT, or SIGN IN from the example: back to the sign-in page. */
   const signOut = () => {
-    session.signOut();
-    window.google?.accounts.id.disableAutoSelect();
+    if (state.kind === "loaded" && !state.example) {
+      session.signOut();
+      window.google?.accounts.id.disableAutoSelect();
+    }
     setName("");
     setState({ kind: "signedOut", reason: undefined });
   };
@@ -85,7 +92,7 @@ export function App() {
   if (state.kind === "loaded") {
     return <Dashboard state={state} name={name} onRefresh={refresh} onSignOut={signOut} theme={theme} onToggleTheme={toggleTheme} />;
   }
-  return <SignIn state={state} onCredential={signIn} onRetry={load} theme={theme} onToggleTheme={toggleTheme} />;
+  return <SignIn state={state} onCredential={signIn} onRetry={load} onExample={showExample} theme={theme} />;
 }
 
 // ---------- Signed out (WebSignIn.dc.html) ----------
@@ -104,11 +111,12 @@ interface SignInProps {
   state: Exclude<State, { kind: "loaded" }>;
   onCredential: (c: string) => void;
   onRetry: () => void;
+  onExample: () => void;
+  /** The saved theme; the sign-in page has no switch (decision 114). */
   theme: ThemeMode;
-  onToggleTheme: () => void;
 }
 
-function SignIn({ state, onCredential, onRetry, theme, onToggleTheme }: SignInProps) {
+function SignIn({ state, onCredential, onRetry, onExample, theme }: SignInProps) {
   const button = useRef<HTMLDivElement>(null);
   const signedOut = state.kind === "signedOut";
   const callback = useRef(onCredential);
@@ -137,9 +145,8 @@ function SignIn({ state, onCredential, onRetry, theme, onToggleTheme }: SignInPr
       <div className="signin-body">
         {state.kind === "signedOut" && state.reason === "ended" && <p className="muted" role="status" style={{ margin: 0 }}>{s.sessionEnded}</p>}
         <div className="signin-brand px">
-          <Cursor size={56} />
-          <span style={{ flexGrow: 1 }}>DINOGYM</span>
-          <ThemeButton theme={theme} onToggle={onToggleTheme} />
+          <Cursor size={64} />
+          <span>DINOGYM</span>
         </div>
         <h1>{s.title}</h1>
         <div className="textbox">{s.intro}</div>
@@ -147,6 +154,12 @@ function SignIn({ state, onCredential, onRetry, theme, onToggleTheme }: SignInPr
           <>
             {state.reason === "failed" && <p className="danger" role="alert" style={{ margin: 0 }}>{s.signInFailed}</p>}
             <div ref={button} className="signin-google" />
+            <div className="signin-example">
+              <button className="btn" onClick={onExample}>
+                {s.seeExample}
+              </button>
+              <span className="small muted">{s.seeExampleNote}</span>
+            </div>
             <div className="small muted" style={{ lineHeight: 1.5 }}>
               {s.privacy}
             </div>
@@ -220,7 +233,12 @@ function Dashboard({ state, name, onRefresh, onSignOut, theme, onToggleTheme }: 
 
   return (
     <div className="shell">
-      <Header route={route} name={name} updated={updated} refreshing={state.refreshing} onRefresh={onRefresh} onSignOut={onSignOut} phone={phone} theme={theme} onToggleTheme={onToggleTheme} />
+      <Header route={route} name={name} updated={updated} refreshing={state.refreshing} onRefresh={onRefresh} onSignOut={onSignOut} phone={phone} theme={theme} onToggleTheme={onToggleTheme} example={state.example} />
+      {state.example && (
+        <div className="textbox" role="note">
+          {s.exampleBanner}
+        </div>
+      )}
       {state.refreshFailed && (
         <div className="alert" role="alert">
           <span>{s.refreshFailed}</span>
@@ -265,9 +283,10 @@ interface HeaderProps {
   phone: boolean;
   theme: ThemeMode;
   onToggleTheme: () => void;
+  example: boolean;
 }
 
-function Header({ route, name, updated, refreshing, onRefresh, onSignOut, phone, theme, onToggleTheme }: HeaderProps) {
+function Header({ route, name, updated, refreshing, onRefresh, onSignOut, phone, theme, onToggleTheme, example }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const initial = (name.trim().charAt(0) || "?").toUpperCase();
   const hideTabs = phone && route.view === "history" && route.workout != null;
@@ -287,7 +306,7 @@ function Header({ route, name, updated, refreshing, onRefresh, onSignOut, phone,
       <>
         <header className="top" style={{ position: "relative" }}>
           <Link href="/history" className="brand px">
-            <Cursor size={28} />
+            <Cursor size={32} />
             <span>DINOGYM</span>
           </Link>
           <span className="top-spacer" />
@@ -297,13 +316,19 @@ function Header({ route, name, updated, refreshing, onRefresh, onSignOut, phone,
           {menuOpen && (
             <div className="account-menu" onClick={() => setMenuOpen(false)}>
               <strong>{name}</strong>
-              <span className="top-updated">{updated}</span>
-              <button className="btn" onClick={onRefresh} disabled={refreshing}>
-                {s.refresh}
-              </button>
+              {example ? (
+                <span className="tag" style={{ alignSelf: "flex-start" }}>{s.exampleTag}</span>
+              ) : (
+                <>
+                  <span className="top-updated">{updated}</span>
+                  <button className="btn" onClick={onRefresh} disabled={refreshing}>
+                    {s.refresh}
+                  </button>
+                </>
+              )}
               <ThemeButton theme={theme} onToggle={onToggleTheme} />
               <button className="btn" onClick={onSignOut}>
-                {s.signOut}
+                {example ? s.signIn : s.signOut}
               </button>
             </div>
           )}
@@ -316,17 +341,23 @@ function Header({ route, name, updated, refreshing, onRefresh, onSignOut, phone,
   return (
     <header className="top">
       <Link href="/history" className="brand px">
-        <Cursor size={32} />
+        <Cursor size={36} />
         <span>DINOGYM</span>
       </Link>
       {tabs}
       <span className="top-spacer" />
-      <span className="top-updated" role="status">
-        {updated}
-      </span>
-      <button className="btn" onClick={onRefresh} disabled={refreshing}>
-        {s.refresh}
-      </button>
+      {example ? (
+        <span className="tag">{s.exampleTag}</span>
+      ) : (
+        <>
+          <span className="top-updated" role="status">
+            {updated}
+          </span>
+          <button className="btn" onClick={onRefresh} disabled={refreshing}>
+            {s.refresh}
+          </button>
+        </>
+      )}
       <ThemeButton theme={theme} onToggle={onToggleTheme} />
       {name && (
         <span className="who">
@@ -337,7 +368,7 @@ function Header({ route, name, updated, refreshing, onRefresh, onSignOut, phone,
         </span>
       )}
       <button className="btn" onClick={onSignOut}>
-        {s.signOut}
+        {example ? s.signIn : s.signOut}
       </button>
     </header>
   );

@@ -95,7 +95,7 @@ export function HistoryView({ dataset, model, workoutKey, phone, now, timeZone }
 function WorkoutRow({ workout: w, href, current, phone }: { workout: Workout; href: string; current: boolean; phone: boolean }) {
   return (
     <Link href={href} className="row workout-row" aria-current={current ? "true" : undefined}>
-      {!phone && <span className="row-cursor">{current && <Cursor size={16} />}</span>}
+      {!phone && <span className="row-cursor">{current && <Cursor size={20} />}</span>}
       <span className="tile date-tile">
         <span className="dow">{weekdayTag(w.day, language)}</span>
         <span className="day">{Number(w.day.slice(8))}</span>

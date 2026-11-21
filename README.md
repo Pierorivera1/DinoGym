@@ -59,7 +59,7 @@ DinoGym logs workouts on the phone with no connection needed, then syncs them th
 - **Sync between devices.** WorkManager pushes local changes and pulls by a server change number. The newest edit per row wins. The app stays fully usable if the backend is turned off.
 - **Shareable routines.** Publish a routine as a public link. The link opens a static page on CloudFront, and the app imports the routine from it through Android App Links.
 - **Reminders.** "Today is pull day" and a weekly summary, sent by EventBridge Scheduler and Firebase Cloud Messaging and timed to each phone's time zone.
-- **Web dashboard.** History, progress and body weight after signing in, computed in the browser from synced data. It is read-only, because the phone is the only writer.
+- **Web dashboard.** History, progress and body weight after signing in, computed in the browser from synced data. It is read-only, because the phone is the only writer. SEE AN EXAMPLE on the sign-in page shows it with a made-up account, without signing in.
 
 | Shared routine page | Reminder settings |
 | --- | --- |
@@ -151,7 +151,7 @@ npm ci
 npm run dev                        # http://localhost:5173, API calls proxied to staging
 ```
 
-Open `http://localhost:5173/?demo` to see every view with a made-up account and no sign-in. The demo data exists only in the dev server and is left out of production builds.
+Press SEE AN EXAMPLE on the sign-in page to see every view with two months of made-up workouts, built in the browser. Nothing is sent to the API.
 
 ## Design and tradeoffs
 
