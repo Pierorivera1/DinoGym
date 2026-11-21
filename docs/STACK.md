@@ -64,7 +64,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 
 | Concern | Choice |
 |---|---|
-| Instrumentation | OpenTelemetry Go SDK in the backend, exported over OTLP/HTTP and flushed after every Lambda invocation (decision 64); AWS calls traced with `otelaws` (decision 65) |
+| Instrumentation | OpenTelemetry Go SDK in the backend, exported over OTLP/HTTP and flushed after every Lambda invocation (decision 64), with the Grafana token read from SSM at cold start (decision 118); AWS calls traced with `otelaws` (decision 65) |
 | Backend for traces, metrics, logs | Grafana Cloud free tier |
 | Dashboards and alerts | Defined in Terraform |
 | App crashes | Firebase Crashlytics |

@@ -1,16 +1,24 @@
 # Open items
 
-As of 2026-11-20. Remove an item when it is done or decided, and record decisions in [DECISIONS.md](DECISIONS.md).
+As of 2026-11-21. Remove an item when it is done or decided, and record decisions in [DECISIONS.md](DECISIONS.md).
 
 ## The owner will set up
 
 - [x] Install Go (mise, 1.27.4, decision 37)
 - [x] Install Terraform (mise, v1.17.2)
 - [ ] Before 2027-03-18 the AWS free plan ends: either the AWS side is torn down by then (planned for 2027-02-01, decision 76) or the account is upgraded to a paid plan
-- [ ] Before task 26 reads it: create `/dinogym-<env>/grafana-token` with `aws ssm put-parameter --type SecureString` (decision 69). The session signing keys for staging and prod exist (task 20)
 - [x] Create a Firebase project: `DinoGym`, project ID `dinogym-3870b`. The Android app is added to it later, once the package name and signing key exist.
 - [x] Create a Grafana Cloud account (free tier). Tokens are created later, when observability is wired up.
 - [ ] Back up the release signing key, `~/.config/dinogym/` (both files), to a password manager. Without it no update installs over the app ([RELEASE.md](RELEASE.md), decision 45)
+
+## Task 26: to do and to verify
+
+- [ ] The owner sends the Grafana Cloud stack's OTLP endpoint and instance ID (grafana.com → the stack → OpenTelemetry → Configure). Neither is secret
+- [ ] The owner creates a Grafana Cloud access policy token (`metrics:write`, `logs:write`, `traces:write`) and stores it as `/dinogym-staging/grafana-token` and `/dinogym-prod/grafana-token` ([infra/README.md](../infra/README.md)). Both must exist before `grafana` is set in `envs/staging` and `envs/prod`, or the Lambdas fail at cold start (decision 118)
+- [ ] Pull request 1 (decision 118): the API and the reminder function export to Grafana Cloud
+- [ ] On staging, after `grafana` is set: traces, metrics and logs from `dinogym-api` and the reminder function show in Grafana Cloud with `deployment.environment.name=staging`; compare `/sync/pull` latency before and after (the per-request flush)
+- [ ] Pull request 2: dashboards and alerts in Terraform with the Grafana provider; needs a Grafana service account token
+- [ ] Pull request 3: Crashlytics in the app
 
 ## Task 25: to do and to verify
 

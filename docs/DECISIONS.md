@@ -925,3 +925,29 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
 - **Decision:** `index.html` links `https://accounts.google.com/gsi/style` before the GIS script. The button's container is fixed at 44 px high with `overflow: hidden`, and any SVG in it is held to icon size.
 - **Why:** On staging, the sign-in page showed a page-wide Google "G" for about a second. GIS inserts fallback markup (with that logo as an unsized SVG) when it draws the button, then fetches its own stylesheet, which hides the fallback. Loading the stylesheet up front removes the gap. The size limits are a second guard if the stylesheet is slow or blocked. The CSP already allows that URL (decision 116).
 - **Rejected:** hiding the button until Google's iframe appears (it relies on GIS's internal markup, which Google can change).
+
+## 118. Both Lambdas export to Grafana Cloud directly; the token is read from SSM before telemetry starts (2026-11-21)
+
+- **Decision:**
+  - **Reaching Grafana Cloud.** The API and the reminder function send traces, metrics and logs straight to the stack's OTLP gateway (decision 64). The module input `grafana` (endpoint and instance id, neither secret) sets `OTEL_EXPORTER_OTLP_ENDPOINT`, `DINOGYM_OTLP_INSTANCE_ID` and `DINOGYM_OTLP_TOKEN_PARAM`; while it is `null`, telemetry stays `none`. At cold start each binary reads `/dinogym-<env>/grafana-token` from SSM, and builds `Authorization: Basic base64(instance id:token)` before it sets up telemetry.
+  - **One SSM call.** A new package, `internal/secrets`, reads every parameter a binary needs in a single `GetParameters`. For the API that is the session key and the token. A missing parameter stops the start and is named in the error, without the value.
+  - **The reminder function's role** may now read the token and decrypt it through SSM only. The bootstrap's boundary already allowed `grafana-token` for every role in the environment (decision 71), so `infra/bootstrap` needs no hand-applied change.
+  - **One metric series per Lambda instance.** Each process sets `service.instance.id` to a random id. SDK 1.47 sets none by default. Cumulative counters from two warm instances would otherwise land on one series and overwrite each other.
+  - **Fewer series.** otelhttp's request and response body-size histograms are dropped with a view. Request duration, which the dashboards use, is kept.
+- **Why:**
+  - Reading the token in code keeps it out of Terraform state and out of the Lambda's configuration, where anyone with `lambda:GetFunctionConfiguration` could read it (decision 69).
+  - One call keeps cold start to the single SSM round trip it already had.
+  - The instance id makes the metrics correct; dropping the body sizes keeps the free tier's 10,000-series limit far away.
+  - Per-instance series churn is small at one user's traffic: a handful of cold starts a day.
+- **Rejected:**
+  - Putting the token in `OTEL_EXPORTER_OTLP_HEADERS` from Terraform: it would sit in state and in the function's configuration.
+  - The AWS Parameters and Secrets Lambda extension: another layer and process for one read at start.
+  - Secrets Manager: $0.40 a secret a month, and nothing to rotate automatically.
+  - Storing the whole Basic header in SSM: it would mix the non-secret instance id into the secret, and the value would no longer be the token Grafana shows.
+  - Delta temporality instead of an instance id: Grafana Cloud's OTLP ingestion is built for cumulative metrics.
+- **Cost:** No AWS charge beyond a few kilobytes of data transfer out per request, inside the free 100 GB. Every request now waits for the flush to Grafana's gateway (decision 64's trade-off). How long that takes is checked on staging (OPEN-ITEMS).
+- **Tested:**
+  - Go unit tests: the settings (both or neither, `otlp` needs an endpoint), the Basic header reaching `/v1/traces`, `/v1/metrics` and `/v1/logs`, `OTEL_EXPORTER_OTLP_HEADERS` kept when no token is configured, distinct instance ids, the dropped histograms, and `secrets.Read` against a fake SSM.
+  - On the emulator: a SecureString written as the owner writes it is read back decrypted, and a missing one is named. This proves the API usage only; the emulator evaluates neither IAM nor KMS.
+  - `terraform validate` for the emulator, staging and prod roots, with `grafana` both unset and set.
+  - **Not tested here:** that Grafana Cloud accepts the data, and the reminder role's access on real AWS. Staging shows both.

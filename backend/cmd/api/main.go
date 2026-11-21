@@ -35,6 +35,7 @@ import (
 	"github.com/Pierorivera1/DinoGym/backend/internal/config"
 	"github.com/Pierorivera1/DinoGym/backend/internal/lambdahttp"
 	"github.com/Pierorivera1/DinoGym/backend/internal/reminders"
+	"github.com/Pierorivera1/DinoGym/backend/internal/secrets"
 	"github.com/Pierorivera1/DinoGym/backend/internal/server"
 	"github.com/Pierorivera1/DinoGym/backend/internal/store"
 	"github.com/Pierorivera1/DinoGym/backend/internal/telemetry"
@@ -57,13 +58,26 @@ func run() error {
 	}
 
 	ctx := context.Background()
-	tel, log, err := telemetry.Setup(ctx, cfg.Telemetry, cfg.Env, version, cfg.LogLevel, os.Stdout)
-	if err != nil {
-		return err
-	}
 	awsCfg, err := awsconfig.LoadDefaultConfig(ctx)
 	if err != nil {
 		return fmt.Errorf("load AWS config: %w", err)
+	}
+	// The secrets come first, in one SSM call: telemetry needs the Grafana
+	// token before it starts (decision 118).
+	secret, err := secrets.Read(ctx, ssm.NewFromConfig(awsCfg), cfg.SessionKeyParam, cfg.Telemetry.TokenParam)
+	if err != nil {
+		return err
+	}
+	tel, log, err := telemetry.Setup(ctx, telemetry.Options{
+		Mode:    cfg.Telemetry.Mode,
+		Env:     cfg.Env,
+		Version: version,
+		Level:   cfg.LogLevel,
+		Stdout:  os.Stdout,
+		Headers: otlpHeaders(cfg.Telemetry, secret),
+	})
+	if err != nil {
+		return err
 	}
 	otelaws.AppendMiddlewares(&awsCfg.APIOptions)
 
@@ -71,7 +85,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	key, err := sessionKey(ctx, cfg, awsCfg, log)
+	key, err := sessionKey(cfg, secret, log)
 	if err != nil {
 		return err
 	}
@@ -118,7 +132,7 @@ func serveLocal(cfg config.Config, log *slog.Logger, tel *telemetry.Telemetry, h
 
 	errc := make(chan error, 1)
 	go func() { errc <- srv.ListenAndServe() }()
-	log.Info("listening", "addr", cfg.Addr, "env", cfg.Env, "telemetry", cfg.Telemetry, "version", version)
+	log.Info("listening", "addr", cfg.Addr, "env", cfg.Env, "telemetry", cfg.Telemetry.Mode, "version", version)
 
 	select {
 	case err := <-errc:
@@ -161,26 +175,23 @@ func newStore(ctx context.Context, cfg config.Config, awsCfg aws.Config, log *sl
 	return st, nil
 }
 
-// sessionKey returns the key that signs access tokens (decision 79): read once
-// from SSM in staging and prod, from DINOGYM_SESSION_KEY on the laptop, or, on
-// the laptop with neither, made up at start (sessions then end on restart).
-// The value is never logged.
-func sessionKey(ctx context.Context, cfg config.Config, awsCfg aws.Config, log *slog.Logger) ([]byte, error) {
+// otlpHeaders returns Grafana Cloud's credentials when a token parameter is
+// configured, otherwise nil (the exporters then use OTEL_EXPORTER_OTLP_HEADERS).
+func otlpHeaders(t config.Telemetry, secret map[string]string) map[string]string {
+	if t.TokenParam == "" {
+		return nil
+	}
+	return telemetry.BasicAuth(t.InstanceID, secret[t.TokenParam])
+}
+
+// sessionKey returns the key that signs access tokens (decision 79): read from
+// SSM at start in staging and prod, from DINOGYM_SESSION_KEY on the laptop,
+// or, on the laptop with neither, made up at start (sessions then end on
+// restart). The value is never logged.
+func sessionKey(cfg config.Config, secret map[string]string, log *slog.Logger) ([]byte, error) {
 	switch {
 	case cfg.SessionKeyParam != "":
-		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-		defer cancel()
-		out, err := ssm.NewFromConfig(awsCfg).GetParameters(ctx, &ssm.GetParametersInput{
-			Names:          []string{cfg.SessionKeyParam},
-			WithDecryption: aws.Bool(true),
-		})
-		if err != nil {
-			return nil, fmt.Errorf("read session signing key %s: %w", cfg.SessionKeyParam, err)
-		}
-		if len(out.Parameters) != 1 || out.Parameters[0].Value == nil {
-			return nil, fmt.Errorf("session signing key %s not found", cfg.SessionKeyParam)
-		}
-		return []byte(*out.Parameters[0].Value), nil
+		return []byte(secret[cfg.SessionKeyParam]), nil
 	case cfg.SessionKey != "":
 		return []byte(cfg.SessionKey), nil
 	case cfg.Env == "local":

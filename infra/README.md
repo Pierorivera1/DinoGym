@@ -80,7 +80,15 @@ Terraform does not create the secrets (decision 54): the AWS provider would read
 aws ssm put-parameter --type SecureString --name /dinogym-staging/session-signing-key --value "$(openssl rand -base64 48)"
 ```
 
-Add `--overwrite` to change a value later.
+The Grafana token is a Grafana Cloud access policy token with the `metrics:write`, `logs:write` and `traces:write` scopes (grafana.com → the stack → OpenTelemetry → Configure). Read it from the terminal so it stays out of shell history:
+
+```bash
+read -rs GTOKEN && aws ssm put-parameter --type SecureString --name /dinogym-staging/grafana-token --value "$GTOKEN"; unset GTOKEN
+```
+
+The parameter must exist before an environment sets `grafana` in its `main.tf`: from then on both Lambdas read it at cold start and fail to start without it (decision 118).
+
+Add `--overwrite` to change a value later. A changed value reaches a Lambda only at its next cold start, such as after a deploy that changes the function.
 
 ## Google side of reminders (task 24)
 

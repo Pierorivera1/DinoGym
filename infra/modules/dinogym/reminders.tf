@@ -51,8 +51,8 @@ resource "aws_iam_role" "reminders" {
   })
 }
 
-# Read settings and devices, delete devices FCM no longer knows. No SSM, no
-# writes to synced rows. Reaching Google needs no AWS permission: the
+# Read settings and devices, delete devices FCM no longer knows, read the
+# Grafana token (decision 118). No other secret, no writes to synced rows. Reaching Google needs no AWS permission: the
 # federation signs a GetCallerIdentity request, which every role may make.
 resource "aws_iam_role_policy" "reminders" {
   name = "reminders"
@@ -69,6 +69,18 @@ resource "aws_iam_role_policy" "reminders" {
         Effect   = "Allow"
         Action   = ["dynamodb:Query", "dynamodb:DeleteItem"]
         Resource = aws_dynamodb_table.main.arn
+      },
+      {
+        Effect   = "Allow"
+        Action   = "ssm:GetParameters"
+        Resource = local.grafana_arn
+      },
+      # As for the API: decrypt with the aws/ssm key, only through SSM.
+      {
+        Effect    = "Allow"
+        Action    = "kms:Decrypt"
+        Resource  = "arn:aws:kms:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:key/*"
+        Condition = { StringEquals = { "kms:ViaService" = "ssm.${data.aws_region.current.region}.amazonaws.com" } }
       },
     ]
   })
@@ -97,14 +109,13 @@ resource "aws_lambda_function" "reminders" {
 
   # Read by backend/cmd/reminders. None of these is secret (decision 107).
   environment {
-    variables = {
+    variables = merge(local.telemetry_env, {
       DINOGYM_ENV                 = var.env
       DINOGYM_TABLE               = aws_dynamodb_table.main.name
-      DINOGYM_TELEMETRY           = "none"
       DINOGYM_FCM_PROJECT         = var.fcm.project
       DINOGYM_GCP_AUDIENCE        = var.fcm.audience
       DINOGYM_FCM_SERVICE_ACCOUNT = var.fcm.service_account
-    }
+    })
   }
 
   depends_on = [aws_iam_role_policy.reminders]
