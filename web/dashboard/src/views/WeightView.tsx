@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { language, strings as s } from "../i18n";
 import { currentAverage, goalProgress, isTowardGoal } from "../rules/bodyWeight";
-import { dayKey } from "../rules/days";
+import { dayKey, dayNumber } from "../rules/days";
 import { StepChart } from "../ui/Chart";
 import { kg, kgShort, monthTag, shortDay, signedKg } from "../ui/format";
-import { weightInRange, type Model, type RangeId } from "../ui/model";
+import { initialRange, weightInRange, type Model, type RangeId } from "../ui/model";
 
 const RANGES: RangeId[] = ["1M", "3M", "1Y", "ALL"];
 
@@ -16,7 +16,10 @@ interface Props {
 }
 
 export function WeightView({ model, phone, todayN, timeZone }: Props) {
-  const [range, setRange] = useState<RangeId>("3M");
+  const [range, setRange] = useState<RangeId>(() => {
+    const oldest = model.weighIns[model.weighIns.length - 1];
+    return initialRange(RANGES, oldest ? dayNumber(dayKey(oldest.measuredAt, timeZone)) : null, todayN, "3M");
+  });
   if (model.weighIns.length === 0) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 520 }}>

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { language, strings as s } from "../i18n";
+import { dayKey, dayNumber } from "../rules/days";
 import type { Gain, SetOneResult } from "../rules/progress";
 import { StepChart } from "../ui/Chart";
 import { dayMonth, kgShort, monthTag, shortDay } from "../ui/format";
-import { progressInRange, type Model, type ProgressExercise, type RangeId } from "../ui/model";
+import { initialRange, progressInRange, type Model, type ProgressExercise, type RangeId } from "../ui/model";
 import { Cursor, exerciseIcon, Icon } from "../ui/Pixel";
 import { Link, navigate } from "./Link";
 
@@ -30,8 +31,11 @@ function gainText(gain: Gain): string {
 
 export function ProgressView({ model, slug, phone, todayN, timeZone }: Props) {
   const [query, setQuery] = useState("");
-  const [range, setRange] = useState<RangeId>("6M");
   const { exercises } = model;
+  const [range, setRange] = useState<RangeId>(() => {
+    const first = Math.min(...exercises.map((e) => e.history[0]?.date ?? Infinity));
+    return initialRange(RANGES, Number.isFinite(first) ? dayNumber(dayKey(first, timeZone)) : null, todayN, "6M");
+  });
   if (exercises.length === 0) return <p className="muted">{s.noProgress}</p>;
 
   const selected = (slug && exercises.find((e) => e.slug === slug)) || (slug ? undefined : exercises[0]);
@@ -65,7 +69,7 @@ export function ProgressView({ model, slug, phone, todayN, timeZone }: Props) {
           const current = e.id === selected?.id;
           return (
             <Link key={e.id} href={`/progress/${e.slug}`} className="row" aria-current={current ? "true" : undefined}>
-              <span className="row-cursor">{current && <Cursor size={16} fill="var(--sel-text)" />}</span>
+              <span className="row-cursor">{current && <Cursor size={20} />}</span>
               <span className="row-title">{e.name}</span>
               <span className="exercise-best">{bestText(e.progress.best, e.progress.usesWeight)}</span>
             </Link>
