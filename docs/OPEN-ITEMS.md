@@ -16,10 +16,10 @@ As of 2026-11-21. Remove an item when it is done or decided, and record decision
 - [x] The owner sends the Grafana Cloud stack's OTLP endpoint and instance ID (2026-11-21: `otlp-gateway-prod-us-east-6`, instance 1926627, set in `envs/staging`)
 - [ ] The owner creates a Grafana Cloud access policy token (`metrics:write`, `logs:write`, `traces:write`) and stores it as `/dinogym-staging/grafana-token` and `/dinogym-prod/grafana-token` ([infra/README.md](../infra/README.md)). Both must exist before `grafana` is set in `envs/staging` and `envs/prod`, or the Lambdas fail at cold start (decision 118)
 - [x] Pull request 1 (decision 118): the API and the reminder function export to Grafana Cloud (#51); staging turned on (#53)
-- [x] On staging with `grafana` set (2026-11-21): traces from `dinogym-api` show in Grafana Cloud. Metrics and logs: the owner checks
-- [ ] Staging latency: with the flush before the response, `/health` took about 1.4 s against 0.33 s on prod. After decision 119, staging's `/health` should be back near prod's; if a warning `flushing telemetry before each response` shows in the logs, the extension did not register
+- [x] On staging with `grafana` set (2026-11-21): traces (with DynamoDB spans), metrics (`http_server_request_duration_seconds_*`) and logs (`sync pull` at DEBUG) from `dinogym-api` show in Grafana Cloud
+- [x] Staging latency: with the flush before the response, `/health` took about 1.4 s against 0.33 s on prod; after decision 119 (#54) it is 0.33–0.44 s, like prod's (2026-11-21)
 - [ ] Reminder function traces show in Grafana Cloud after a reminder fires on staging
-- [ ] Prod: set `grafana` in `envs/prod` once staging's latency is fixed
+- [ ] Prod: `grafana` set in `envs/prod`; after the deploy, prod's traces show in Grafana Cloud with `deployment.environment.name=prod` (prod logs only WARN and above, so few logs are expected)
 - [ ] Pull request 2: dashboards and alerts in Terraform with the Grafana provider; needs a Grafana service account token
 - [ ] Pull request 3: Crashlytics in the app
 
