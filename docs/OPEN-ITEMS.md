@@ -22,7 +22,7 @@ As of 2026-11-21. Remove an item when it is done or decided, and record decision
 - [x] Prod: `grafana` set in `envs/prod` (#55); the owner's sign-in on prod shows in Grafana Cloud as `POST /auth/google` and `GET /sync/pull` with `deployment.environment.name=prod` (2026-11-21)
 - [ ] Pull request 2: dashboards and alerts in Terraform with the Grafana provider; needs a Grafana service account token
 - [x] Pull request 3: Crashlytics in the app (decision 120)
-- [ ] On a phone, debug build: force a crash with `adb shell am crash io.github.pierorivera1.dinogym.debug`, open the app again, and see it in the Firebase console › Crashlytics for the `.debug` app ([android/README.md](../android/README.md))
+- [x] On a phone, debug build: force a crash with `adb shell am crash io.github.pierorivera1.dinogym.debug`, open the app again, and see it in the Firebase console › Crashlytics for the `.debug` app ([android/README.md](../android/README.md)) (checked by the owner 2026-11-21: one crash, one user; Crashlytics needed no enabling in the console)
 - [ ] The same with the next release APK (`io.github.pierorivera1.dinogym`), which also proves the release workflow's API key reaches Crashlytics
 
 ## Task 25: to do and to verify
