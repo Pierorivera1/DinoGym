@@ -35,6 +35,11 @@ export TF_PLUGIN_CACHE_DIR="${TF_PLUGIN_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cach
 mkdir -p "$TF_PLUGIN_CACHE_DIR"
 export TF_IN_AUTOMATION=1
 
+# The web module reads web/dashboard/dist (filemd5 of index.html), so validate,
+# plan and apply all need a fresh build first.
+step "Build the web dashboard"
+(cd "$ROOT/web/dashboard" && npm ci --no-audit --no-fund && npm run build)
+
 step "terraform fmt"
 terraform fmt -check -recursive "$ROOT/infra"
 
@@ -54,10 +59,6 @@ step "Go integration tests"
 
 step "Build the Lambda zip"
 "$ROOT/infra/scripts/build-lambda.sh"
-
-# The web module uploads web/dashboard/dist, so Terraform needs a fresh build.
-step "Build the web dashboard"
-(cd "$ROOT/web/dashboard" && npm ci --no-audit --no-fund && npm run build)
 
 TF=(terraform -chdir="$ROOT/infra/envs/emulator")
 
