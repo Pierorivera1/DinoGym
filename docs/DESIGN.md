@@ -37,11 +37,11 @@ Decision 16 still applies: a screen is built only after its mock is approved.
 | Share a routine or program: SHARE button in the editors and the share sheet's states | `ShareFlow.dc.html` | Mocked 2026-11-18, awaiting the owner's review. Built (task 23) |
 | Import a shared link: paste, preview of a program or routine, loading and error states | `ImportShare.dc.html` | Mocked 2026-11-18, awaiting the owner's review. Built (task 23) |
 | Reminders: Settings › REMINDERS (signed in, signed out, notifications blocked), the time sheet, the notifications | `Reminders.dc.html` | Approved 2026-11-19, built (task 24, decisions 104–107, 109) |
-| Web dashboard: history (stat panels, 18-week day grid, workouts by month, one workout open) | `WebHistory.dc.html` | Approved 2026-11-20 (task 25, decision 110) |
-| Web dashboard: progress for one exercise (list, chart with every workout, records) | `WebProgress.dc.html` | Approved 2026-11-20 |
-| Web dashboard: body weight (panels, chart, weigh-ins) | `WebWeight.dc.html` | Approved 2026-11-20 |
-| Web dashboard at phone width (history, one workout, progress) | `WebPhone.dc.html` | Approved 2026-11-20 |
-| Web dashboard: sign-in, loading, nothing synced, errors, session ended | `WebSignIn.dc.html` | Approved 2026-11-20 |
+| Web dashboard: history (stat panels, 18-week day grid, workouts by month, one workout open) | `WebHistory.dc.html` | Approved 2026-11-20 (task 25, decision 110). Built (task 25, decision 112) |
+| Web dashboard: progress for one exercise (list, chart with every workout, records) | `WebProgress.dc.html` | Approved 2026-11-20. Built (task 25, decision 112) |
+| Web dashboard: body weight (panels, chart, weigh-ins) | `WebWeight.dc.html` | Approved 2026-11-20. Built (task 25, decision 112) |
+| Web dashboard at phone width (history, one workout, progress) | `WebPhone.dc.html` | Approved 2026-11-20. Built (task 25, decision 112) |
+| Web dashboard: sign-in, loading, nothing synced, errors, session ended | `WebSignIn.dc.html` | Approved 2026-11-20. Built (task 25, decision 112) |
 
 The build order in [ARCHITECTURE.md](ARCHITECTURE.md) is arranged so the code that has no screen, and the approved screens, are built while the remaining mocks are made.
 
