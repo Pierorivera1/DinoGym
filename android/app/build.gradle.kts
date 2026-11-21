@@ -37,6 +37,12 @@ android {
         buildConfigField("String", "FIREBASE_PROJECT_ID", "\"dinogym-3870b\"")
         buildConfigField("String", "FIREBASE_SENDER_ID", "\"854486518090\"")
         buildConfigField("String", "FIREBASE_API_KEY", "\"${firebaseApiKey()}\"")
+
+        // Crashlytics (task 26, decision 120). Its SDK refuses to start without this resource,
+        // which the Crashlytics Gradle plugin normally writes. With R8 off there is no mapping
+        // file to match, and the plugin then writes this same all-zero id, so we write it here
+        // instead of adding the plugin. If minify is ever turned on, use the plugin.
+        resValue("string", "com.google.firebase.crashlytics.mapping_file_id", "0".repeat(32))
     }
 
     // Release signing (decision in DECISIONS.md, "Release signing"). The keystore never enters
@@ -89,6 +95,8 @@ android {
         // BuildConfig.VERSION_NAME and VERSION_CODE, shown in Settings; the API URL and the
         // Google client ID for sign-in (task 20).
         buildConfig = true
+        // The Crashlytics mapping file id above.
+        resValues = true
     }
 
     androidResources {
@@ -163,6 +171,8 @@ dependencies {
     // Reminders (task 24): receives the server's data messages and the phone's FCM token.
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
+    // Crash reports (task 26): starts with Firebase, no code or Gradle plugin (decision 120).
+    implementation(libs.firebase.crashlytics)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

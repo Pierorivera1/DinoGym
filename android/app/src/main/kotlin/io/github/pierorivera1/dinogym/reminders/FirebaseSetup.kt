@@ -15,8 +15,9 @@ import kotlin.coroutines.resumeWithException
 
 /**
  * Starts Firebase from BuildConfig values instead of the Google Services Gradle plugin
- * (decision 109): the app needs only messaging, and the API key stays out of git. A build
- * without the key (CI's lint and unit-test builds) skips Firebase; reminders are then off.
+ * (decision 109): the app needs only messaging and Crashlytics, and the API key stays out of
+ * git. Crashlytics needs no code: it starts with the default app (decision 120). A build without
+ * the key (CI's lint and unit-test builds) skips Firebase; reminders and crash reports are off.
  */
 @Singleton
 class FirebaseSetup @Inject constructor(

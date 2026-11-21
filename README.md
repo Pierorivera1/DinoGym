@@ -126,7 +126,9 @@ cd android
 ./gradlew :app:testDebugUnitTest    # unit tests, Room DAO tests and Roborazzi screenshots
 ```
 
-Open `android/` in Android Studio to run it on a device. Builds without Firebase or Google credentials still work offline; sign-in and reminders are then off.
+Open `android/` in Android Studio to run it on a device. Builds without Firebase or Google credentials still work offline; sign-in, reminders and crash reports are then off.
+
+**Crash reports.** Builds with the Firebase key send crashes to Firebase Crashlytics: the stack trace, device model, OS and app version, and a Firebase installation ID. The app adds no account ID, workout data or logs to them (decision 120).
 
 ### Backend on the AWS Emulator
 

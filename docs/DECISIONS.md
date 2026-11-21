@@ -969,3 +969,28 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
   - Sampling or turning off a signal: it hides the problem without fixing it.
 - **Cost:** The flush still counts toward each invocation's billed duration; CloudWatch reports it as `PostRuntimeExtensionsDuration`. At one user's traffic that stays inside Lambda's free tier. A request arriving while the previous flush runs waits for it, since one environment handles one invocation at a time.
 - **Tested:** Unit tests against a fake Extensions API check the order register → next → (handler done) → work → next. They also check the work's deadline (the limit, or the invocation's deadline if sooner), the inline fallback once the loop stops, and that a failed registration is an error. They ran three times with `-race`, and the arm64 Lambda binary builds. **Not tested here:** that real Lambda accepts the registration and returns the response before the flush. The staging latency check in OPEN-ITEMS covers it.
+
+## 120. Crashlytics without its Gradle plugin, in both build types, with no user identifiers (2026-11-21)
+
+- **Decision:**
+  - **SDK.** `firebase-crashlytics` from the existing Firebase BoM 35.2.0 (21.1.0). It needs no code: it registers itself with Firebase and starts when `FirebaseSetup` starts the default app from BuildConfig (decision 109). A build without the API key skips Firebase, so CI's lint and unit-test builds report nothing.
+  - **The build id without the plugin.** `build.gradle.kts` writes the string resource `com.google.firebase.crashlytics.mapping_file_id` as 32 zeros with `resValue` (and turns on `buildFeatures.resValues`, which AGP 9 leaves off).
+  - **Start order.** `DinoGymApp.onCreate` now starts Firebase before anything else, so a crash in the rest of start-up is reported.
+  - **Debug builds report too.** The debug and release builds are separate Firebase apps (`.debug` and the release package), and Crashlytics keeps a separate dashboard per app. Crashes from development land in the `.debug` app and never mix with release data.
+  - **No identifiers of ours.** The app sets no user id, custom keys or logs. Reports carry what the SDK collects by default: the stack trace, device model, OS and app version, and the Firebase installation id. There is no opt-out switch; the README says what is sent.
+  - **Test crashes** use `adb shell am crash <package>`, not a button in the app.
+- **Why:**
+  - The SDK at 21.1.0 throws "The Crashlytics build ID is missing" at start unless that resource exists (`CrashlyticsCore.onPreExecute`, read from the AAR's bytecode). Its lookup is `CommonUtils.getMappingFileId`, which reads `com.google.firebase.crashlytics.mapping_file_id` or the legacy `com.crashlytics.android.build_id`.
+  - The plugin (`firebase-crashlytics-gradle` 3.0.8) writes a random id only when it has an R8 mapping file to upload. When the variant is not minified, its `InjectMappingFileIdTask` writes `00000000000000000000000000000000`. Release has `isMinifyEnabled = false`, so one line produces exactly what the plugin would, without a plugin whose AGP 9 support is unproven, and without `google-services.json`, which the plugin reads for the app id when it uploads.
+  - The plugin's other tasks do not apply: NDK symbol upload (no native code) and version-control info (optional).
+  - Debug reports in a separate Firebase app give the "separate app" option for free, and let the owner check the integration with the build they already install.
+  - `am crash` throws on the app's main thread, so Crashlytics' handler sees it like any uncaught exception. A test-crash button would need a mock (decision 16) and would ship in the APK.
+  - One user, distributed on GitHub Releases: an opt-out switch would need a mock and a Settings row for a choice the owner has already made. If the app gets other users, add one.
+- **Rejected:**
+  - The Crashlytics Gradle plugin: adds a plugin for one constant resource. Use it if R8 is ever turned on, since mapping files must then be uploaded.
+  - `com.google.firebase.crashlytics.RequireBuildId = false`: the SDK allows it, but Firebase documents the build id as required, and an empty id may not match reports on the console's side.
+  - Crashlytics off in debug (`firebase_crashlytics_collection_enabled = false`): reports then wait on the phone for an explicit send, and the owner could check delivery only with a release build.
+  - Crashlytics only in release (`releaseImplementation`): the same, and the two build types would differ in start-up code.
+  - Setting the signed-in user's id as the Crashlytics user id: one user, so it identifies no one new and adds personal data to Google's copy.
+- **Cost:** No charge; Crashlytics is free. The unsigned release APK is 19.6 MB with it. Firebase Sessions comes with Crashlytics and sends a small event per app session.
+- **Tested:** A Robolectric test reads the id through the SDK's own `CommonUtils.getMappingFileId`. `:app:assembleRelease` builds, and `aapt2 dump resources` shows `string/com.google.firebase.crashlytics.mapping_file_id` = 32 zeros and the Crashlytics and Sessions registrars in the merged manifest. **Not tested here:** that a crash reaches the console. That needs a phone (OPEN-ITEMS, steps in [android/README.md](../android/README.md)).

@@ -15,7 +15,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Networking | Ktor 3 client on OkHttp, generated from the OpenAPI contract into `android/api-client` (OpenAPI Generator, decisions 60 and 81) |
 | Sign-in | Sign in with Google through Android Credential Manager (`credentials`, `credentials-play-services-auth`, `googleid`); the session is kept encrypted with a Keystore key (decisions 81–83) |
 | Push | Firebase Cloud Messaging |
-| Crash reports | Firebase Crashlytics |
+| Crash reports | Firebase Crashlytics (`firebase-crashlytics` 21.1.0 from Firebase BoM 35.2.0), without its Gradle plugin; the build id resource is written in `build.gradle.kts` (decision 120) |
 | Languages | English and Spanish |
 | Distribution | Signed release APK on GitHub Releases |
 
@@ -67,7 +67,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 | Instrumentation | OpenTelemetry Go SDK in the backend, exported over OTLP/HTTP and flushed after every Lambda invocation (decision 64), with the Grafana token read from SSM at cold start (decision 118); AWS calls traced with `otelaws` (decision 65) |
 | Backend for traces, metrics, logs | Grafana Cloud free tier |
 | Dashboards and alerts | Defined in Terraform |
-| App crashes | Firebase Crashlytics |
+| App crashes | Firebase Crashlytics; debug and release builds report to separate Firebase apps (decision 120) |
 | Lambda logs | CloudWatch Logs, 7-day retention, WARN level in prod (a safety net; detail is in Grafana) |
 
 ## Repository layout
