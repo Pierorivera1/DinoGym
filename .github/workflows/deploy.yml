@@ -106,6 +106,10 @@ jobs:
         working-directory: infra/envs/staging
     env:
       TF_IN_AUTOMATION: "true"
+      # Grafana dashboard and alerts (decision 120): the service account token
+      # and the alert address, both environment secrets.
+      GRAFANA_AUTH: ${{ secrets.GRAFANA_TOKEN }}
+      TF_VAR_alert_email: ${{ secrets.ALERT_EMAIL }}
     steps:
       - uses: actions/checkout@v7
 
@@ -219,6 +223,10 @@ jobs:
         working-directory: infra/envs/prod
     env:
       TF_IN_AUTOMATION: "true"
+      # Grafana dashboard and alerts (decision 120): the service account token
+      # and the alert address, both environment secrets.
+      GRAFANA_AUTH: ${{ secrets.GRAFANA_TOKEN }}
+      TF_VAR_alert_email: ${{ secrets.ALERT_EMAIL }}
     steps:
       - uses: actions/checkout@v7
 

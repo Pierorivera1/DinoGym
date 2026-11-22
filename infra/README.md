@@ -5,6 +5,7 @@ Terraform for the DinoGym backend (decisions 66–67).
 | Path | What |
 |---|---|
 | `modules/dinogym` | One environment: DynamoDB table, the API Lambda, API Gateway HTTP API, access to the SSM secrets, the share page (task 23), and the reminder Lambda with its schedule group and Scheduler role (task 24) |
+| `modules/grafana` | One environment's Grafana Cloud dashboard, email contact point and alert rules (task 26, decision 121) |
 | `envs/emulator` | The staging stack on the local AWS Emulator, local state |
 | `envs/staging`, `envs/prod` | Real AWS, state in S3, deployed by `.github/workflows/deploy.yml` |
 | `bootstrap` | Applied once by hand: the state bucket, GitHub OIDC and the two deploy roles, the $10 budget alert |
@@ -122,6 +123,40 @@ GitHub settings the workflow reads:
 | `AWS_DEPLOY_ROLE_ARN` | `staging` and `prod` environments | that environment's role from `deploy_role_arns` |
 
 Both environments accept deployments from `main` only, and `prod` requires the owner as reviewer. The roles trust the environment, so these settings are what stop a branch from deploying.
+
+## Grafana dashboard and alerts (task 26)
+
+`modules/grafana` puts one dashboard and three alert rules per environment in the Grafana Cloud stack `generousfence3427`. `envs/staging` and `envs/prod` call it, so `deploy.yml` changes staging's first and prod's after approval. Staging's rules are created paused; prod's email the owner (decision 121). `envs/emulator` has no Grafana.
+
+| Rule | Fires when |
+|---|---|
+| API 5xx responses | any server span with status error (otelhttp's 5xx) in the last 15 minutes |
+| API p95 latency over 2 s | the p95 handler time over 30 minutes stays above 2 s for 5 minutes |
+| Reminder function failures | a `reminder fire` span failed in the last hour (no phone reached; Scheduler retries) |
+
+The queries read Grafana's span metrics (`traces_spanmetrics_*`), which Grafana Cloud derives from our traces, not the API's own `http_server_request_duration_seconds`: see decision 121 for why.
+
+The provider signs in with a Grafana service account token from `GRAFANA_AUTH`. In CI that is the environment secret `GRAFANA_TOKEN`, and the alert address is `ALERT_EMAIL`, passed as `TF_VAR_alert_email`:
+
+| Secret | Level | Value |
+|---|---|---|
+| `GRAFANA_TOKEN` | `staging` and `prod` environments | token of the service account `github-actions` (role Editor, expires 2027-02-01) |
+| `ALERT_EMAIL` | `staging` and `prod` environments | where alerts go; never committed. Grafana Cloud refuses an address that is not a member of the organization |
+
+Set up once by hand, because a folder created through the API grants nothing to the account that made it (decision 121):
+
+1. Grafana → Administration → Users and access → Service accounts → Add: `github-actions`, role **Editor**. Add a token and store it with `gh secret set GRAFANA_TOKEN --env staging` and `--env prod`.
+2. Create the folders `dinogym-staging` and `dinogym-prod` (uid = title slug):
+   ```bash
+   read -rs GTOKEN
+   for e in staging prod; do
+     curl -s -H "Authorization: Bearer $GTOKEN" -H 'Content-Type: application/json' \
+       -X POST https://generousfence3427.grafana.net/api/folders -d "{\"uid\":\"dinogym-$e\",\"title\":\"DinoGym $e\"}"
+   done; unset GTOKEN
+   ```
+3. On each folder: Folder actions → Manage permissions → Add a permission → Service account `github-actions` → **Edit**.
+
+Running a plan on the laptop needs the token and an address in the shell: `read -rs GRAFANA_AUTH && export GRAFANA_AUTH TF_VAR_alert_email=...`.
 
 ## Bootstrap on the emulator
 
