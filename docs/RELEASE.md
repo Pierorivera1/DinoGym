@@ -16,7 +16,7 @@ The app ships as a signed APK on GitHub Releases (decision 8). The release workf
 ## The signing key
 
 - The keystore is `~/.config/dinogym/release.jks` (PKCS12, alias `dinogym`, RSA 4096, valid about 27 years). Its passwords are in `~/.config/dinogym/keystore.properties`. Both are outside the repository and readable only by the owner.
-- **Back both files up somewhere safe (a password manager).** If the key is lost, no update can be installed over the existing app; the only way out is uninstalling, which deletes the data on the phone.
+- **Back both files up somewhere safe.** They are backed up as a passphrase-encrypted archive in the owner's Google Drive (`dinogym-signing-key.tar.gz.gpg`, checked 2026-11-22). If the key is lost, no update can be installed over the existing app; the only way out is uninstalling, which deletes the data on the phone.
 - The repository secrets hold the same key for the workflow: `DINOGYM_KEYSTORE_BASE64`, `DINOGYM_KEYSTORE_PASSWORD`, `DINOGYM_KEY_ALIAS`, `DINOGYM_KEY_PASSWORD`. The workflow writes the keystore to the runner's temporary folder and deletes it at the end of the job.
 - SHA-256 fingerprint of the signing certificate: `2C:A1:4F:19:D6:CE:3E:85:8A:E2:B1:43:99:D1:67:28:E3:58:B6:4B:25:41:A2:C4:9B:64:E4:79:00:0D:6D:84`. Firebase asks for it when the Android app is added to the project.
 

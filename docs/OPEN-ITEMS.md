@@ -9,7 +9,8 @@ As of 2026-11-21. Remove an item when it is done or decided, and record decision
 - [ ] Before 2027-03-18 the AWS free plan ends: either the AWS side is torn down by then (planned for 2027-02-01, decision 76) or the account is upgraded to a paid plan
 - [x] Create a Firebase project: `DinoGym`, project ID `dinogym-3870b`. The Android app is added to it later, once the package name and signing key exist.
 - [x] Create a Grafana Cloud account (free tier). Tokens are created later, when observability is wired up.
-- [ ] Back up the release signing key, `~/.config/dinogym/` (both files), to a password manager. Without it no update installs over the app ([RELEASE.md](RELEASE.md), decision 45)
+- [x] Back up the release signing key, `~/.config/dinogym/` (both files). Without it no update installs over the app ([RELEASE.md](RELEASE.md), decision 45). Done: a passphrase-encrypted archive in the owner's Google Drive (`dinogym-signing-key.tar.gz.gpg`, 2026-11-17); decrypted and compared byte for byte with both files on 2026-11-22
+- [ ] So people other than the owner can sign in to 2.1.0: Google Cloud console › Google Auth Platform › Audience, publishing status **In production** (basic scopes only, so no Google review). Until then only listed test users can sign in; everyone can use the app offline
 
 ## Task 26: to do and to verify
 
