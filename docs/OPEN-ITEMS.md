@@ -29,7 +29,7 @@ As of 2026-11-21. Remove an item when it is done or decided, and record decision
 - [ ] Before 2027-02-01: the Grafana token expires; make a new one or stop deploying Grafana changes
 - [x] Pull request 3: Crashlytics in the app (decision 120)
 - [x] On a phone, debug build: force a crash with `adb shell am crash io.github.pierorivera1.dinogym.debug`, open the app again, and see it in the Firebase console › Crashlytics for the `.debug` app ([android/README.md](../android/README.md)) (checked by the owner 2026-11-21: one crash, one user; Crashlytics needed no enabling in the console)
-- [ ] The same with the next release APK (`io.github.pierorivera1.dinogym`), which also proves the release workflow's API key reaches Crashlytics
+- [ ] The same with the 2.1.0 release APK (decision 123) (`io.github.pierorivera1.dinogym`), which also proves the release workflow's API key reaches Crashlytics
 
 ## Task 25: to do and to verify
 
