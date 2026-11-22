@@ -60,13 +60,14 @@ As of 2026-11-21. Remove an item when it is done or decided, and record decision
 - [ ] On a phone: App Links verify (`adb shell pm get-app-links io.github.pierorivera1.dinogym.debug` shows `d1q286cdeyw8ks.cloudfront.net: verified`)
 - [ ] On staging: open a link in a desktop and a phone browser (Night and Day, English and Spanish); `assetlinks.json` is served as JSON; a share is cached by CloudFront (`x-cache: Hit from cloudfront` on the second request)
 - [ ] On a phone: SHARE ROUTINE signed in and signed out, the share sheet, opening a link from a chat app, OPEN IN DINOGYM on the web page with and without the app, pasting a link, importing offline, and that imported rows sync
-- [ ] The owner reviews `SharePage.dc.html`, `ShareFlow.dc.html` and `ImportShare.dc.html` (built before review, as in decision 41)
+- [x] The owner reviews `SharePage.dc.html`, `ShareFlow.dc.html` and `ImportShare.dc.html` (approved 2026-11-22, decision 122)
 - [ ] Shares cannot be deleted yet (decision 97); add a "my links" list with delete if anyone asks
 
 ## Still to decide
 
-- [ ] The owner reviews the new-program sheet mock (`NewProgram.dc.html`, task 22), built before review (decision 92)
-- [ ] The owner reviews the second mock batch (Programs, Exercises, Stats, Settings) and the body weight mock: they are on the canvas and were built from without approval (decisions 41 and 49). Also not drawn at all: the Stats PROGRESS list (decision 47) and the licences screen (decision 46)
+- [x] The owner reviews the new-program sheet mock (`NewProgram.dc.html`, task 22): approved 2026-11-22 (decision 122)
+- [x] The owner reviews the second mock batch (Programs, Exercises, Stats, Settings) and the body weight mock: approved 2026-11-22 (decision 122)
+- [ ] Not drawn at all, so not covered by that approval: the Stats PROGRESS list (decision 47) and the licences screen (decision 46). Review them in the app
 
 ## To verify later
 
