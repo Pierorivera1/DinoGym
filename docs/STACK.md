@@ -66,7 +66,7 @@ The reasons for each choice are in [DECISIONS.md](DECISIONS.md).
 |---|---|
 | Instrumentation | OpenTelemetry Go SDK in the backend, exported over OTLP/HTTP and flushed after every Lambda invocation (decision 64), with the Grafana token read from SSM at cold start (decision 118); AWS calls traced with `otelaws` (decision 65) |
 | Backend for traces, metrics, logs | Grafana Cloud free tier |
-| Dashboards and alerts | Defined in Terraform |
+| Dashboards and alerts | Terraform with the Grafana provider 4.55.0 (`infra/modules/grafana`), applied from `envs/staging` and `envs/prod`; queries on Grafana Cloud span metrics; alerts by email (decision 121) |
 | App crashes | Firebase Crashlytics; debug and release builds report to separate Firebase apps (decision 120) |
 | Lambda logs | CloudWatch Logs, 7-day retention, WARN level in prod (a safety net; detail is in Grafana) |
 

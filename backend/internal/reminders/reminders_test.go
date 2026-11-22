@@ -15,6 +15,11 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/scheduler"
 	"github.com/aws/aws-sdk-go-v2/service/scheduler/types"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/codes"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
+	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/oauth2"
 
 	"github.com/Pierorivera1/DinoGym/backend/internal/store"
@@ -288,5 +293,46 @@ func TestFire(t *testing.T) {
 
 	if err := f.Fire(ctx, Event{UserID: user, Kind: "other"}); err == nil {
 		t.Fatal("unknown kind accepted")
+	}
+}
+
+func TestHandleMarksFailures(t *testing.T) {
+	rec := tracetest.NewSpanRecorder()
+	prev := otel.GetTracerProvider()
+	otel.SetTracerProvider(sdktrace.NewTracerProvider(sdktrace.WithSpanProcessor(rec)))
+	t.Cleanup(func() { otel.SetTracerProvider(prev) })
+
+	srv, _ := fcmServer(t)
+	st := &fakeFireStore{
+		mapSettings: mapSettings{KeyWorkoutDay: "true", KeyTimeZone: "UTC"},
+		devices:     []store.Device{{InstallationID: "a", Token: "good"}},
+	}
+	var logs strings.Builder
+	f := NewFirer(slog.New(slog.NewTextHandler(&logs, nil)), st, testFCM(srv.URL))
+	ctx := context.Background()
+
+	if err := f.Handle(ctx, Event{UserID: user, Kind: WorkoutDay}); err != nil {
+		t.Fatal(err)
+	}
+	st.devices = []store.Device{{InstallationID: "c", Token: "down"}}
+	if err := f.Handle(ctx, Event{UserID: user, Kind: WorkoutDay}); err == nil {
+		t.Fatal("outage on every phone: no error")
+	}
+
+	spans := rec.Ended()
+	if len(spans) != 2 {
+		t.Fatalf("%d spans, want 2", len(spans))
+	}
+	for i, want := range []codes.Code{codes.Unset, codes.Error} {
+		s := spans[i]
+		if s.Name() != "reminder fire" || s.SpanKind() != trace.SpanKindServer || s.Status().Code != want {
+			t.Errorf("span %d: %q kind %v status %v, want server span with status %v", i, s.Name(), s.SpanKind(), s.Status().Code, want)
+		}
+	}
+	if n := strings.Count(logs.String(), "level=ERROR msg=\"reminder failed\""); n != 1 {
+		t.Errorf("%d ERROR logs, want 1:\n%s", n, logs.String())
+	}
+	if strings.Contains(logs.String(), user) {
+		t.Error("the log names the user")
 	}
 }

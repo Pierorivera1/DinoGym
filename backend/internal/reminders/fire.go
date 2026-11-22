@@ -7,6 +7,12 @@ import (
 	"log/slog"
 	"time"
 
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	semconv "go.opentelemetry.io/otel/semconv/v1.43.0"
+	"go.opentelemetry.io/otel/trace"
+
 	"github.com/Pierorivera1/DinoGym/backend/internal/store"
 )
 
@@ -34,6 +40,25 @@ type Firer struct {
 // NewFirer returns a Firer.
 func NewFirer(log *slog.Logger, st FireStore, s Sender) *Firer {
 	return &Firer{log: log, store: st, send: s, now: time.Now}
+}
+
+// Handle is the Lambda handler: Fire inside one server span, so a firing is
+// one trace with its DynamoDB and FCM calls under it. A failure marks the
+// span as an error and is logged at ERROR; Grafana's alert on reminder
+// failures counts those spans (decision 121). Lambda still gets the error,
+// so Scheduler retries.
+func (f *Firer) Handle(ctx context.Context, ev Event) error {
+	ctx, span := otel.Tracer("github.com/Pierorivera1/DinoGym/backend/internal/reminders").Start(ctx, "reminder fire",
+		trace.WithSpanKind(trace.SpanKindServer),
+		trace.WithAttributes(semconv.FaaSTriggerTimer, attribute.String("dinogym.reminder.kind", string(ev.Kind))))
+	defer span.End()
+	err := f.Fire(ctx, ev)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "reminder failed")
+		f.log.ErrorContext(ctx, "reminder failed", "kind", ev.Kind, "error", err)
+	}
+	return err
 }
 
 // Fire sends ev's reminder to every phone of the user, if the setting is

@@ -20,7 +20,12 @@ As of 2026-11-21. Remove an item when it is done or decided, and record decision
 - [x] Staging latency: with the flush before the response, `/health` took about 1.4 s against 0.33 s on prod; after decision 119 (#54) it is 0.33–0.44 s, like prod's (2026-11-21)
 - [ ] Reminder function traces show in Grafana Cloud after a reminder fires on staging
 - [x] Prod: `grafana` set in `envs/prod` (#55); the owner's sign-in on prod shows in Grafana Cloud as `POST /auth/google` and `GET /sync/pull` with `deployment.environment.name=prod` (2026-11-21)
-- [ ] Pull request 2: dashboards and alerts in Terraform with the Grafana provider; needs a Grafana service account token
+- [x] Pull request 2: dashboards and alerts in Terraform with the Grafana provider (decision 121). Service account `github-actions` (Editor, token expires 2027-02-01), folders `dinogym-staging` and `dinogym-prod` with Edit for it, and the environment secrets `GRAFANA_TOKEN` and `ALERT_EMAIL` set (2026-11-21)
+- [ ] After the deploy: staging's and prod's dashboards show data, and prod's rules are active in Grafana → Alerting (staging's paused)
+- [ ] Prove an alert email arrives: in Grafana → Alerting → Contact points, **Test** on `dinogym-prod-email`
+- [ ] Prod's alerts cannot see a Lambda that fails before telemetry starts (a missing SSM parameter, a crash at cold start) or one that times out: neither sends spans. A CloudWatch alarm on the Lambda `Errors` metric would; not added (decision 121)
+- [ ] The API's `http_server_request_duration_seconds` is now read by nothing in our dashboards (decision 121). Drop it with a view, or keep it for Grafana's own Application Observability pages
+- [ ] Before 2027-02-01: the Grafana token expires; make a new one or stop deploying Grafana changes
 - [x] Pull request 3: Crashlytics in the app (decision 120)
 - [x] On a phone, debug build: force a crash with `adb shell am crash io.github.pierorivera1.dinogym.debug`, open the app again, and see it in the Firebase console › Crashlytics for the `.debug` app ([android/README.md](../android/README.md)) (checked by the owner 2026-11-21: one crash, one user; Crashlytics needed no enabling in the console)
 - [ ] The same with the next release APK (`io.github.pierorivera1.dinogym`), which also proves the release workflow's API key reaches Crashlytics
@@ -84,6 +89,7 @@ As of 2026-11-21. Remove an item when it is done or decided, and record decision
 
 ## State of the build
 
+- Task 26: both Lambdas send traces, metrics and logs to Grafana Cloud, flushing after the response (decisions 118–119). Each environment has a Terraform-managed dashboard and three email alert rules on Grafana's span metrics, paused on staging (decision 121). The app reports crashes to Crashlytics (decision 120).
 - Task 24: the backend stores device tokens (`PUT`/`DELETE /devices/{installationId}`) and each reminder preference as an EventBridge Scheduler schedule; a separate reminder Lambda reaches FCM through workload identity federation (decisions 104–108). The app registers its FCM token, has REMINDERS in Settings and shows the workout-day and weekly-summary notifications (decision 109). Checked on a phone against staging by the owner (2026-11-20).
 - Task 23: the API publishes and serves shares (`POST /shares`, public `GET /shares/{id}`, decisions 96–97); CloudFront serves the page `/r/<id>`, its files and `assetlinks.json` from a private bucket and sends `/shares/*` to the API (decisions 98–101); the app shares from the routine and program editors and imports through task 22's installer (decisions 102–103). Checked with Go unit tests, the emulator (including requests to the distribution it serves), JVM tests and screenshots; the installer's new test runs in CI. Staging and prod serve the page, `assetlinks.json` and shares through CloudFront (`d1q286cdeyw8ks` and `d1ktti3qymlgmy`.cloudfront.net, 2026-11-18); publishing and importing are not yet tried on a phone.
 - Task 22: `+ NEW` on the Programs tab opens a sheet with an empty program and four starter programs (Gym and Calisthenics, 5 and 4 days, decision 92). Starters, the first-run seed and later imports are installed by `ProgramInstaller`, which reuses library exercises by name and kind (decision 93). Checked with JVM tests and screenshots; the installer's instrumented tests run in CI.

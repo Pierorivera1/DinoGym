@@ -49,6 +49,8 @@ The findings below were **run and checked on 2026-11-17 with version 1.0.491**. 
 
 The emulator proves that our code and configuration use the AWS APIs correctly. It does not prove reliability, security or performance.
 
+Grafana has no emulator stage (decision 121). Pull requests run `terraform validate` on the Grafana module through `envs/staging` and `envs/prod`. Staging's apply in `deploy.yml` is the first real test, with its alert rules paused.
+
 If we find emulator bugs, we report them upstream.
 
 ## Running the emulator on this machine

@@ -82,7 +82,7 @@ func run() error {
 		headers = telemetry.BasicAuth(telCfg.InstanceID, secret[telCfg.TokenParam])
 	}
 	tel, log, err := telemetry.Setup(ctx, telemetry.Options{
-		Mode: telCfg.Mode, Env: env, Version: version, Level: level, Stdout: os.Stdout, Headers: headers,
+		Mode: telCfg.Mode, Service: "dinogym-reminders", Env: env, Version: version, Level: level, Stdout: os.Stdout, Headers: headers,
 	})
 	if err != nil {
 		return err
@@ -105,7 +105,7 @@ func run() error {
 				log.WarnContext(ctx, "telemetry flush failed", "error", err)
 			}
 		}()
-		return firer.Fire(ctx, ev)
+		return firer.Handle(ctx, ev)
 	})
 	return nil
 }

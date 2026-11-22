@@ -994,3 +994,37 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
   - Setting the signed-in user's id as the Crashlytics user id: one user, so it identifies no one new and adds personal data to Google's copy.
 - **Cost:** No charge; Crashlytics is free. The unsigned release APK is 19.6 MB with it. Firebase Sessions comes with Crashlytics and sends a small event per app session.
 - **Tested:** A Robolectric test reads the id through the SDK's own `CommonUtils.getMappingFileId`. `:app:assembleRelease` builds, and `aapt2 dump resources` shows `string/com.google.firebase.crashlytics.mapping_file_id` = 32 zeros and the Crashlytics and Sessions registrars in the merged manifest. **Not tested here:** that a crash reaches the console. That needs a phone (OPEN-ITEMS, steps in [android/README.md](../android/README.md)).
+## 121. Grafana dashboard and alerts: a module applied from staging and prod, on Grafana's span metrics (2026-11-21)
+
+- **Decision:**
+  - **Where.** A module, `infra/modules/grafana`, called from `envs/staging` and `envs/prod`, with the Grafana provider pinned to 4.55.0 (released 2026-11-13). The Grafana objects share each environment's state and its `deploy.yml` job: staging's change first, and prod's only after the owner approves. `envs/emulator` does not call it, so `check.sh`'s apply is unchanged. Its `validate` of staging and prod now covers the module.
+  - **What.** Per environment:
+    - One dashboard: requests per minute, 5xx per minute, p50 and p95 by route, API cold starts, reminders sent and failed, a table of error and slow traces, logs, and links to Explore for traces and logs.
+    - An email contact point.
+    - Three rules: any API 5xx in 15 minutes; p95 over 2 s across 30 minutes for 5 minutes; any reminder failure in an hour.
+    - Staging's rules are created paused. Each rule names its contact point (simplified routing), so neither environment owns the stack-wide notification policy tree. No data counts as OK.
+  - **Span metrics, not the API's own metrics.** The queries read `traces_spanmetrics_calls_total` and `traces_spanmetrics_latency`, which Grafana Cloud makes from our traces. Checked on the stack: each Lambda instance's `http_server_request_duration_seconds_count` starts at 1, with no zero sample before it, and most instances serve one or two requests. So `increase()` over it gave 0 for prod over two days, which had 7 requests. Span metrics are kept per service and version, start at 0, and counted those 7.
+  - **Cold starts** are the distinct `instance` values of `target_info` in the time range. Each process makes its own instance id (decision 118), so one id is one cold start. This covers the API only: the reminder function exports no metrics, so it has no `target_info`.
+  - **The reminder function is its own service.** It reports as `dinogym-reminders` (new `telemetry.Options.Service`). Its handler, `Firer.Handle`, runs each firing in a server span `reminder fire`. When no phone is reached, that span gets error status and an ERROR log, without the user id. Before, the error went only to Lambda, and Grafana never saw it.
+  - **Access.** The service account `github-actions` has the Editor role. Its token is the environment secret `GRAFANA_TOKEN` in `staging` and `prod`, read by the provider as `GRAFANA_AUTH`, and it expires 2027-02-01, the AWS teardown (decision 76). The alert address is the environment secret `ALERT_EMAIL`, passed as `TF_VAR_alert_email` into a `sensitive` variable, like decision 72's budget email. Grafana Cloud only emails members of the organization: a contact point with any other address is refused.
+  - **Folders by hand.** The folders `dinogym-staging` and `dinogym-prod` were made once, and the owner gave the account Edit on each. The module reads them with a data source. Grafana gives a folder created through the API only the permissions it is created with (Admin role aside). The first apply showed it: the account created the folder, then got 403 `folders:read` on it.
+- **Why:**
+  - The env roots already carry the approval gate and the order, so the alerts are reviewed the same way as the infrastructure they watch.
+  - A token is not an AWS key, so the OIDC rule (decisions 70–71) is untouched.
+  - Editor plus Edit on two folders is the least that works: no access to users, service accounts or data sources.
+  - The span-metric choice comes from the stack's data, not from theory.
+- **Rejected:**
+  - A separate root (`infra/grafana`, like `infra/google`) applied by hand or in its own job: a second state and a second way to deploy, with no staging-then-prod order.
+  - One shared root for both environments: no staging-first.
+  - The Admin role, which could also change data sources, users and service accounts.
+  - Managing the notification policy tree: one object per stack, so two roots would overwrite each other.
+  - Alerts on Loki log counts: prod logs WARN and up, and the API logs nothing per request.
+  - A CloudWatch data source for Lambda `Errors`: Grafana would need AWS credentials. That is noted as a gap in OPEN-ITEMS.
+  - A Grafana OSS container in CI as an "emulator stage". It would check the provider against a different Grafana version, with stand-in data sources and none of our data. It would prove schema, not that the queries find anything, and `validate` already catches schema mistakes. Staging's apply, with rules paused, is the real check.
+- **Cost:** None in money. Span metrics add about 30 series against the free 10,000 (the whole stack had 249 active on 2026-11-21). Grafana is now part of each deploy: if Grafana Cloud is down, the AWS apply in the same job fails too.
+- **Tested:**
+  - Go unit tests for the `reminder fire` span (server kind, error status on failure) and the ERROR log without the user id. The resource's `service.name` follows `Options.Service`.
+  - Every dashboard and alert query was run against the stack's prod data through the Grafana API.
+  - The module was applied for real from a scratch root. That found the folder permission problem, and the objects were then removed.
+  - `terraform validate` for staging and prod. After the owner's folder grant, from a scratch root with `env = staging`: an apply, an empty second plan, the three rules read back paused with the right contact point, then destroy. That run also found the membership rule for email addresses.
+  - **Not tested:** an alert email reaching the inbox. A contact-point test in OPEN-ITEMS covers it.

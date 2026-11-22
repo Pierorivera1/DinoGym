@@ -33,7 +33,8 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.43.0"
 )
 
-// ServiceName names the API in every trace, metric and log.
+// ServiceName names the API in every trace, metric and log. Other binaries
+// set Options.Service (the reminder function is "dinogym-reminders").
 const ServiceName = "dinogym-api"
 
 // Telemetry owns the providers so they can be flushed and shut down.
@@ -46,6 +47,7 @@ type Telemetry struct {
 // Options configures Setup.
 type Options struct {
 	Mode    string // "otlp", "console" or "none"
+	Service string // service.name; ServiceName when empty
 	Env     string // tags every signal as deployment.environment.name
 	Version string
 	Level   slog.Level
@@ -68,7 +70,11 @@ func BasicAuth(instanceID, token string) map[string]string {
 // decision 22) and, in "otlp" mode, to the OpenTelemetry log pipeline too.
 func Setup(ctx context.Context, o Options) (*Telemetry, *slog.Logger, error) {
 	mode, level, stdout := o.Mode, o.Level, o.Stdout
-	res, err := newResource(o.Env, o.Version)
+	service := o.Service
+	if service == "" {
+		service = ServiceName
+	}
+	res, err := newResource(service, o.Env, o.Version)
 	if err != nil {
 		return nil, nil, fmt.Errorf("telemetry resource: %w", err)
 	}
@@ -126,7 +132,7 @@ func Setup(ctx context.Context, o Options) (*Telemetry, *slog.Logger, error) {
 	if t.logger != nil {
 		global.SetLoggerProvider(t.logger)
 		handler = slog.NewMultiHandler(handler, levelFilter{
-			Handler: otelslog.NewHandler(ServiceName, otelslog.WithLoggerProvider(t.logger)),
+			Handler: otelslog.NewHandler(service, otelslog.WithLoggerProvider(t.logger)),
 			min:     level,
 		})
 	}
@@ -134,10 +140,10 @@ func Setup(ctx context.Context, o Options) (*Telemetry, *slog.Logger, error) {
 }
 
 // newResource describes this process in every signal.
-func newResource(env, version string) (*resource.Resource, error) {
+func newResource(service, env, version string) (*resource.Resource, error) {
 	return resource.Merge(resource.Default(), resource.NewWithAttributes(
 		semconv.SchemaURL,
-		semconv.ServiceName(ServiceName),
+		semconv.ServiceName(service),
 		semconv.ServiceVersion(version),
 		semconv.DeploymentEnvironmentNameKey.String(env),
 		// Each Lambda instance keeps its own cumulative counters. Without an

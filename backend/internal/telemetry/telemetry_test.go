@@ -132,7 +132,7 @@ func TestInstanceIDAndDroppedHistograms(t *testing.T) {
 	}
 
 	id := func() string {
-		res, err := newResource("staging", "test")
+		res, err := newResource(ServiceName, "staging", "test")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -142,5 +142,15 @@ func TestInstanceIDAndDroppedHistograms(t *testing.T) {
 	a, b := id(), id()
 	if a == "" || a == b {
 		t.Fatalf("instance ids %q and %q", a, b)
+	}
+
+	// The reminder function reports as its own service (dashboards and alerts
+	// tell the two apart by service.name).
+	res, err := newResource("dinogym-reminders", "prod", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v, _ := res.Set().Value(semconv.ServiceNameKey); v.AsString() != "dinogym-reminders" {
+		t.Fatalf("service.name %q", v.AsString())
 	}
 }

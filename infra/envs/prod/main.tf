@@ -9,6 +9,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "= 6.22.0"
     }
+    grafana = {
+      source  = "grafana/grafana"
+      version = "= 4.55.0" # decision 121
+    }
   }
 
   backend "s3" {
@@ -25,6 +29,19 @@ provider "aws" {
   default_tags {
     tags = { Project = "dinogym", Env = "prod" }
   }
+}
+
+# The Grafana Cloud stack generousfence3427 (decision 121). The token is read
+# from GRAFANA_AUTH: the GitHub environment secret GRAFANA_TOKEN in CI, a
+# service account token with the Editor role.
+provider "grafana" {
+  url = "https://generousfence3427.grafana.net"
+}
+
+variable "alert_email" {
+  description = "Where Grafana's alerts go. Personal data: TF_VAR_alert_email (the GitHub environment secret ALERT_EMAIL), never committed."
+  type        = string
+  sensitive   = true
 }
 
 data "aws_caller_identity" "current" {}
@@ -58,10 +75,23 @@ module "dinogym" {
   }]
 }
 
+# Dashboard and alerts (task 26, decision 121).
+module "grafana" {
+  source      = "../../modules/grafana"
+  env         = "prod"
+  alert_email = var.alert_email
+  # Live: prod's alerts email the owner.
+  alerts_paused = false
+}
+
 output "api_url" {
   value = module.dinogym.api_url
 }
 
 output "web_url" {
   value = module.dinogym.web_url
+}
+
+output "grafana_dashboard_url" {
+  value = module.grafana.dashboard_url
 }
