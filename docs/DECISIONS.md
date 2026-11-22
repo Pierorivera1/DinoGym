@@ -1037,3 +1037,10 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
   - body weight, the new-program sheet, and the three sharing mocks (`SharePage`, `ShareFlow`, `ImportShare`).
 - **Why:** Most of these screens were built before approval (decisions 41, 49 and 92). The approval closes that gap, so decision 16 holds for every screen that has a mock.
 - **Not covered:** the Stats PROGRESS list (decision 47) and the licences screen (decision 46) have no mock. They stay in OPEN-ITEMS for a review in the app.
+
+## 123. Version 2.1.0 is the full app; 2.0.0 stays as the offline-only download (2026-11-22)
+
+- **Decision:** Release the app as 2.1.0 (`versionCode` 2), with everything from tasks 20–26. The README gets an Install section that offers both 2.1.0 (latest) and 2.0.0 (offline only, no network code, no crash reports).
+- **Why:** 2.0.0 was the only release, 110 commits behind `main`. The new features are additions: the app still trains fully offline, and the data format is upgraded in place. So this is a minor version, not 3.0.0. Keeping 2.0.0 listed serves anyone who wants an app that never connects.
+- **Rejected:** Deleting the 2.0.0 release (some people want the offline-only version); calling it 3.0.0 (nothing a 2.0.0 user relies on was removed).
+- **Limit:** Android installs an update only over a lower `versionCode`. Going from 2.1.0 back to 2.0.0 means uninstalling, which deletes the phone's data; the README says so.

@@ -35,7 +35,28 @@ DinoGym logs workouts on the phone with no connection needed, then syncs them th
 
 <p align="center">
   <a href="https://github.com/Pierorivera1/DinoGym/releases/latest"><strong>Download the latest APK</strong></a>
+  ·
+  <a href="#install">Install</a>
 </p>
+
+## Install
+
+DinoGym is an Android app (Android 8.0 or newer), published as an APK on GitHub Releases, not on Google Play. There are two versions:
+
+| Version | What it has | Download |
+|---|---|---|
+| **2.1.0** (recommended) | Everything: offline training, plus optional Google sign-in, sync between devices, shareable routines, reminders and the web dashboard. Sends crash reports (no personal data) | [Latest release](https://github.com/Pierorivera1/DinoGym/releases/latest) |
+| **2.0.0** (offline only) | The training app with no account and no network features. Nothing leaves the phone | [Release 2.0.0](https://github.com/Pierorivera1/DinoGym/releases/tag/v2.0.0) |
+
+Every feature of 2.0.0 also works in 2.1.0 without signing in.
+
+To install:
+
+1. On the phone, open the download link and tap `DinoGym-<version>.apk` under **Assets**.
+2. When Android asks, allow your browser to install unknown apps, then tap **Install**.
+3. Open DinoGym. In 2.1.0, sign in from Settings › ACCOUNT to sync, or skip it and train offline.
+
+Updates install over the existing app and keep your data, because every release is signed with the same key. Going from 2.0.0 to 2.1.0 works the same way. Going back from 2.1.0 to 2.0.0 means uninstalling, which deletes the data on the phone. Each release lists the APK's SHA-256 if you want to check the download.
 
 ## Architecture
 
