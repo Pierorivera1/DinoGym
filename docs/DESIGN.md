@@ -14,28 +14,28 @@ Decision 16 still applies: a screen is built only after its mock is approved.
 | Screen | Mock | Status |
 |---|---|---|
 | Style tile (tokens, type, components) | `Main.dc.html` | Approved |
-| Home | `Home.dc.html` | Approved. Settings gear added to the header 2026-11-16, awaiting the owner's review |
+| Home | `Home.dc.html` | Approved. Settings gear added to the header 2026-11-16, approved 2026-11-22 |
 | Active exercise (set logging) | `Workout.dc.html` | Approved |
 | Rest time picker (sheet) | `RestPicker.dc.html` | Approved |
 | Rest timer | `Rest.dc.html` | Approved |
 | Workout summary | `Summary.dc.html` | Approved |
-| Programs list (programs and routines) | `ProgramList.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 7) |
-| Program editor (name, type, cycle) | `ProgramEdit.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 7) |
-| Routine editor | `RoutineEdit.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 7) |
-| Exercise picker (sheet) | `ExercisePicker.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 7) |
-| New program (sheet: empty program and starter programs) | `NewProgram.dc.html` | Mocked 2026-11-18, awaiting the owner's review. Built (task 22, decision 92) |
-| Exercise library (active / archived) | `ExerciseLibrary.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
-| Exercise editor (archive and restore) | `ExerciseEdit.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
-| Settings | `Settings.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 10) |
-| Stats: history by date | `StatsHistory.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
-| Stats: past session (edit, delete) | `SessionDetail.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
-| Stats: progress for one exercise | `Progress.dc.html` | Mocked 2026-11-16, awaiting the owner's review |
+| Programs list (programs and routines) | `ProgramList.dc.html` | Mocked 2026-11-16, approved 2026-11-22 (decision 122). Built (task 7) |
+| Program editor (name, type, cycle) | `ProgramEdit.dc.html` | Mocked 2026-11-16, approved 2026-11-22 (decision 122). Built (task 7) |
+| Routine editor | `RoutineEdit.dc.html` | Mocked 2026-11-16, approved 2026-11-22 (decision 122). Built (task 7) |
+| Exercise picker (sheet) | `ExercisePicker.dc.html` | Mocked 2026-11-16, approved 2026-11-22 (decision 122). Built (task 7) |
+| New program (sheet: empty program and starter programs) | `NewProgram.dc.html` | Mocked 2026-11-18, approved 2026-11-22 (decision 122). Built (task 22, decision 92) |
+| Exercise library (active / archived) | `ExerciseLibrary.dc.html` | Mocked 2026-11-16, approved 2026-11-22 (decision 122) |
+| Exercise editor (archive and restore) | `ExerciseEdit.dc.html` | Mocked 2026-11-16, approved 2026-11-22 (decision 122) |
+| Settings | `Settings.dc.html` | Mocked 2026-11-16, approved 2026-11-22 (decision 122). Built (task 10) |
+| Stats: history by date | `StatsHistory.dc.html` | Mocked 2026-11-16, approved 2026-11-22 (decision 122) |
+| Stats: past session (edit, delete) | `SessionDetail.dc.html` | Mocked 2026-11-16, approved 2026-11-22 (decision 122) |
+| Stats: progress for one exercise | `Progress.dc.html` | Mocked 2026-11-16, approved 2026-11-22 (decision 122) |
 | Stats: progress tab (list of exercises with their best) | – | Built without a mock (task 9, decision 47), awaiting the owner's review |
-| Body weight chart and weigh-in entry (Stats › WEIGHT) | `BodyWeight.dc.html` | Mocked 2026-11-16, awaiting the owner's review. Built (task 11) |
+| Body weight chart and weigh-in entry (Stats › WEIGHT) | `BodyWeight.dc.html` | Mocked 2026-11-16, approved 2026-11-22 (decision 122). Built (task 11) |
 | Account: sign-in and sync status (Settings › ACCOUNT, sign-out dialog) | `Account.dc.html` | Approved 2026-11-17. Built in task 20; the sync row in task 21 |
-| Shared link page (web, `/r/<id>`): program and routine, loading, unknown link, error, not on Android | `SharePage.dc.html` | Mocked 2026-11-18, awaiting the owner's review. Built (task 23) |
-| Share a routine or program: SHARE button in the editors and the share sheet's states | `ShareFlow.dc.html` | Mocked 2026-11-18, awaiting the owner's review. Built (task 23) |
-| Import a shared link: paste, preview of a program or routine, loading and error states | `ImportShare.dc.html` | Mocked 2026-11-18, awaiting the owner's review. Built (task 23) |
+| Shared link page (web, `/r/<id>`): program and routine, loading, unknown link, error, not on Android | `SharePage.dc.html` | Mocked 2026-11-18, approved 2026-11-22 (decision 122). Built (task 23) |
+| Share a routine or program: SHARE button in the editors and the share sheet's states | `ShareFlow.dc.html` | Mocked 2026-11-18, approved 2026-11-22 (decision 122). Built (task 23) |
+| Import a shared link: paste, preview of a program or routine, loading and error states | `ImportShare.dc.html` | Mocked 2026-11-18, approved 2026-11-22 (decision 122). Built (task 23) |
 | Reminders: Settings › REMINDERS (signed in, signed out, notifications blocked), the time sheet, the notifications | `Reminders.dc.html` | Approved 2026-11-19, built (task 24, decisions 104–107, 109) |
 | Web dashboard: history (stat panels, 18-week day grid, workouts by month, one workout open) | `WebHistory.dc.html` | Approved 2026-11-20 (task 25, decision 110). Built (task 25, decision 112) |
 | Web dashboard: progress for one exercise (list, chart with every workout, records) | `WebProgress.dc.html` | Approved 2026-11-20. Built (task 25, decision 112) |

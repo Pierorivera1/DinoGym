@@ -1028,3 +1028,12 @@ Every decision made so far, in the order it was made. All were made on 2026-11-1
   - The module was applied for real from a scratch root. That found the folder permission problem, and the objects were then removed.
   - `terraform validate` for staging and prod. After the owner's folder grant, from a scratch root with `env = staging`: an apply, an empty second plan, the three rules read back paused with the right contact point, then destroy. That run also found the membership rule for email addresses.
   - **Not tested:** an alert email reaching the inbox. A contact-point test in OPEN-ITEMS covers it.
+
+## 122. The owner approves every remaining mock (2026-11-22)
+
+- **Decision:** The owner reviewed and approved the mocks still marked as awaiting review in [DESIGN.md](DESIGN.md):
+  - the Home header's settings gear;
+  - the second batch: Programs, program and routine editors, exercise picker, exercise library and editor, Settings, the three Stats mocks;
+  - body weight, the new-program sheet, and the three sharing mocks (`SharePage`, `ShareFlow`, `ImportShare`).
+- **Why:** Most of these screens were built before approval (decisions 41, 49 and 92). The approval closes that gap, so decision 16 holds for every screen that has a mock.
+- **Not covered:** the Stats PROGRESS list (decision 47) and the licences screen (decision 46) have no mock. They stay in OPEN-ITEMS for a review in the app.
