@@ -21,7 +21,8 @@ As of 2026-11-21. Remove an item when it is done or decided, and record decision
 - [ ] Reminder function traces show in Grafana Cloud after a reminder fires on staging
 - [x] Prod: `grafana` set in `envs/prod` (#55); the owner's sign-in on prod shows in Grafana Cloud as `POST /auth/google` and `GET /sync/pull` with `deployment.environment.name=prod` (2026-11-21)
 - [x] Pull request 2: dashboards and alerts in Terraform with the Grafana provider (decision 121). Service account `github-actions` (Editor, token expires 2027-02-01), folders `dinogym-staging` and `dinogym-prod` with Edit for it, and the environment secrets `GRAFANA_TOKEN` and `ALERT_EMAIL` set (2026-11-21)
-- [ ] After the deploy: staging's and prod's dashboards show data, and prod's rules are active in Grafana → Alerting (staging's paused)
+- [x] Deployed (#59, 2026-11-22): both dashboards exist; prod's three rules are evaluated by Grafana with health `ok`, staging's are paused
+- [ ] The owner opens both dashboards and sees data in the request, latency and logs panels
 - [ ] Prove an alert email arrives: in Grafana → Alerting → Contact points, **Test** on `dinogym-prod-email`
 - [ ] Prod's alerts cannot see a Lambda that fails before telemetry starts (a missing SSM parameter, a crash at cold start) or one that times out: neither sends spans. A CloudWatch alarm on the Lambda `Errors` metric would; not added (decision 121)
 - [ ] The API's `http_server_request_duration_seconds` is now read by nothing in our dashboards (decision 121). Drop it with a view, or keep it for Grafana's own Application Observability pages
